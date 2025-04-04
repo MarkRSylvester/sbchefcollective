@@ -136,7 +136,7 @@ module.exports.handler = async (event) => {
                     };
                 }
                 
-                // For dishes, filter by the menu ID
+                // For dishes, filter by the Menu ID field that appears in the CSV
                 filterFormula = `{Menu ID}='${params.menuId}'`;
                 break;
             default:
@@ -205,12 +205,12 @@ module.exports.handler = async (event) => {
             processedRecords = data.records.map(record => {
                 switch (action) {
                     case 'getChefs':
-                        // Adjust field names to match the Chefs tab structure
+                        // Adjust field names to match the Chefs tab structure from CSV
                         return {
                             id: record.id,
-                            name: getField(record, 'Name') || '',
-                            bio: getField(record, 'Bio') || '',
-                            photo: getPhotoUrl(record, 'Photo'),
+                            name: getField(record, 'Chef Name') || '',
+                            bio: getField(record, 'Chef Description') || '',
+                            photo: getPhotoUrl(record, 'Chef Photo'),
                             vibe: getField(record, 'Vibe') || ''
                         };
                     case 'getMenus':
@@ -218,11 +218,8 @@ module.exports.handler = async (event) => {
                         console.log('Menu record fields for:', record.id);
                         console.log('Available fields:', Object.keys(record.fields).join(', '));
                         
-                        // Adjust field names to match the Menus tab structure
-                        const menuOrderValue = getField(record, 'Order') || 
-                                             getField(record, 'Menu Number') || 
-                                             getField(record, 'Sort Order') || 
-                                             '9999';
+                        // Use exact field names from the Menus CSV
+                        const menuOrderValue = getField(record, 'Menu Number') || '9999';
                         
                         // Convert to a number if possible
                         const menuNumberValue = Number(menuOrderValue);
@@ -230,18 +227,18 @@ module.exports.handler = async (event) => {
                         
                         return {
                             id: record.id,
-                            name: getField(record, 'Name') || '',
-                            description: getField(record, 'Description') || '',
+                            name: getField(record, 'Menu Name') || '',
+                            description: getField(record, 'Menu Description') || '',
                             menuNumber: finalMenuNumber,
-                            photo: getPhotoUrl(record, 'Photo'),
-                            type: getField(record, 'Type') || ''
+                            photo: getPhotoUrl(record, 'Stock Images'),
+                            type: getField(record, 'Menu Type') || ''
                         };
                     case 'getDishes':
-                        // Adjust field names to match the Dishes tab structure
+                        // Adjust field names to match the Dishes tab structure from CSV
                         return {
                             id: record.id,
-                            name: getField(record, 'Name') || '',
-                            description: getField(record, 'Description') || '',
+                            name: getField(record, 'Dish Name') || '',
+                            description: getField(record, 'Dish Description') || '',
                             category: getField(record, 'Category') || '',
                             menuId: getField(record, 'Menu ID') || ''
                         };
