@@ -1,14 +1,14 @@
 const fetch = require('node-fetch');
 
 // Use environment variable for API key
-const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
+const AIRTABLE_API_KEY = (process.env.AIRTABLE_API_KEY || '').trim();
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID || 'appOWFyYIGbLoKalt';
 
-// Define table names for each data type
+// Define table names for each data type - update to match exact Airtable tab names
 const TABLES = {
-    chefs: 'Chefs',     // Tab name for chefs
-    menus: 'Menus',     // Tab name for menus
-    dishes: 'Dishes'    // Tab name for dishes
+    getChefs: 'Chefs',     // Tab name for chefs
+    getMenus: 'Menus',     // Tab name for menus
+    getDishes: 'Dishes'    // Tab name for dishes
 };
 
 // Default table is kept for backward compatibility
@@ -139,13 +139,18 @@ module.exports.handler = async (event) => {
             url += `?filterByFormula=${encodeURIComponent(filterFormula)}`;
         }
 
+        // Add debug logging for API key before making the request
         console.log('Fetching from Airtable:', url);
-        console.log('Using API key:', AIRTABLE_API_KEY ? 'Present' : 'Missing');
+        console.log('Using API key:', AIRTABLE_API_KEY ? `${AIRTABLE_API_KEY.substring(0, 5)}...` : 'Missing');
         console.log('Filter formula:', filterFormula);
+
+        // Ensure proper authentication header format
+        const authHeader = `Bearer ${AIRTABLE_API_KEY}`;
+        console.log('Auth header format (first 10 chars):', authHeader.substring(0, 10) + '...');
 
         const response = await fetch(url, {
             headers: {
-                'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+                'Authorization': authHeader,
                 'Content-Type': 'application/json'
             }
         });
