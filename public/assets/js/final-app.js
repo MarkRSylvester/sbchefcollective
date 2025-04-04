@@ -35,20 +35,20 @@ const DEFAULT_SERVICE_IMAGES = {
 // Color palette for menu backgrounds
 const MENU_COLORS = {
     "Surf & Turf Soirée": "#ffd7b3",
-    "Brunch in Bloom": "#fff4dc",
-    "Baja to Oaxaca - Mexican Coastal Feast": "#f8caa5",
-    "Valencian Flame - Paella Night": "#d2f1a3",
+    "Pizza Night": "#ffe199",
     "Farm to Table": "#aee0a1",
-    "From Nonna's Garden - Pasta & Salads": "#b6d89f",
-    "Edomae Dreams - Sushi & Cold Plates": "#caf2e6",
+    "Pasta & Salads": "#b6d89f",
+    "Brunch in Bloom": "#fff4dc",
+    "Thanksgiving": "#f5c6a0",
+    "Sushi (Wasabi)": "#caf2e6",
+    "Mexican Mesa": "#f8caa5",
+    "Greek (Santorini)": "#a8caff",
+    "Mediterranean": "#efe2bd",
+    "Christmas": "#e7b8c1",
+    "Cocktail Party": "#b7d6f2",
+    "Asian Fusion": "#f9b9b7",
     "Fresh Catch": "#a9e5dc",
-    "Golden Hour - Cocktail Party Bites": "#b7d6f2",
-    "Aegean Feast - Greek Inspired": "#a8caff",
-    "Sun & Spice - Mediterranean Table": "#efe2bd",
-    "Earth & Flame - Wood-Fired Pizza Night": "#ffe199",
-    "Pacific Rim Remix - Asian Fusion": "#f9b9b7",
-    "Harvest Table - Thanksgiving, Reimagined": "#f5c6a0",
-    "Solstice Celebration - Christmas Inspired": "#e7b8c1"
+    "Paella Picnic": "#d2f1a3"
 };
 
 function getColor(index) {
@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupTabNavigation();
 });
 
-// API Endpoints
+// Constants
 const API_ENDPOINT = '/.netlify/functions/api';
 
 // Tab Navigation
@@ -205,7 +205,7 @@ async function loadChefs() {
 
     try {
         console.log('Fetching chefs from API...');
-        const response = await fetch(`${API_ENDPOINT}?action=getChefs`);
+        const response = await fetch(`${API_ENDPOINT}/chefs`);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -400,7 +400,7 @@ async function loadMenus() {
     
     try {
         console.log('Fetching menus from API...');
-        const response = await fetch(`${API_ENDPOINT}?action=getMenus`);
+        const response = await fetch(`${API_ENDPOINT}/menus`);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -413,13 +413,25 @@ async function loadMenus() {
             menusContainer.innerHTML = '<div class="error">No menus found. Please try again later.</div>';
             return;
         }
+
+        // Sort menus by menuNumber field from Airtable
+        const sortedMenus = menus.sort((a, b) => {
+            const numA = parseInt(a.fields?.menuNumber) || 0;
+            const numB = parseInt(b.fields?.menuNumber) || 0;
+            return numA - numB;
+        });
         
         // Clear loading state
         menusContainer.innerHTML = '';
         
         // Create menu cards
-        menus.forEach(menu => {
-            const menuCard = createMenuCard(menu);
+        sortedMenus.forEach(menu => {
+            const menuCard = createMenuCard({
+                id: menu.id,
+                name: menu.fields?.name || '',
+                description: menu.fields?.description || '',
+                menuNumber: menu.fields?.menuNumber
+            });
             menusContainer.appendChild(menuCard);
         });
     } catch (error) {
@@ -430,21 +442,17 @@ async function loadMenus() {
 
 // Create Menu Card
 function createMenuCard(menu) {
-    console.log('Creating menu card for:', menu);
-    
     const accordion = document.createElement('div');
     accordion.className = 'menu-accordion';
-    accordion.dataset.menuId = menu.id;
+    accordion.setAttribute('data-menu-id', menu.id);
     
     // Set the border color based on menu name
     const menuColor = MENU_COLORS[menu.name] || '#f9f9f9';
-    accordion.style.borderLeft = `6px solid ${menuColor}`;
+    accordion.style.borderLeftColor = menuColor;
     
-    // Create header
     const header = document.createElement('div');
     header.className = 'accordion-header';
     
-    // Create title container
     const titleContainer = document.createElement('div');
     titleContainer.className = 'title-container';
     
@@ -456,54 +464,176 @@ function createMenuCard(menu) {
     description.className = 'menu-description';
     description.textContent = menu.description || '';
     
-    // Create arrow (starting with right-pointing)
-    const arrow = document.createElement('div');
+    const arrow = document.createElement('span');
     arrow.className = 'accordion-arrow';
-    arrow.innerHTML = '►';
+    arrow.textContent = '►';
     
-    // Assemble header
     titleContainer.appendChild(name);
     if (menu.description) {
         titleContainer.appendChild(description);
     }
+    
     header.appendChild(titleContainer);
     header.appendChild(arrow);
     
-    // Create content
     const content = document.createElement('div');
     content.className = 'accordion-content';
     
-    const dishesContainer = document.createElement('div');
-    dishesContainer.className = 'dishes-container';
-    dishesContainer.innerHTML = '<div class="loading">Loading dishes...</div>';
+    // Add loading state
+    const loading = document.createElement('div');
+    loading.className = 'loading';
+    loading.textContent = 'Loading menu items...';
+    content.appendChild(loading);
     
-    content.appendChild(dishesContainer);
-    
-    // Assemble accordion
     accordion.appendChild(header);
     accordion.appendChild(content);
     
-    // Add click handler
+    // Track selected items for this menu
+    let selectedItems = new Set();
+    
     header.addEventListener('click', async () => {
         const isOpen = accordion.classList.contains('open');
         
-        // Close current open accordion if different
-        if (currentOpenAccordion && currentOpenAccordion !== accordion) {
-            currentOpenAccordion.classList.remove('open');
-            const otherArrow = currentOpenAccordion.querySelector('.accordion-arrow');
-            otherArrow.innerHTML = '►';
-        }
+        // Close all other accordions
+        document.querySelectorAll('.menu-accordion').forEach(acc => {
+            if (acc !== accordion) {
+                acc.classList.remove('open');
+                acc.querySelector('.accordion-arrow').textContent = '►';
+            }
+        });
         
         // Toggle current accordion
         accordion.classList.toggle('open');
-        arrow.innerHTML = isOpen ? '►' : '▼';
+        arrow.textContent = isOpen ? '►' : '▼';
         
-        // Update current open accordion
-        currentOpenAccordion = accordion.classList.contains('open') ? accordion : null;
-        
-        // Load dishes if opening and not already loaded
-        if (accordion.classList.contains('open') && dishesContainer.querySelector('.loading')) {
-            await loadDishes(menu.id, dishesContainer);
+        if (!isOpen && content.querySelector('.loading')) {
+            try {
+                const response = await fetch(`${API_ENDPOINT}/menus/${menu.id}/dishes`);
+                if (!response.ok) throw new Error('Failed to fetch menu items');
+                
+                const items = await response.json();
+                content.innerHTML = '';
+                
+                if (!items || items.length === 0) {
+                    const noItems = document.createElement('p');
+                    noItems.className = 'no-dishes';
+                    noItems.textContent = 'No dishes available';
+                    content.appendChild(noItems);
+                    return;
+                }
+                
+                // Group items by category
+                const categories = {};
+                items.forEach(item => {
+                    if (!item.fields) return; // Skip if no fields
+                    const category = item.fields.category || 'Other';
+                    if (!categories[category]) {
+                        categories[category] = [];
+                    }
+                    categories[category].push({
+                        id: item.id,
+                        name: item.fields.name || '',
+                        description: item.fields.description || ''
+                    });
+                });
+                
+                // Sort categories in a specific order
+                const categoryOrder = [
+                    'Appetizers',
+                    'Small Plates',
+                    'Salads',
+                    'Soups',
+                    'Main Courses',
+                    'Entrees',
+                    'Sides',
+                    'Desserts'
+                ];
+                
+                // Create category sections in order
+                const sortedCategories = Object.keys(categories).sort((a, b) => {
+                    const indexA = categoryOrder.indexOf(a);
+                    const indexB = categoryOrder.indexOf(b);
+                    if (indexA === -1 && indexB === -1) return a.localeCompare(b);
+                    if (indexA === -1) return 1;
+                    if (indexB === -1) return -1;
+                    return indexA - indexB;
+                });
+                
+                sortedCategories.forEach(category => {
+                    const categoryItems = categories[category];
+                    
+                    const categorySection = document.createElement('div');
+                    categorySection.className = 'menu-category';
+                    
+                    const categoryTitle = document.createElement('h4');
+                    categoryTitle.className = 'menu-category-title';
+                    categoryTitle.textContent = category;
+                    categorySection.appendChild(categoryTitle);
+                    
+                    categoryItems.forEach(item => {
+                        const dishItem = document.createElement('div');
+                        dishItem.className = 'dish-item';
+                        
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.className = 'dish-checkbox';
+                        checkbox.setAttribute('data-item-id', item.id);
+                        checkbox.style.borderColor = menuColor;
+                        
+                        const dishContent = document.createElement('div');
+                        dishContent.className = 'dish-content';
+                        
+                        const dishName = document.createElement('h5');
+                        dishName.className = 'dish-name';
+                        dishName.textContent = item.name;
+                        
+                        const dishDescription = document.createElement('p');
+                        dishDescription.className = 'dish-description';
+                        dishDescription.textContent = item.description;
+                        
+                        dishContent.appendChild(dishName);
+                        if (item.description) {
+                            dishContent.appendChild(dishDescription);
+                        }
+                        
+                        dishItem.appendChild(checkbox);
+                        dishItem.appendChild(dishContent);
+                        categorySection.appendChild(dishItem);
+                        
+                        // Handle checkbox changes
+                        checkbox.addEventListener('change', (e) => {
+                            const itemId = e.target.getAttribute('data-item-id');
+                            if (e.target.checked) {
+                                selectedItems.add(itemId);
+                            } else {
+                                selectedItems.delete(itemId);
+                                // Prevent unchecking if it's the last selected item
+                                if (selectedItems.size === 0) {
+                                    e.target.checked = true;
+                                    selectedItems.add(itemId);
+                                }
+                            }
+                        });
+                    });
+                    
+                    content.appendChild(categorySection);
+                });
+                
+                // Select first item by default
+                const firstCheckbox = content.querySelector('.dish-checkbox');
+                if (firstCheckbox) {
+                    firstCheckbox.checked = true;
+                    selectedItems.add(firstCheckbox.getAttribute('data-item-id'));
+                }
+                
+            } catch (error) {
+                console.error('Error loading menu items:', error);
+                content.innerHTML = `
+                    <div class="error">
+                        <p>Failed to load menu items. Please try again later.</p>
+                    </div>
+                `;
+            }
         }
     });
     
@@ -516,7 +646,7 @@ async function loadDishes(menuId, container) {
     
     try {
         console.log('Fetching dishes from API...');
-        const response = await fetch(`${API_ENDPOINT}?action=getDishes&menuId=${menuId}`);
+        const response = await fetch(`${API_ENDPOINT}/menus/${menuId}/dishes`);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);

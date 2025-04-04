@@ -680,113 +680,143 @@ body {
     border-radius: 8px;
     margin-bottom: 1.5rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
     border-left: 6px solid transparent;
 }
 
-.menu-accordion .accordion-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.5rem;
+.accordion-header {
+    padding: 1rem;
     cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
     background: white;
-    transition: background-color 0.3s ease;
-}
-
-.menu-accordion.open {
-    background-color: white;
-}
-
-.menu-accordion.open .accordion-header {
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.title-container {
-    flex: 1;
-}
-
-.menu-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.4rem;
-    margin: 0;
-    color: #333;
-}
-
-.menu-description {
-    font-size: 1.1rem;
-    color: #666;
-    margin-top: 0.5rem;
-    font-style: italic;
-}
-
-.accordion-arrow {
-    font-size: 1.2rem;
-    color: #666;
-    margin-left: 1.5rem;
-    transition: transform 0.3s ease;
-    display: inline-block;
-    line-height: 1;
 }
 
 .accordion-content {
     max-height: 0;
     overflow: hidden;
-    transition: all 0.5s ease-out;
-    opacity: 0;
+    transition: max-height 0.3s ease-out;
+    background: white;
 }
 
 .menu-accordion.open .accordion-content {
     max-height: 2000px;
-    opacity: 1;
-    padding: 1.5rem;
+    transition: max-height 0.5s ease-in;
 }
 
-.dishes-container {
-    padding: 1rem 0;
+.title-container {
+    flex: 1;
+    padding-right: 1rem;
 }
 
-.dish-item {
-    padding: 1rem 0;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.dish-name {
-    font-family: 'Playfair Display', serif;
+.menu-name {
     font-size: 1.2rem;
+    font-weight: 600;
     color: #333;
-    margin-bottom: 0.5rem;
+    margin: 0;
 }
 
-.dish-description {
-    font-size: 1rem;
+.menu-description {
+    font-size: 0.9rem;
     color: #666;
-    font-style: italic;
+    margin-top: 0.25rem;
     line-height: 1.4;
 }
 
+.accordion-arrow {
+    font-size: 1rem;
+    color: #666;
+    transition: transform 0.3s ease;
+}
+
+.menu-accordion.open .accordion-arrow {
+    transform: rotate(90deg);
+}
+
 .menu-category {
-    margin-bottom: 2rem;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.menu-category:last-child {
+    border-bottom: none;
 }
 
 .menu-category-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.3rem;
+    font-size: 1.1rem;
     color: #333;
-    margin-bottom: 1rem;
+    margin: 0 0 1rem 0;
     padding-bottom: 0.5rem;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
+.dish-item {
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.dish-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid;
+    border-radius: 4px;
+    margin-top: 0.2rem;
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.dish-checkbox:checked {
+    background-color: currentColor;
+}
+
+.dish-checkbox:checked::after {
+    content: '✓';
+    position: absolute;
+    color: white;
+    font-size: 12px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.dish-content {
+    flex: 1;
+}
+
+.dish-name {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 0.25rem;
+}
+
+.dish-description {
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.4;
+}
+
 .loading {
+    padding: 1rem;
     text-align: center;
-    padding: 2rem;
     color: #666;
 }
 
-.error, .no-dishes {
+.error {
+    padding: 1rem;
     text-align: center;
-    padding: 2rem;
+    color: #dc3545;
+}
+
+.no-dishes {
+    padding: 1rem;
+    text-align: center;
     color: #666;
     font-style: italic;
 } 
