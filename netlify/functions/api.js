@@ -65,6 +65,13 @@ module.exports.handler = async (event) => {
         };
     }
 
+    console.log('API Request:', {
+        httpMethod: event.httpMethod,
+        path: event.path,
+        queryParams: event.queryStringParameters || {},
+        body: event.body ? 'Present' : 'Not present'
+    });
+
     try {
         // Parse parameters from either query string or body
         const params = event.httpMethod === 'GET'
@@ -76,12 +83,15 @@ module.exports.handler = async (event) => {
         const { action } = params;
 
         if (!action) {
+            console.error('Missing action parameter');
             return {
                 statusCode: 400,
                 headers,
                 body: JSON.stringify({ error: 'Action parameter is required' })
             };
         }
+
+        console.log('Processing action:', action);
 
         let url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(TABLE_NAME)}`;
         let filterFormula = '';
@@ -203,14 +213,26 @@ module.exports.handler = async (event) => {
                     case 'getMenus':
                         return {
                             id: record.id,
+                            fields: {
+                                name: getField(record, 'Menu Name'),
+                                description: getField(record, 'Menu Description'),
+                                menuNumber: getField(record, 'Menu Number')
+                            },
                             name: getField(record, 'Menu Name'),
                             description: getField(record, 'Menu Description'),
+                            menuNumber: getField(record, 'Menu Number'),
                             photo: getPhotoUrl(record, 'Menu Photo'),
                             type: getField(record, 'Menu Type')
                         };
                     case 'getDishes':
                         return {
                             id: record.id,
+                            fields: {
+                                name: getField(record, 'Dish Name'),
+                                description: getField(record, 'Dish Description'),
+                                category: getField(record, 'Category'),
+                                menuId: getField(record, 'Menu ID')
+                            },
                             name: getField(record, 'Dish Name'),
                             description: getField(record, 'Dish Description'),
                             category: getField(record, 'Category'),
@@ -223,8 +245,9 @@ module.exports.handler = async (event) => {
         }
 
         // Add debug logging
-        console.log('First record fields:', data.records?.[0]?.fields);
-        console.log('Processed records:', processedRecords);
+        console.log(`${action} - First record fields:`, data.records?.[0]?.fields);
+        console.log(`${action} - First processed record:`, processedRecords[0]);
+        console.log(`${action} - Total records processed:`, processedRecords.length);
 
         return {
             statusCode: 200,

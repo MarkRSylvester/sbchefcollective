@@ -414,11 +414,22 @@ async function loadMenus() {
             return;
         }
 
-        // Sort menus by menuNumber field from Airtable
+        // Sort menus by menu number field from Airtable
+        // Check response structure first and adapt
+        let hasFields = menus[0] && typeof menus[0].fields !== 'undefined';
+        
         const sortedMenus = menus.sort((a, b) => {
-            const numA = parseInt(a.fields?.menuNumber) || 0;
-            const numB = parseInt(b.fields?.menuNumber) || 0;
-            return numA - numB;
+            // If fields object is present, use it
+            if (hasFields) {
+                const numA = parseInt(a.fields?.menuNumber) || 0;
+                const numB = parseInt(b.fields?.menuNumber) || 0;
+                return numA - numB;
+            } else {
+                // If API returns direct properties instead of fields object
+                const numA = parseInt(a.menuNumber) || 0;
+                const numB = parseInt(b.menuNumber) || 0;
+                return numA - numB;
+            }
         });
         
         // Clear loading state
@@ -426,11 +437,12 @@ async function loadMenus() {
         
         // Create menu cards
         sortedMenus.forEach(menu => {
+            // Check if the response has fields property or direct properties
             const menuCard = createMenuCard({
                 id: menu.id,
-                name: menu.fields?.name || '',
-                description: menu.fields?.description || '',
-                menuNumber: menu.fields?.menuNumber
+                name: hasFields ? (menu.fields?.name || '') : (menu.name || ''),
+                description: hasFields ? (menu.fields?.description || '') : (menu.description || ''),
+                menuNumber: hasFields ? (menu.fields?.menuNumber || 0) : (menu.menuNumber || 0)
             });
             menusContainer.appendChild(menuCard);
         });
@@ -522,18 +534,25 @@ function createMenuCard(menu) {
                     return;
                 }
                 
+                console.log('Received dish items:', items);
+                
                 // Group items by category
                 const categories = {};
                 items.forEach(item => {
-                    if (!item.fields) return; // Skip if no fields
-                    const category = item.fields.category || 'Other';
+                    // Check if the response has fields property or direct properties
+                    const hasFields = item && typeof item.fields !== 'undefined';
+                    
+                    // Get the category using the appropriate property path
+                    const category = hasFields ? (item.fields?.category || 'Other') : (item.category || 'Other');
+                    
                     if (!categories[category]) {
                         categories[category] = [];
                     }
+                    
                     categories[category].push({
                         id: item.id,
-                        name: item.fields.name || '',
-                        description: item.fields.description || ''
+                        name: hasFields ? (item.fields?.name || '') : (item.name || ''),
+                        description: hasFields ? (item.fields?.description || '') : (item.description || '')
                     });
                 });
                 
