@@ -436,6 +436,10 @@ function createMenuCard(menu) {
     accordion.className = 'menu-accordion';
     accordion.dataset.menuId = menu.id;
     
+    // Set the border color based on menu name
+    const menuColor = MENU_COLORS[menu.name] || '#f9f9f9';
+    accordion.style.borderLeft = `6px solid ${menuColor}`;
+    
     // Create header
     const header = document.createElement('div');
     header.className = 'accordion-header';
@@ -459,7 +463,9 @@ function createMenuCard(menu) {
     
     // Assemble header
     titleContainer.appendChild(name);
-    titleContainer.appendChild(description);
+    if (menu.description) {
+        titleContainer.appendChild(description);
+    }
     header.appendChild(titleContainer);
     header.appendChild(arrow);
     
