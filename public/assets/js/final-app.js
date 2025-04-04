@@ -205,7 +205,7 @@ async function loadChefs() {
 
     try {
         console.log('Fetching chefs from API...');
-        const response = await fetch(`${API_ENDPOINT}/chefs`);
+        const response = await fetch(`${API_ENDPOINT}/chefs?action=getChefs`);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -400,7 +400,7 @@ async function loadMenus() {
     
     try {
         console.log('Fetching menus from API...');
-        const response = await fetch(`${API_ENDPOINT}/menus`);
+        const response = await fetch(`${API_ENDPOINT}/menus?action=getMenus`);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -508,7 +508,7 @@ function createMenuCard(menu) {
         
         if (!isOpen && content.querySelector('.loading')) {
             try {
-                const response = await fetch(`${API_ENDPOINT}/menus/${menu.id}/dishes`);
+                const response = await fetch(`${API_ENDPOINT}/menus/${menu.id}/dishes?action=getDishes&menuId=${menu.id}`);
                 if (!response.ok) throw new Error('Failed to fetch menu items');
                 
                 const items = await response.json();
