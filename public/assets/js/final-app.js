@@ -414,22 +414,25 @@ async function loadMenus() {
             return;
         }
 
+        // Debug menu data
+        console.log('Menu data before sorting:');
+        menus.forEach(menu => {
+            console.log(`Menu: ${menu.name || menu.fields?.name}, Number: ${menu.menuNumber || menu.fields?.menuNumber}, Description: ${menu.description || menu.fields?.description}`);
+        });
+
         // Sort menus by menu number field from Airtable
-        // Check response structure first and adapt
-        let hasFields = menus[0] && typeof menus[0].fields !== 'undefined';
-        
         const sortedMenus = menus.sort((a, b) => {
-            // If fields object is present, use it
-            if (hasFields) {
-                const numA = parseInt(a.fields?.menuNumber) || 0;
-                const numB = parseInt(b.fields?.menuNumber) || 0;
-                return numA - numB;
-            } else {
-                // If API returns direct properties instead of fields object
-                const numA = parseInt(a.menuNumber) || 0;
-                const numB = parseInt(b.menuNumber) || 0;
-                return numA - numB;
-            }
+            // Get menuNumber from either direct property or fields object
+            const numA = parseInt(a.menuNumber || a.fields?.menuNumber) || 0;
+            const numB = parseInt(b.menuNumber || b.fields?.menuNumber) || 0;
+            console.log(`Comparing menu numbers: ${numA} vs ${numB}`);
+            return numA - numB;
+        });
+        
+        // Debug sorted menu data
+        console.log('Menu data after sorting:');
+        sortedMenus.forEach(menu => {
+            console.log(`Menu: ${menu.name || menu.fields?.name}, Number: ${menu.menuNumber || menu.fields?.menuNumber}`);
         });
         
         // Clear loading state
@@ -437,13 +440,15 @@ async function loadMenus() {
         
         // Create menu cards
         sortedMenus.forEach(menu => {
-            // Check if the response has fields property or direct properties
-            const menuCard = createMenuCard({
+            const menuData = {
                 id: menu.id,
-                name: hasFields ? (menu.fields?.name || '') : (menu.name || ''),
-                description: hasFields ? (menu.fields?.description || '') : (menu.description || ''),
-                menuNumber: hasFields ? (menu.fields?.menuNumber || 0) : (menu.menuNumber || 0)
-            });
+                name: menu.name || menu.fields?.name || '',
+                description: menu.description || menu.fields?.description || '',
+                menuNumber: menu.menuNumber || menu.fields?.menuNumber || 0
+            };
+            
+            console.log('Creating menu card with data:', menuData);
+            const menuCard = createMenuCard(menuData);
             menusContainer.appendChild(menuCard);
         });
     } catch (error) {
@@ -454,6 +459,8 @@ async function loadMenus() {
 
 // Create Menu Card
 function createMenuCard(menu) {
+    console.log('Creating menu card for:', menu.name, 'Description:', menu.description);
+    
     const accordion = document.createElement('div');
     accordion.className = 'menu-accordion';
     accordion.setAttribute('data-menu-id', menu.id);
@@ -481,8 +488,13 @@ function createMenuCard(menu) {
     arrow.textContent = '►';
     
     titleContainer.appendChild(name);
-    if (menu.description) {
+    
+    // Only add description if it exists and is not empty
+    if (menu.description && menu.description.trim() !== '') {
+        console.log('Adding description to menu:', menu.name, 'Description:', menu.description);
         titleContainer.appendChild(description);
+    } else {
+        console.log('No description for menu:', menu.name);
     }
     
     header.appendChild(titleContainer);
@@ -520,10 +532,18 @@ function createMenuCard(menu) {
         
         if (!isOpen && content.querySelector('.loading')) {
             try {
+                console.log(`Loading dishes for menu: ${menu.id}`);
                 const response = await fetch(`${API_ENDPOINT}/menus/${menu.id}/dishes?action=getDishes&menuId=${menu.id}`);
-                if (!response.ok) throw new Error('Failed to fetch menu items');
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error(`Error loading dishes: ${response.status} ${response.statusText}`, errorText);
+                    throw new Error(`Failed to fetch menu items: ${response.status}`);
+                }
                 
                 const items = await response.json();
+                console.log('Dishes data received:', items);
+                
                 content.innerHTML = '';
                 
                 if (!items || items.length === 0) {
@@ -533,8 +553,6 @@ function createMenuCard(menu) {
                     content.appendChild(noItems);
                     return;
                 }
-                
-                console.log('Received dish items:', items);
                 
                 // Group items by category
                 const categories = {};

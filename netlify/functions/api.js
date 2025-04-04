@@ -211,16 +211,25 @@ module.exports.handler = async (event) => {
                             vibe: getField(record, 'Vibe')
                         };
                     case 'getMenus':
+                        // Log field names to help debug
+                        console.log('Menu record fields:', record.fields);
+                        const menuNumber = getField(record, 'Menu Number');
+                        const menuName = getField(record, 'Menu Name');
+                        const menuDesc = getField(record, 'Menu Description');
+                        
+                        console.log(`Processing menu: ${menuName}, Number: ${menuNumber}, Description: ${menuDesc}`);
+                        
                         return {
                             id: record.id,
                             fields: {
-                                name: getField(record, 'Menu Name'),
-                                description: getField(record, 'Menu Description'),
-                                menuNumber: getField(record, 'Menu Number')
+                                name: menuName,
+                                description: menuDesc,
+                                menuNumber: menuNumber
                             },
-                            name: getField(record, 'Menu Name'),
-                            description: getField(record, 'Menu Description'),
-                            menuNumber: getField(record, 'Menu Number'),
+                            // Also include direct properties for flexibility
+                            name: menuName,
+                            description: menuDesc,
+                            menuNumber: menuNumber,
                             photo: getPhotoUrl(record, 'Menu Photo'),
                             type: getField(record, 'Menu Type')
                         };
