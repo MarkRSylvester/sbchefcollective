@@ -211,48 +211,120 @@ module.exports.handler = async (event) => {
                             vibe: getField(record, 'Vibe')
                         };
                     case 'getMenus':
-                        // Log field names to help debug
-                        console.log('Menu record fields:', record.fields);
-                        console.log('Menu field keys:', Object.keys(record.fields));
+                        // Log all available fields for debugging
+                        console.log('Menu record fields for:', record.id);
+                        console.log('Available fields:', Object.keys(record.fields).join(', '));
                         
-                        // Check all available Menu ID or Menu Number fields
-                        const menuId = record.fields['Menu ID'];
-                        const menuNo = record.fields['Menu No'];
-                        const menuNumber = record.fields['Menu Number'];
-                        const menuNum = record.fields['Menu #'];
+                        // Define all possible field names for menu ordering
+                        const orderFieldNames = [
+                            'Menu Number', 'MenuNumber', 'Menu No', 'MenuNo', 
+                            'Menu #', 'Menu_Number', 'menuNumber', 'Order', 
+                            'Menu Order', 'MenuOrder', 'Sort Order', 'SortOrder',
+                            'Menu ID', 'MenuID'
+                        ];
                         
-                        console.log('Menu ID checking:');
-                        console.log('- Menu ID field:', menuId);
-                        console.log('- Menu No field:', menuNo);
-                        console.log('- Menu Number field:', menuNumber);
-                        console.log('- Menu # field:', menuNum);
+                        // Extract menu name first
+                        const menuName = getField(record, 'Menu Name');
+                        console.log(`Processing menu: "${menuName}"`);
                         
-                        // Use the first available menu number/ID field
-                        let finalMenuNumber = menuId || menuNo || menuNumber || menuNum || '0';
+                        // Look for menu ordering value in all possible field names
+                        let menuOrderValue = null;
+                        let menuOrderField = null;
                         
-                        // If it's an array, extract the first value
-                        if (Array.isArray(finalMenuNumber)) {
-                            finalMenuNumber = finalMenuNumber[0];
+                        for (const fieldName of orderFieldNames) {
+                            if (record.fields[fieldName] !== undefined && record.fields[fieldName] !== null) {
+                                menuOrderValue = record.fields[fieldName];
+                                menuOrderField = fieldName;
+                                console.log(`Found menu order in field "${fieldName}": ${menuOrderValue}`);
+                                break;
+                            }
                         }
                         
-                        // Convert to a number if possible
-                        const menuNumberValue = parseInt(finalMenuNumber);
-                        finalMenuNumber = isNaN(menuNumberValue) ? finalMenuNumber : menuNumberValue;
+                        // If still no order value, do an exhaustive search for any field with "number" in it
+                        if (menuOrderValue === null) {
+                            for (const fieldName of Object.keys(record.fields)) {
+                                const lowerFieldName = fieldName.toLowerCase();
+                                if (
+                                    lowerFieldName.includes('number') || 
+                                    lowerFieldName.includes('order') || 
+                                    lowerFieldName.includes('sort') || 
+                                    lowerFieldName.includes('#') || 
+                                    lowerFieldName.includes('no')
+                                ) {
+                                    menuOrderValue = record.fields[fieldName];
+                                    menuOrderField = fieldName;
+                                    console.log(`Found potential menu order in field "${fieldName}": ${menuOrderValue}`);
+                                    break;
+                                }
+                            }
+                        }
                         
-                        console.log(`Final Menu Number used for sorting: ${finalMenuNumber} (${typeof finalMenuNumber})`);
+                        // Hard-coded menu order mapping as a last resort fallback
+                        const menuOrderMap = {
+                            "Surf & Turf Soirée": 1,
+                            "Pizza Night": 2,
+                            "Farm to Table": 3,
+                            "Pasta & Salads": 4,
+                            "Brunch in Bloom": 5,
+                            "Thanksgiving": 6,
+                            "Sushi (Wasabi)": 7,
+                            "Mexican Mesa": 8,
+                            "Greek (Santorini)": 9,
+                            "Mediterranean": 10,
+                            "Christmas": 11,
+                            "Cocktail Party": 12,
+                            "Asian Fusion": 13,
+                            "Fresh Catch": 14,
+                            "Paella Picnic": 15
+                        };
                         
-                        const menuName = getField(record, 'Menu Name');
+                        // Process the menu order value
+                        let finalMenuNumber;
+                        
+                        // If we found a value, process it
+                        if (menuOrderValue !== null) {
+                            // Handle array values (extract first element)
+                            if (Array.isArray(menuOrderValue)) {
+                                console.log(`Menu order value is an array: [${menuOrderValue.join(', ')}]`);
+                                menuOrderValue = menuOrderValue[0];
+                            }
+                            
+                            // Try to convert to a number
+                            const numericValue = Number(menuOrderValue);
+                            finalMenuNumber = isNaN(numericValue) ? 9999 : numericValue; // Use 9999 as fallback for non-numeric
+                        } 
+                        // If no value found, use the name-based mapping
+                        else if (menuName && menuOrderMap[menuName] !== undefined) {
+                            finalMenuNumber = menuOrderMap[menuName];
+                            console.log(`Using mapped order value for "${menuName}": ${finalMenuNumber}`);
+                        } 
+                        // Last resort: use a very high number to put it at the end
+                        else {
+                            finalMenuNumber = 9999;
+                            console.log(`No order value found for "${menuName}", using default: ${finalMenuNumber}`);
+                        }
+                        
+                        // Extract menu description with fallbacks
                         let menuDesc = getField(record, 'Menu Description');
                         
-                        // If menu description isn't found, try alternative field names
-                        if (menuDesc === null) {
-                            console.log('Menu Description not found, trying alternatives...');
-                            menuDesc = getField(record, 'MenuDescription') || 
-                                      getField(record, 'Description') || 
-                                      getField(record, 'description') || '';
+                        // Try alternative field names if description not found
+                        if (menuDesc === null || menuDesc === '') {
+                            const descriptionFields = [
+                                'MenuDescription', 'Description', 'description', 
+                                'Menu_Description', 'menuDescription', 'Details',
+                                'Menu Details', 'Content'
+                            ];
+                            
+                            for (const fieldName of descriptionFields) {
+                                if (record.fields[fieldName]) {
+                                    menuDesc = record.fields[fieldName];
+                                    console.log(`Found description in field "${fieldName}"`);
+                                    break;
+                                }
+                            }
                         }
                         
-                        console.log(`Processing menu: ${menuName}, Number: ${finalMenuNumber}, Description: ${menuDesc}`);
+                        console.log(`Final menu: "${menuName}", Order: ${finalMenuNumber}, Description: ${menuDesc ? 'Present' : 'Missing'}`);
                         
                         return {
                             id: record.id,
@@ -265,6 +337,7 @@ module.exports.handler = async (event) => {
                             name: menuName,
                             description: menuDesc,
                             menuNumber: finalMenuNumber,
+                            orderField: menuOrderField, // Include the field name used for debugging
                             photo: getPhotoUrl(record, 'Menu Photo'),
                             type: getField(record, 'Menu Type')
                         };

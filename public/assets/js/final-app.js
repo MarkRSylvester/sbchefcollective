@@ -423,33 +423,49 @@ async function loadMenus() {
 
         // Sort menus by menu number field from Airtable
         const sortedMenus = menus.sort((a, b) => {
-            // Extract menu numbers, ensuring we convert to numbers for consistent sorting
-            let numA = a.menuNumber || a.fields?.menuNumber;
-            let numB = b.menuNumber || b.fields?.menuNumber;
+            // Extract menu numbers with proper handling of all possible cases
+            let numA = a.menuNumber ?? a.fields?.menuNumber;
+            let numB = b.menuNumber ?? b.fields?.menuNumber;
             
-            // Handle arrays (just in case)
+            // Log the raw menu data to help with debugging
+            console.log(`Menu "${a.name || a.fields?.name}" raw order value: ${numA}, type: ${typeof numA}`);
+            console.log(`Menu "${b.name || b.fields?.name}" raw order value: ${numB}, type: ${typeof numB}`);
+            
+            // Handle arrays (extract first element)
             if (Array.isArray(numA)) numA = numA[0];
             if (Array.isArray(numB)) numB = numB[0];
             
-            // Force to number type
-            numA = typeof numA === 'string' ? parseInt(numA, 10) : Number(numA);
-            numB = typeof numB === 'string' ? parseInt(numB, 10) : Number(numB);
+            // Ensure we have numbers for comparison
+            // Using parseFloat to handle both integers and decimals
+            const parsedA = parseFloat(numA);
+            const parsedB = parseFloat(numB);
             
-            // Ensure we have valid numbers (default to 0 if NaN)
-            numA = isNaN(numA) ? 0 : numA;
-            numB = isNaN(numB) ? 0 : numB;
+            // Default to large numbers for invalid values to push them to the end
+            numA = !isNaN(parsedA) ? parsedA : 9999;
+            numB = !isNaN(parsedB) ? parsedB : 9999;
             
-            console.log(`Comparing menu numbers: Menu A "${a.name || a.fields?.name}" number=${numA} vs Menu B "${b.name || b.fields?.name}" number=${numB}`);
+            console.log(`Comparing: "${a.name || a.fields?.name}" (${numA}) vs "${b.name || a.fields?.name}" (${numB})`);
             
-            // Simple numeric comparison
+            // Standard numeric comparison
             return numA - numB;
         });
         
         // Debug sorted menu data
         console.log('Menu data after sorting:');
         sortedMenus.forEach((menu, index) => {
-            const menuNumber = menu.menuNumber || menu.fields?.menuNumber;
-            console.log(`${index}: Menu: ${menu.name || menu.fields?.name}, Number: ${menuNumber}`);
+            const menuNumber = menu.menuNumber ?? menu.fields?.menuNumber;
+            const menuName = menu.name || menu.fields?.name;
+            const orderFieldUsed = menu.orderField || 'unknown';
+            console.log(`${index+1}. "${menuName}" (order value: ${menuNumber}, field: ${orderFieldUsed})`);
+        });
+        
+        // Replace with improved logging
+        console.log('===== FINAL MENU ORDER =====');
+        sortedMenus.forEach((menu, index) => {
+            const menuNumber = menu.menuNumber ?? menu.fields?.menuNumber;
+            const menuName = menu.name || menu.fields?.name;
+            const orderFieldUsed = menu.orderField || 'unknown';
+            console.log(`${index+1}. "${menuName}" (order value: ${menuNumber}, field: ${orderFieldUsed})`);
         });
         
         // Clear loading state
