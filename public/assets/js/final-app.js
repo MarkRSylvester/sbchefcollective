@@ -423,28 +423,27 @@ async function loadMenus() {
 
         // Sort menus by menu number field from Airtable
         const sortedMenus = menus.sort((a, b) => {
-            // Extract menu numbers with proper handling of all possible cases
-            let numA = a.menuNumber ?? a.fields?.menuNumber;
-            let numB = b.menuNumber ?? b.fields?.menuNumber;
+            // With the new API structure, menuNumber is always at the top level
+            let numA = a.menuNumber || 0;
+            let numB = b.menuNumber || 0;
             
-            // Log the raw menu data to help with debugging
-            console.log(`Menu "${a.name || a.fields?.name}" raw order value: ${numA}, type: ${typeof numA}`);
-            console.log(`Menu "${b.name || b.fields?.name}" raw order value: ${numB}, type: ${typeof numB}`);
+            // Log the menu data for debugging
+            console.log(`Menu "${a.name}" order value: ${numA}`);
+            console.log(`Menu "${b.name}" order value: ${numB}`);
             
-            // Handle arrays (extract first element)
+            // Handle arrays (extract first element) - just in case
             if (Array.isArray(numA)) numA = numA[0];
             if (Array.isArray(numB)) numB = numB[0];
             
             // Ensure we have numbers for comparison
-            // Using parseFloat to handle both integers and decimals
             const parsedA = parseFloat(numA);
             const parsedB = parseFloat(numB);
             
-            // Default to large numbers for invalid values to push them to the end
+            // Default to large numbers for invalid values
             numA = !isNaN(parsedA) ? parsedA : 9999;
             numB = !isNaN(parsedB) ? parsedB : 9999;
             
-            console.log(`Comparing: "${a.name || a.fields?.name}" (${numA}) vs "${b.name || a.fields?.name}" (${numB})`);
+            console.log(`Comparing: "${a.name}" (${numA}) vs "${b.name}" (${numB})`);
             
             // Standard numeric comparison
             return numA - numB;
@@ -473,29 +472,12 @@ async function loadMenus() {
         
         // Create menu cards
         sortedMenus.forEach(menu => {
-            // Get description from all possible locations
-            let description = '';
-            if (menu.description) {
-                description = menu.description;
-            } else if (menu.fields?.description) {
-                description = menu.fields.description;
-            } else if (typeof menu.fields === 'object') {
-                // Try to find any field that might be a description
-                const possibleDescFields = ['description', 'desc', 'menu_description', 'menuDescription', 'menu description', 'Description'];
-                for (const field of possibleDescFields) {
-                    if (menu.fields[field]) {
-                        description = menu.fields[field];
-                        console.log(`Found description in alternative field: ${field}`);
-                        break;
-                    }
-                }
-            }
-            
+            // With the new API structure, all properties are at the top level
             const menuData = {
                 id: menu.id,
-                name: menu.name || menu.fields?.name || '',
-                description: description,
-                menuNumber: menu.menuNumber || menu.fields?.menuNumber || 0
+                name: menu.name || '',
+                description: menu.description || '',
+                menuNumber: menu.menuNumber || 0
             };
             
             console.log('Creating menu card with data:', menuData);
@@ -620,11 +602,8 @@ function createMenuCard(menu) {
                 // Group items by category
                 const categories = {};
                 items.forEach(item => {
-                    // Check if the response has fields property or direct properties
-                    const hasFields = item && typeof item.fields !== 'undefined';
-                    
-                    // Get the category using the appropriate property path
-                    const category = hasFields ? (item.fields?.category || 'Other') : (item.category || 'Other');
+                    // With the new API, all properties are at the top level
+                    const category = item.category || 'Other';
                     
                     if (!categories[category]) {
                         categories[category] = [];
@@ -632,8 +611,8 @@ function createMenuCard(menu) {
                     
                     categories[category].push({
                         id: item.id,
-                        name: hasFields ? (item.fields?.name || '') : (item.name || ''),
-                        description: hasFields ? (item.fields?.description || '') : (item.description || '')
+                        name: item.name || '',
+                        description: item.description || ''
                     });
                 });
                 
