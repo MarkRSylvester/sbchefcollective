@@ -4,7 +4,8 @@
   "description": "Santa Barbara Chef Collective website",
   "scripts": {
     "dev": "netlify dev",
-    "deploy": "netlify deploy --prod"
+    "deploy": "netlify deploy --prod",
+    "build": "echo 'No build step needed'"
   },
   "devDependencies": {
     "netlify-cli": "^17.38.1"
