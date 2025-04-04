@@ -213,9 +213,20 @@ module.exports.handler = async (event) => {
                     case 'getMenus':
                         // Log field names to help debug
                         console.log('Menu record fields:', record.fields);
+                        console.log('Menu field keys:', Object.keys(record.fields));
+                        
+                        // Try both camel case and space-separated keys
                         const menuNumber = getField(record, 'Menu Number');
                         const menuName = getField(record, 'Menu Name');
-                        const menuDesc = getField(record, 'Menu Description');
+                        let menuDesc = getField(record, 'Menu Description');
+                        
+                        // If menu description isn't found, try alternative field names
+                        if (menuDesc === null) {
+                            console.log('Menu Description not found, trying alternatives...');
+                            menuDesc = getField(record, 'MenuDescription') || 
+                                      getField(record, 'Description') || 
+                                      getField(record, 'description') || '';
+                        }
                         
                         console.log(`Processing menu: ${menuName}, Number: ${menuNumber}, Description: ${menuDesc}`);
                         

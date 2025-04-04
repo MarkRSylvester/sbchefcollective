@@ -407,7 +407,7 @@ async function loadMenus() {
         }
         
         const menus = await response.json();
-        console.log('Menus data received:', menus);
+        console.log('Menus data received:', JSON.stringify(menus, null, 2));
     
         if (!menus || menus.length === 0) {
             menusContainer.innerHTML = '<div class="error">No menus found. Please try again later.</div>';
@@ -432,7 +432,7 @@ async function loadMenus() {
         // Debug sorted menu data
         console.log('Menu data after sorting:');
         sortedMenus.forEach(menu => {
-            console.log(`Menu: ${menu.name || menu.fields?.name}, Number: ${menu.menuNumber || menu.fields?.menuNumber}`);
+            console.log(`Menu: ${menu.name || menu.fields?.name}, Number: ${menu.menuNumber || menu.fields?.menuNumber}, Description: ${menu.description || menu.fields?.description}`);
         });
         
         // Clear loading state
@@ -440,10 +440,28 @@ async function loadMenus() {
         
         // Create menu cards
         sortedMenus.forEach(menu => {
+            // Get description from all possible locations
+            let description = '';
+            if (menu.description) {
+                description = menu.description;
+            } else if (menu.fields?.description) {
+                description = menu.fields.description;
+            } else if (typeof menu.fields === 'object') {
+                // Try to find any field that might be a description
+                const possibleDescFields = ['description', 'desc', 'menu_description', 'menuDescription', 'menu description', 'Description'];
+                for (const field of possibleDescFields) {
+                    if (menu.fields[field]) {
+                        description = menu.fields[field];
+                        console.log(`Found description in alternative field: ${field}`);
+                        break;
+                    }
+                }
+            }
+            
             const menuData = {
                 id: menu.id,
                 name: menu.name || menu.fields?.name || '',
-                description: menu.description || menu.fields?.description || '',
+                description: description,
                 menuNumber: menu.menuNumber || menu.fields?.menuNumber || 0
             };
             
@@ -459,7 +477,8 @@ async function loadMenus() {
 
 // Create Menu Card
 function createMenuCard(menu) {
-    console.log('Creating menu card for:', menu.name, 'Description:', menu.description);
+    console.log('Creating menu card for:', menu);
+    console.log(`Menu details - Name: "${menu.name}", Description: "${menu.description}", MenuNumber: ${menu.menuNumber}`);
     
     const accordion = document.createElement('div');
     accordion.className = 'menu-accordion';
@@ -489,12 +508,23 @@ function createMenuCard(menu) {
     
     titleContainer.appendChild(name);
     
+    // Add debug element to show what's happening with description
+    console.log(`Description check: '${menu.description}', Empty? ${!menu.description}, Trimmed empty? ${!menu.description || menu.description.trim() === ''}`);
+    
     // Only add description if it exists and is not empty
     if (menu.description && menu.description.trim() !== '') {
         console.log('Adding description to menu:', menu.name, 'Description:', menu.description);
         titleContainer.appendChild(description);
     } else {
         console.log('No description for menu:', menu.name);
+        
+        // Add a placeholder to make it obvious there should be a description
+        const noDesc = document.createElement('p');
+        noDesc.className = 'menu-description menu-description-missing';
+        noDesc.textContent = 'No description available';
+        noDesc.style.color = '#999';
+        noDesc.style.fontStyle = 'italic';
+        titleContainer.appendChild(noDesc);
     }
     
     header.appendChild(titleContainer);
