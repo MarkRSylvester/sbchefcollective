@@ -1,7 +1,6 @@
 [build]
-  command = "npm run build"
   functions = "netlify/functions"
-  publish = "."
+  publish = "public"
 
 [functions]
   node_bundler = "esbuild"
@@ -38,10 +37,15 @@
 
 [[headers]]
   for = "/*"
-    [headers.values]
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    Content-Security-Policy = "frame-ancestors 'self' https://sbchefcollective-march31.netlify.app"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=()"
     Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Headers = "Content-Type"
     Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type"
     Cache-Control = "public, max-age=0, must-revalidate"
 
 # Add a specific rule for the Airtable function
@@ -59,3 +63,11 @@
   status = 200
   force = true
   conditions = {Path = ["netlify/functions/api"]}
+
+# Protect API endpoints
+[[headers]]
+  for = "/.netlify/functions/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "https://sbchefcollective-march31.netlify.app"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type"

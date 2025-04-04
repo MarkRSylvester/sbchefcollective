@@ -70,6 +70,8 @@
       <div class="main-nav">
         <button id="chefsButton" class="nav-button active">Our Chefs</button>
         <button id="menusButton" class="nav-button">Featured Menus</button>
+        <button id="servicesButton" class="nav-button">Services</button>
+        <button id="faqButton" class="nav-button">FAQ</button>
       </div>
     </div>
   </div>
@@ -435,7 +437,7 @@
     </div>
   </main>
 
-  <!-- JavaScript Files -->
+  <!-- Load JavaScript -->
   <script src="final-app.js"></script>
 </body>
 </html>

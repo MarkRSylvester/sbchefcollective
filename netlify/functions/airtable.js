@@ -1,7 +1,13 @@
 const fetch = require('node-fetch');
 
-// Move this to environment variables in Netlify
-const AIRTABLE_API_KEY = 'pat99NhmHmsfe5AJN.4aa9d5bf62d05e2e601cfa8a7083089011a75bb76497d120643bb5ef83c7df70';
+// Use environment variables for sensitive data
+const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
+
+if (!AIRTABLE_API_KEY) {
+    console.error('Missing required AIRTABLE_API_KEY environment variable');
+    throw new Error('Missing required AIRTABLE_API_KEY environment variable');
+}
+
 const AIRTABLE_BASE_ID = 'appOWFyYIGbLoKalt';
 const TABLE_NAME = 'SBCC MAIN';
 

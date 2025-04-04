@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /assets/
+Disallow: /.netlify/
+Disallow: /api/
+
+Sitemap: https://sbchefcollective-march31.netlify.app/sitemap.xml 

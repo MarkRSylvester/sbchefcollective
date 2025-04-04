@@ -2,8 +2,19 @@ const fetch = require('node-fetch');
 
 // Use environment variable for API key
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
-const AIRTABLE_BASE_ID = 'appOWFyYIGbLoKalt';
+const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID || 'appOWFyYIGbLoKalt';
 const TABLE_NAME = 'SBCC MAIN';
+
+// Validate required environment variables
+if (!AIRTABLE_API_KEY) {
+    console.error('Missing required AIRTABLE_API_KEY environment variable');
+    throw new Error('Missing required AIRTABLE_API_KEY environment variable');
+}
+
+// Function to safely log URLs without exposing API keys
+const safeLogUrl = (url) => {
+    return url.replace(AIRTABLE_API_KEY, '[REDACTED]');
+};
 
 // Helper function to safely get field value
 const getField = (record, fieldName) => {
@@ -14,18 +25,24 @@ const getField = (record, fieldName) => {
     return record.fields[fieldName] || null;
 };
 
-// Helper function to get photo URL from Airtable attachment
+// Helper function to get photo URL from Airtable field
 const getPhotoUrl = (record, fieldName) => {
     if (!record || !record.fields || !record.fields[fieldName]) {
         return '';
     }
     
-    const attachments = record.fields[fieldName];
-    if (Array.isArray(attachments) && attachments.length > 0) {
-        // Log the attachment structure
-        console.log('Attachment found:', attachments[0]);
-        return attachments[0].url || '';
+    // If the field is a direct URL string
+    const photoField = record.fields[fieldName];
+    if (typeof photoField === 'string') {
+        return photoField;
     }
+    
+    // Fallback for attachment type fields
+    if (Array.isArray(photoField) && photoField.length > 0) {
+        console.log('Attachment found:', photoField[0]);
+        return photoField[0].url || '';
+    }
+    
     return '';
 };
 
@@ -72,10 +89,10 @@ module.exports.handler = async (event) => {
         // Add filters based on action
         switch (action) {
             case 'getChefs':
-                filterFormula = "{Type}='Chef'";
+                filterFormula = "NOT({Chef Name}='')";
                 break;
             case 'getMenus':
-                filterFormula = "{Type}='Menu'";
+                filterFormula = "NOT({Menu Name}='')";
                 break;
             case 'getDishes':
                 if (!params.menuId) {
@@ -85,7 +102,34 @@ module.exports.handler = async (event) => {
                         body: JSON.stringify({ error: 'Menu ID is required' })
                     };
                 }
-                filterFormula = `AND({Type}='Dish',{Menu ID}='${params.menuId}')`;
+                // Get the menu record to find its Menu ID
+                const menuResponse = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(TABLE_NAME)}/${params.menuId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!menuResponse.ok) {
+                    return {
+                        statusCode: menuResponse.status,
+                        headers,
+                        body: JSON.stringify({ error: 'Failed to fetch menu' })
+                    };
+                }
+                
+                const menuData = await menuResponse.json();
+                const menuNumber = getField(menuData, 'Menu Number');
+                
+                if (!menuNumber) {
+                    return {
+                        statusCode: 400,
+                        headers,
+                        body: JSON.stringify({ error: 'Menu Number not found' })
+                    };
+                }
+                
+                filterFormula = `AND(NOT({Dish Name}=''),{Menu ID}='${menuNumber}')`;
                 break;
             default:
                 return {
@@ -101,6 +145,8 @@ module.exports.handler = async (event) => {
         }
 
         console.log('Fetching from Airtable:', url);
+        console.log('Using API key:', AIRTABLE_API_KEY ? 'Present' : 'Missing');
+        console.log('Filter formula:', filterFormula);
 
         const response = await fetch(url, {
             headers: {
@@ -114,43 +160,60 @@ module.exports.handler = async (event) => {
             console.error('Airtable API error:', {
                 status: response.status,
                 statusText: response.statusText,
-                error: errorText
+                error: errorText,
+                url: safeLogUrl(url)
             });
-            throw new Error(`Airtable API error: ${response.status} ${response.statusText}`);
+            return {
+                statusCode: response.status,
+                headers,
+                body: JSON.stringify({ 
+                    error: `Airtable API error: ${response.status} ${response.statusText}`,
+                    details: errorText
+                })
+            };
         }
 
         const data = await response.json();
-        console.log('Airtable response:', JSON.stringify(data, null, 2));
+        
+        // Log the first record to see its structure
+        if (data.records && data.records.length > 0) {
+            console.log('First record structure:', JSON.stringify(data.records[0], null, 2));
+            console.log('Available fields:', Object.keys(data.records[0].fields).join(', '));
+        }
         
         // Process the records based on action
         let processedRecords = [];
         if (data.records) {
+            // Debug: Log the first record's fields
+            if (data.records.length > 0) {
+                console.log('First record fields:', JSON.stringify(data.records[0].fields, null, 2));
+            }
+            
             processedRecords = data.records.map(record => {
                 switch (action) {
                     case 'getChefs':
+                        const chefId = getField(record, 'Chef ID');
                         return {
-                            id: record.id,
-                            name: getField(record, 'Name'),
-                            bio: getField(record, 'Bio'),
-                            photo: getPhotoUrl(record, 'Photo'),
-                            type: getField(record, 'Type')
+                            id: Array.isArray(chefId) ? chefId[0] : chefId,
+                            name: getField(record, 'Chef Name'),
+                            bio: getField(record, 'Chef Description'),
+                            photo: getPhotoUrl(record, 'Chef Photo'),
+                            vibe: getField(record, 'Vibe')
                         };
                     case 'getMenus':
                         return {
                             id: record.id,
                             name: getField(record, 'Menu Name'),
-                            description: getField(record, 'Description'),
-                            photo: getPhotoUrl(record, 'Photo'),
-                            type: getField(record, 'Type')
+                            description: getField(record, 'Menu Description'),
+                            photo: getPhotoUrl(record, 'Menu Photo'),
+                            type: getField(record, 'Menu Type')
                         };
                     case 'getDishes':
                         return {
                             id: record.id,
-                            name: getField(record, 'Name'),
-                            description: getField(record, 'Description'),
-                            price: getField(record, 'Price'),
-                            photo: getPhotoUrl(record, 'Photo'),
-                            type: getField(record, 'Type'),
+                            name: getField(record, 'Dish Name'),
+                            description: getField(record, 'Dish Description'),
+                            category: getField(record, 'Category'),
                             menuId: getField(record, 'Menu ID')
                         };
                     default:
@@ -158,6 +221,10 @@ module.exports.handler = async (event) => {
                 }
             });
         }
+
+        // Add debug logging
+        console.log('First record fields:', data.records?.[0]?.fields);
+        console.log('Processed records:', processedRecords);
 
         return {
             statusCode: 200,
