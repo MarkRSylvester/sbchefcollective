@@ -1,0 +1,12 @@
+﻿Question,Answer,Category,Display Order,Live
+Do you accommodate special diets?,"Absolutely. Our chefs specialize in a wide range of dietary accommodations—from gluten-free to vegan, paleo, low-sodium, and more. Let us know what you need, and we’ll match you with a chef who can deliver.",General,1,checked
+How far in advance should I book?,"We recommend booking at least 2–4 weeks in advance for events, and 5–7 days in advance for weekly meal service. That said, we’ll always do our best to accommodate your timing.",Booking,2,checked
+Can I customize a menu?,Yes. Every SBCC experience is tailored to your preferences. You can collaborate with your chef or select from curated menus.,Events,3,checked
+Do I need to provide anything in my kitchen?,"For in-home events or meal prep, we’ll discuss your kitchen setup in advance. Most chefs bring their own specialty tools, but access to a stove and fridge is usually essential.",Events,4,checked
+What’s the difference between the Weekly Meal Service and booking a chef for an event?,"Weekly Meal Service is built around regular nourishment—delivered or cooked in your home. Event services are designed for one-time, hosted occasions. Different cadence, same heart.",Weekly Meals,5,checked
+Do you travel outside of Santa Barbara?,"Yes, many of our chefs will travel throughout the region. Additional travel fees may apply depending on location.",Booking,6,checked
+Are you licensed and insured?,"Yes. All chefs are vetted professionals, and the SBCC team carries appropriate licenses and insurance for events and private service.",General,7,checked
+What if I don’t see what I’m looking for?,"Reach out! We thrive on creative requests and custom events. Whether it’s a themed dinner or unique dietary plan, we’re excited to collaborate.",Other,8,checked
+Do you offer tastings?,"In some cases, yes. Especially for weddings or large events, we can arrange tastings with select chefs. Inquire early to ensure availability.",Events,9,checked
+How much does it cost?,"Pricing varies based on service type, guest count, chef, and complexity. We offer full transparency before anything is confirmed.",Booking,10,checked
+,,,,

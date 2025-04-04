@@ -1,10 +1,14 @@
 const fetch = require('node-fetch');
 
-// Use environment variable for API key
-const AIRTABLE_API_KEY = (process.env.AIRTABLE_API_KEY || '').trim();
-const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID || 'appOWFyYIGbLoKalt';
+// Use environment variable for API key - ensure it's properly formatted
+let AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY || '';
+// Remove any whitespace, newlines, or quotes
+AIRTABLE_API_KEY = AIRTABLE_API_KEY.trim().replace(/^["']|["']$/g, '');
 
-// Define table names for each data type - update to match exact Airtable tab names
+// Specify the exact Airtable base ID
+const AIRTABLE_BASE_ID = 'appOWFyYIGbLoKalt';
+
+// Define table names for each data type - must match exactly what's in Airtable
 const TABLES = {
     getChefs: 'Chefs',     // Tab name for chefs
     getMenus: 'Menus',     // Tab name for menus
@@ -13,6 +17,12 @@ const TABLES = {
 
 // Default table is kept for backward compatibility
 const DEFAULT_TABLE = 'SBCC MAIN';
+
+// Log configuration
+console.log('Airtable configuration:');
+console.log(`- Base ID: ${AIRTABLE_BASE_ID}`);
+console.log(`- API Key (first/last 5 chars): ${AIRTABLE_API_KEY.substring(0, 5)}...${AIRTABLE_API_KEY.substring(AIRTABLE_API_KEY.length-5)}`);
+console.log(`- Tables: ${JSON.stringify(TABLES)}`);
 
 // Validate required environment variables
 if (!AIRTABLE_API_KEY) {
@@ -102,7 +112,10 @@ module.exports.handler = async (event) => {
 
         console.log('Processing action:', action);
 
-        let url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(TABLES[action] || DEFAULT_TABLE)}`;
+        const tableName = TABLES[action] || DEFAULT_TABLE;
+        
+        // Construct the Airtable API URL according to their documentation
+        let url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(tableName)}`;
         let filterFormula = '';
 
         // Add filters based on action
