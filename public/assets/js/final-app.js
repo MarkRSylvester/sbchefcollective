@@ -407,7 +407,7 @@ async function loadMenus() {
         }
         
         const menus = await response.json();
-        console.log('Menus data received:', JSON.stringify(menus, null, 2));
+        console.log('Raw menus data received:', JSON.stringify(menus, null, 2));
     
         if (!menus || menus.length === 0) {
             menusContainer.innerHTML = '<div class="error">No menus found. Please try again later.</div>';
@@ -416,23 +416,38 @@ async function loadMenus() {
 
         // Debug menu data
         console.log('Menu data before sorting:');
-        menus.forEach(menu => {
-            console.log(`Menu: ${menu.name || menu.fields?.name}, Number: ${menu.menuNumber || menu.fields?.menuNumber}, Description: ${menu.description || menu.fields?.description}`);
+        menus.forEach((menu, index) => {
+            const menuNumber = menu.menuNumber || menu.fields?.menuNumber;
+            console.log(`${index}: Menu: ${menu.name || menu.fields?.name}, Number: ${menuNumber}, Type: ${typeof menuNumber}`);
         });
 
         // Sort menus by menu number field from Airtable
         const sortedMenus = menus.sort((a, b) => {
             // Get menuNumber from either direct property or fields object
-            const numA = parseInt(a.menuNumber || a.fields?.menuNumber) || 0;
-            const numB = parseInt(b.menuNumber || b.fields?.menuNumber) || 0;
-            console.log(`Comparing menu numbers: ${numA} vs ${numB}`);
+            let numA = a.menuNumber || a.fields?.menuNumber;
+            let numB = b.menuNumber || b.fields?.menuNumber;
+            
+            // Convert to numbers (handle string numbers, arrays, etc.)
+            if (Array.isArray(numA)) numA = numA[0];
+            if (Array.isArray(numB)) numB = numB[0];
+            
+            // If they're strings that can be parsed as numbers
+            numA = typeof numA === 'string' ? parseInt(numA) : numA;
+            numB = typeof numB === 'string' ? parseInt(numB) : numB;
+            
+            // Default to 0 if parsing fails
+            numA = isNaN(numA) ? 0 : numA;
+            numB = isNaN(numB) ? 0 : numB;
+            
+            console.log(`Comparing menu numbers: ${numA} (${typeof numA}) vs ${numB} (${typeof numB})`);
             return numA - numB;
         });
         
         // Debug sorted menu data
         console.log('Menu data after sorting:');
-        sortedMenus.forEach(menu => {
-            console.log(`Menu: ${menu.name || menu.fields?.name}, Number: ${menu.menuNumber || menu.fields?.menuNumber}, Description: ${menu.description || menu.fields?.description}`);
+        sortedMenus.forEach((menu, index) => {
+            const menuNumber = menu.menuNumber || menu.fields?.menuNumber;
+            console.log(`${index}: Menu: ${menu.name || menu.fields?.name}, Number: ${menuNumber}`);
         });
         
         // Clear loading state

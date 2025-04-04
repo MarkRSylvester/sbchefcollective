@@ -216,7 +216,38 @@ module.exports.handler = async (event) => {
                         console.log('Menu field keys:', Object.keys(record.fields));
                         
                         // Try both camel case and space-separated keys
-                        const menuNumber = getField(record, 'Menu Number');
+                        // Log all possible Menu Number field variations to find the correct one
+                        console.log('Menu Number field attempts:');
+                        console.log('- Menu Number:', record.fields['Menu Number']);
+                        console.log('- MenuNumber:', record.fields['MenuNumber']);
+                        console.log('- Menu #:', record.fields['Menu #']);
+                        console.log('- menuNumber:', record.fields['menuNumber']);
+                        console.log('- Menu No:', record.fields['Menu No']);
+                        console.log('- menu_number:', record.fields['menu_number']);
+                        
+                        // Try to find the menu number field with various possible names
+                        let menuNumber = null;
+                        const possibleNumberFields = ['Menu Number', 'MenuNumber', 'Menu #', 'menuNumber', 'Menu No', 'menu_number', 'Menu_Number', 'Number'];
+                        
+                        for (const field of possibleNumberFields) {
+                            if (record.fields[field] !== undefined) {
+                                menuNumber = record.fields[field];
+                                console.log(`Found menu number in field: ${field} = ${menuNumber}`);
+                                break;
+                            }
+                        }
+                        
+                        // If still null, try a more exhaustive search
+                        if (menuNumber === null) {
+                            for (const key of Object.keys(record.fields)) {
+                                if (key.toLowerCase().includes('number') || key.includes('#') || key.includes('no')) {
+                                    menuNumber = record.fields[key];
+                                    console.log(`Found potential menu number in field: ${key} = ${menuNumber}`);
+                                    break;
+                                }
+                            }
+                        }
+                        
                         const menuName = getField(record, 'Menu Name');
                         let menuDesc = getField(record, 'Menu Description');
                         
