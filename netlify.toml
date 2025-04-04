@@ -1,0 +1,61 @@
+[build]
+  command = "npm run build"
+  functions = "netlify/functions"
+  publish = "."
+
+[functions]
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "netlify/functions/*"
+  to = "netlify/functions/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "api/*"
+  to = "netlify/functions/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false
+
+[[headers]]
+  for = "netlify/functions/*"
+  [headers.values]
+    Content-Type = "application/json"
+
+[[headers]]
+  for = "api/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Headers = "Content-Type"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+
+[[headers]]
+  for = "/*"
+    [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Headers = "Content-Type"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Add a specific rule for the Airtable function
+[[redirects]]
+  from = "netlify/functions/airtable"
+  to = "netlify/functions/airtable"
+  status = 200
+  force = true
+  conditions = {Path = ["netlify/functions/airtable"]}
+
+# Add a specific rule for the API function
+[[redirects]]
+  from = "netlify/functions/api"
+  to = "netlify/functions/api"
+  status = 200
+  force = true
+  conditions = {Path = ["netlify/functions/api"]}

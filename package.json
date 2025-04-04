@@ -1,0 +1,13 @@
+{
+  "name": "sbchefcollective",
+  "version": "1.0.0",
+  "description": "Santa Barbara Chef Collective website",
+  "scripts": {
+    "build": "netlify build",
+    "dev": "netlify dev",
+    "deploy": "netlify deploy --prod"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.38.1"
+  }
+}

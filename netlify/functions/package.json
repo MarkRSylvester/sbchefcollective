@@ -1,0 +1,10 @@
+{
+  "name": "netlify-functions",
+  "version": "1.0.0",
+  "description": "Netlify functions for Santa Barbara Chef Collective",
+  "dependencies": {
+    "express": "^4.18.3",
+    "node-fetch": "^2.6.1",
+    "serverless-http": "^3.2.0"
+  }
+}
