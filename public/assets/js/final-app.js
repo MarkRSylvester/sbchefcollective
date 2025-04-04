@@ -423,23 +423,25 @@ async function loadMenus() {
 
         // Sort menus by menu number field from Airtable
         const sortedMenus = menus.sort((a, b) => {
-            // Get menuNumber from either direct property or fields object
+            // Extract menu numbers, ensuring we convert to numbers for consistent sorting
             let numA = a.menuNumber || a.fields?.menuNumber;
             let numB = b.menuNumber || b.fields?.menuNumber;
             
-            // Convert to numbers (handle string numbers, arrays, etc.)
+            // Handle arrays (just in case)
             if (Array.isArray(numA)) numA = numA[0];
             if (Array.isArray(numB)) numB = numB[0];
             
-            // If they're strings that can be parsed as numbers
-            numA = typeof numA === 'string' ? parseInt(numA) : numA;
-            numB = typeof numB === 'string' ? parseInt(numB) : numB;
+            // Force to number type
+            numA = typeof numA === 'string' ? parseInt(numA, 10) : Number(numA);
+            numB = typeof numB === 'string' ? parseInt(numB, 10) : Number(numB);
             
-            // Default to 0 if parsing fails
+            // Ensure we have valid numbers (default to 0 if NaN)
             numA = isNaN(numA) ? 0 : numA;
             numB = isNaN(numB) ? 0 : numB;
             
-            console.log(`Comparing menu numbers: ${numA} (${typeof numA}) vs ${numB} (${typeof numB})`);
+            console.log(`Comparing menu numbers: Menu A "${a.name || a.fields?.name}" number=${numA} vs Menu B "${b.name || b.fields?.name}" number=${numB}`);
+            
+            // Simple numeric comparison
             return numA - numB;
         });
         

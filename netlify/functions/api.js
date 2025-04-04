@@ -215,38 +215,31 @@ module.exports.handler = async (event) => {
                         console.log('Menu record fields:', record.fields);
                         console.log('Menu field keys:', Object.keys(record.fields));
                         
-                        // Try both camel case and space-separated keys
-                        // Log all possible Menu Number field variations to find the correct one
-                        console.log('Menu Number field attempts:');
-                        console.log('- Menu Number:', record.fields['Menu Number']);
-                        console.log('- MenuNumber:', record.fields['MenuNumber']);
-                        console.log('- Menu #:', record.fields['Menu #']);
-                        console.log('- menuNumber:', record.fields['menuNumber']);
-                        console.log('- Menu No:', record.fields['Menu No']);
-                        console.log('- menu_number:', record.fields['menu_number']);
+                        // Check all available Menu ID or Menu Number fields
+                        const menuId = record.fields['Menu ID'];
+                        const menuNo = record.fields['Menu No'];
+                        const menuNumber = record.fields['Menu Number'];
+                        const menuNum = record.fields['Menu #'];
                         
-                        // Try to find the menu number field with various possible names
-                        let menuNumber = null;
-                        const possibleNumberFields = ['Menu Number', 'MenuNumber', 'Menu #', 'menuNumber', 'Menu No', 'menu_number', 'Menu_Number', 'Number'];
+                        console.log('Menu ID checking:');
+                        console.log('- Menu ID field:', menuId);
+                        console.log('- Menu No field:', menuNo);
+                        console.log('- Menu Number field:', menuNumber);
+                        console.log('- Menu # field:', menuNum);
                         
-                        for (const field of possibleNumberFields) {
-                            if (record.fields[field] !== undefined) {
-                                menuNumber = record.fields[field];
-                                console.log(`Found menu number in field: ${field} = ${menuNumber}`);
-                                break;
-                            }
+                        // Use the first available menu number/ID field
+                        let finalMenuNumber = menuId || menuNo || menuNumber || menuNum || '0';
+                        
+                        // If it's an array, extract the first value
+                        if (Array.isArray(finalMenuNumber)) {
+                            finalMenuNumber = finalMenuNumber[0];
                         }
                         
-                        // If still null, try a more exhaustive search
-                        if (menuNumber === null) {
-                            for (const key of Object.keys(record.fields)) {
-                                if (key.toLowerCase().includes('number') || key.includes('#') || key.includes('no')) {
-                                    menuNumber = record.fields[key];
-                                    console.log(`Found potential menu number in field: ${key} = ${menuNumber}`);
-                                    break;
-                                }
-                            }
-                        }
+                        // Convert to a number if possible
+                        const menuNumberValue = parseInt(finalMenuNumber);
+                        finalMenuNumber = isNaN(menuNumberValue) ? finalMenuNumber : menuNumberValue;
+                        
+                        console.log(`Final Menu Number used for sorting: ${finalMenuNumber} (${typeof finalMenuNumber})`);
                         
                         const menuName = getField(record, 'Menu Name');
                         let menuDesc = getField(record, 'Menu Description');
@@ -259,19 +252,19 @@ module.exports.handler = async (event) => {
                                       getField(record, 'description') || '';
                         }
                         
-                        console.log(`Processing menu: ${menuName}, Number: ${menuNumber}, Description: ${menuDesc}`);
+                        console.log(`Processing menu: ${menuName}, Number: ${finalMenuNumber}, Description: ${menuDesc}`);
                         
                         return {
                             id: record.id,
                             fields: {
                                 name: menuName,
                                 description: menuDesc,
-                                menuNumber: menuNumber
+                                menuNumber: finalMenuNumber
                             },
                             // Also include direct properties for flexibility
                             name: menuName,
                             description: menuDesc,
-                            menuNumber: menuNumber,
+                            menuNumber: finalMenuNumber,
                             photo: getPhotoUrl(record, 'Menu Photo'),
                             type: getField(record, 'Menu Type')
                         };
