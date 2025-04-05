@@ -129,6 +129,24 @@ exports.handler = async (event) => {
             const formData = JSON.parse(event.body);
             console.log('Form data received:', formData);
             
+            // Process form data based on type
+            const processedData = {
+                ...formData,
+                'Status': 'New',
+                'Created Time': new Date().toISOString()
+            };
+            
+            // Handle weekly form specific fields
+            if (formData.Type === 'Weekly') {
+                processedData['Days of Week'] = Array.isArray(formData['Days of Week']) 
+                    ? formData['Days of Week'].join(', ')
+                    : formData['Days of Week'];
+                    
+                processedData['Meal Types'] = Array.isArray(formData['Meal Types'])
+                    ? formData['Meal Types'].join(', ')
+                    : formData['Meal Types'];
+            }
+            
             // Create inquiry record
             const inquiryResponse = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${TABLES.submitInquiry}`, {
                 method: 'POST',
@@ -137,12 +155,7 @@ exports.handler = async (event) => {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    fields: {
-                        ...formData,
-                        'Budget Range': formData.Budget || '',
-                        'Status': 'New',
-                        'Created Time': new Date().toISOString()
-                    }
+                    fields: processedData
                 })
             });
 
@@ -151,7 +164,8 @@ exports.handler = async (event) => {
                 console.error('Failed to create inquiry:', {
                     status: inquiryResponse.status,
                     statusText: inquiryResponse.statusText,
-                    error: errorText
+                    error: errorText,
+                    data: processedData
                 });
                 throw new Error(`Failed to create inquiry: ${inquiryResponse.statusText}`);
             }

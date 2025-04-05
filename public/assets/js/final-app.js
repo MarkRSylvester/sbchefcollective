@@ -268,9 +268,9 @@ function initializeEventForm() {
             if (firstInvalid) {
                 firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
-            return;
-        }
-
+      return;
+    }
+    
         // Show loading state
         submitBtn.classList.add('loading');
         submitBtn.disabled = true;
@@ -282,7 +282,7 @@ function initializeEventForm() {
             // Show success message
             showSuccessMessage();
             form.reset();
-        } catch (error) {
+    } catch (error) {
             showErrorMessage(error.message);
         } finally {
             submitBtn.classList.remove('loading');
@@ -392,30 +392,28 @@ function initializeWeeklyForm() {
         submitBtn.classList.add('loading');
         submitBtn.disabled = true;
         
-        // Add loading spinner
-        submitBtn.innerHTML = `
-            <span class="spinner"></span>
-            <span class="btn-text">Submitting...</span>
-        `;
-
         try {
+            // Collect form data
             const formData = new FormData(weeklyForm);
             const data = {
                 'Type': 'Weekly',
                 'Status': 'New'
             };
             
+            // Process form data
             formData.forEach((value, key) => {
-                if (data[key]) {
-                    if (Array.isArray(data[key])) {
-                        data[key].push(value);
-                    } else {
-                        data[key] = [data[key], value];
+                // Handle checkbox groups
+                if (key === 'Days of Week' || key === 'Meal Types') {
+                    if (!data[key]) {
+                        data[key] = [];
                     }
+                    data[key].push(value);
                 } else {
                     data[key] = value;
                 }
             });
+            
+            console.log('Submitting weekly form data:', data);
             
             const response = await fetch(`${API_ENDPOINT}?action=submitInquiry`, {
                 method: 'POST',
@@ -426,7 +424,8 @@ function initializeWeeklyForm() {
             });
             
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorData = await response.json();
+                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
             }
             
             const result = await response.json();
@@ -435,7 +434,7 @@ function initializeWeeklyForm() {
             
         } catch (error) {
             console.error('Error submitting form:', error);
-            showWeeklyErrorMessage('Sorry, there was an error submitting your inquiry. Please try again.', weeklyForm);
+            showWeeklyErrorMessage(error.message || 'Sorry, there was an error submitting your inquiry. Please try again.', weeklyForm);
         } finally {
             submitBtn.classList.remove('loading');
             submitBtn.disabled = false;
@@ -486,30 +485,32 @@ function showWeeklyErrorMessage(message, form) {
 }
 
 function loadMealTypes() {
-    const select = document.getElementById('mealType');
-    if (!select) return;
+    const mealTypesContainer = document.getElementById('mealTypes');
+    if (!mealTypesContainer) return;
     
     const mealTypes = [
         'Breakfast',
         'Lunch',
         'Dinner',
         'Snacks',
-        'Full Day Meal Plan',
-        'Custom Plan'
+        'Desserts'
     ];
     
-    select.innerHTML = '<option value="">Select meal type...</option>';
+    mealTypesContainer.innerHTML = '';
     mealTypes.forEach(type => {
-        const option = document.createElement('option');
-        option.value = type;
-        option.textContent = type;
-        select.appendChild(option);
+        const label = document.createElement('label');
+        label.className = 'checkbox-label';
+        label.innerHTML = `
+            <input type="checkbox" name="Meal Types" value="${type}">
+            <span class="checkbox-text">${type}</span>
+        `;
+        mealTypesContainer.appendChild(label);
     });
 }
 
 function loadDaysOfWeek() {
-    const container = document.getElementById('daysOfWeek');
-    if (!container) return;
+    const daysContainer = document.getElementById('daysOfWeek');
+    if (!daysContainer) return;
     
     const days = [
         'Monday',
@@ -521,16 +522,15 @@ function loadDaysOfWeek() {
         'Sunday'
     ];
     
-    container.innerHTML = '';
+    daysContainer.innerHTML = '';
     days.forEach(day => {
         const label = document.createElement('label');
         label.className = 'checkbox-label';
         label.innerHTML = `
-            <input type="checkbox" name="Preferred Days" value="${day}">
-            <span class="checkmark"></span>
-            ${day}
+            <input type="checkbox" name="Days of Week" value="${day}">
+            <span class="checkbox-text">${day}</span>
         `;
-        container.appendChild(label);
+        daysContainer.appendChild(label);
     });
 }
 
@@ -612,11 +612,11 @@ function initializeExploringJourney() {
                     },
                     body: JSON.stringify(data)
                 });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
                 const result = await response.json();
                 showSuccessMessage('Thank you! We will contact you shortly.');
                 quickForm.reset();
@@ -748,7 +748,7 @@ async function loadChefs() {
             card.innerHTML = `
                 <div class="chef-photo">
                     <img src="${chef.image || DEFAULT_CHEF_IMAGE}" alt="${chef.name}" onerror="this.src='${DEFAULT_CHEF_IMAGE}'">
-                </div>
+        </div>
                 <div class="chef-info">
                     <h3>${chef.name}</h3>
                     <p>${chef.bio}</p>
@@ -797,7 +797,7 @@ async function loadMenus() {
                         <p class="menu-description">${menu.description}</p>
                         <div class="dishes-container" data-menu-id="${menu.id}">
                             <div class="loading">Loading dishes...</div>
-                        </div>
+                    </div>
                     </div>
                 `;
                 
@@ -823,7 +823,7 @@ async function loadMenus() {
                 menusContainer.appendChild(accordion);
             });
             
-    } catch (error) {
+        } catch (error) {
         console.error('Error loading menus:', error);
         menusContainer.innerHTML = '<div class="error">Failed to load menus. Please try again later.</div>';
     }
@@ -879,7 +879,7 @@ async function loadDishes(menuId) {
                 container.appendChild(section);
             });
             
-    } catch (error) {
+        } catch (error) {
         console.error('Error loading dishes:', error);
         container.innerHTML = '<div class="error">Failed to load dishes. Please try again later.</div>';
     }
@@ -914,7 +914,7 @@ async function loadServices() {
             </div>
         `;
         
-    } catch (error) {
+            } catch (error) {
         console.error('Error loading services:', error);
         servicesContainer.innerHTML = '<div class="error">Failed to load services. Please try again later.</div>';
     }

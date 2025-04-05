@@ -161,7 +161,7 @@ exports.handler = async function(event, context) {
                             name: String(getField(record, 'Name') || '').trim(),
                             chefPhoto: photoUrl,
                             vibe: String(getField(record, 'Vibe') || '').trim(),
-                            description: String(getField(record, 'Description') || '').trim()
+                            image.png             description: String(getField(record, 'Description') || '').trim()
                         };
                     });
                 break;
