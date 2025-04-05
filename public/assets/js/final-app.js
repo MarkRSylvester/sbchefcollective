@@ -637,15 +637,13 @@ async function loadCuisinePreferences() {
     container.innerHTML = `
         <h4>Cuisine Preferences</h4>
         <p class="helper-text">Select all cuisines that interest you for your event</p>
-        <div class="checkbox-group">
-            ${cuisines.map(cuisine => `
-                <label>
-                    <input type="checkbox" name="Cuisine Preference" value="${cuisine}">
-                    <span class="checkmark"></span>
-                    ${cuisine}
-                </label>
-            `).join('')}
-        </div>
+        ${cuisines.map(cuisine => `
+            <label class="checkbox-label">
+                <input type="checkbox" name="Cuisine Preference" value="${cuisine}">
+                <span class="checkmark"></span>
+                ${cuisine}
+            </label>
+        `).join('')}
     `;
 }
 
@@ -671,15 +669,13 @@ async function loadVibeWords() {
     container.innerHTML = `
         <h4>Event Vibe</h4>
         <p class="helper-text">Choose words that best describe your desired event atmosphere</p>
-        <div class="checkbox-group">
-            ${vibes.map(vibe => `
-                <label>
-                    <input type="checkbox" name="Event Vibe" value="${vibe}">
-                    <span class="checkmark"></span>
-                    ${vibe}
-                </label>
-            `).join('')}
-        </div>
+        ${vibes.map(vibe => `
+            <label class="checkbox-label">
+                <input type="checkbox" name="Event Vibe" value="${vibe}">
+                <span class="checkmark"></span>
+                ${vibe}
+            </label>
+        `).join('')}
     `;
 }
 
