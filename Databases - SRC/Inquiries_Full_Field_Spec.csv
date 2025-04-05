@@ -1,0 +1,27 @@
+Field Label,Field Name,Type,Required,Notes
+Record ID,Record ID,Auto Number,Yes,Unique identifier for internal use
+Inquiry Type,Inquiry Type,Single select,Yes,"e.g., Event, Weekly, Exploring"
+First Name,First Name,Single line text,Yes,
+Last Name,Last Name,Single line text,Yes,
+Email,Email,Email,Yes,Airtable will validate email format
+Phone,Phone,Phone Number,Yes,
+Event Type,Event Type,Single select,Yes,"Options: Dinner Party, Wedding, Retreat, etc."
+Event Date,Event Date,Date,Yes,
+Event Time,Event Time,Time,Yes,
+Guest Count,Guest Count,Number,Yes,
+Event Address,Event Address,Long text,Yes,Full delivery address
+Budget Range,Budget,Single select,No,"Options like: $100–150/pp, etc."
+Dietary Needs,Dietary Needs,Long text,No,
+Cuisine Preference,Cuisine Preference,Multiple select,No,Options mapped to menu tags
+Vibe Words,Vibe Words,Multiple select,No,"e.g., Cozy, Elegant, Coastal"
+Must-Have Ingredients,Must Haves,Long text,No,"Keywords for matching lobster, chocolate, etc."
+Optional Services,Optional Services,Linked record,No,Linked to Services table — filtered to Enhancements
+Notes or Requests,Notes,Long text,No,Freeform comments
+Selected Menu,Menu ID,Linked record,Yes,Linked to Menus table — set by system
+Selected Dishes,Selected Dishes,Linked record,Yes,Linked to Dishes — multi-select
+Status,Status,Single select,Yes,"Inquiry status: New, Awaiting Chef, Confirmed, etc."
+Assigned Chef,Assigned Chef,Linked record,No,Linked to Chefs table
+Submitted At,Submitted At,Created time,Yes,Auto-timestamp
+Last Updated,Last Updated,Last modified time,Yes,Auto-tracked by Airtable
+Dubsado Synced?,Dubsado Synced?,Checkbox,No,Marked when Dubsado receives it
+Internal Notes,Internal Notes,Long text,No,Visible to SBCC staff only

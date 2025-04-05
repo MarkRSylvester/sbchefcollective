@@ -1,0 +1,6 @@
+Log ID,Timestamp,Operation,Source,Payload (JSON),Success (Tested?),Notes
+,,Create Client,Event Form,"{ ""name"": ""Alex G."", ""email"": ""alexg@example.com"" }",TRUE,Simulated from event form
+,,Submit Form,Weekly Meals,"{ ""meals"": 5, ""days"": [""Monday"", ""Wednesday""] }",TRUE,Weekly meal service test
+,,Send Invoice,Admin Update,"{ ""invoiceId"": ""INV-00123"", ""amount"": 2150 }",,Invoice not sent - test only
+,,Update Project,Event Form,"{ ""status"": ""Chef Assigned"", ""chef"": ""D004"" }",,Chef assignment queued
+,,Create Client,Weekly Meals,"{ ""name"": ""Becca T."", ""email"": ""becca@example.com"" }",TRUE,Verified structure looks good

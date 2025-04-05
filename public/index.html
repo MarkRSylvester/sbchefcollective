@@ -17,7 +17,7 @@
 
   <!-- Load CSS and Fonts -->
   <link rel="stylesheet" href="assets/css/styles.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Helvetica+Neue:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- Add jsPDF library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -64,381 +64,270 @@
   </style>
 </head>
 <body>
-  <!-- Ocean Background Header -->
-  <div class="header-bg">
-    <div class="header">
-      <img class="logo" src="https://images.squarespace-cdn.com/content/v1/6291943b0cf3ea2c2ff3e83e/bbd18bbc-507c-4f42-9c4c-f252e1a9dd76/sbchef_main.png?format=1500w" alt="Santa Barbara Chef Collective Logo">
-      <h1 class="site-title">Santa Barbara Chef Collective</h1>
-      <p class="site-tagline">Handpicked Talent. Personal Touch. Unforgettable Experiences.</p>
-      <div class="main-nav">
-        <button id="chefsButton" class="nav-button active">Our Chefs</button>
-        <button id="menusButton" class="nav-button">Featured Menus</button>
-        <button id="servicesButton" class="nav-button">Services</button>
-        <button id="faqButton" class="nav-button">FAQ</button>
+  <div id="app">
+    <!-- Hero Section -->
+    <header class="hero">
+      <div class="hero-content">
+        <h1>Santa Barbara Chef Collective</h1>
+        <p class="tagline">Handpicked Talent. Personal Touch.</p>
       </div>
-    </div>
-  </div>
+    </header>
 
-  <!-- Content Area -->
-  <main class="container">
-    <!-- Chefs Section -->
-    <div id="chefsContainer" class="tab-content active">
-      <div class="loading">Loading our talented chefs...</div>
-    </div>
+    <!-- Journey Selection -->
+    <section id="journeySelection" class="journey-selection">
+      <div class="journey-options">
+        <button class="journey-btn" data-journey="event">
+          <h2>I'm Planning an Event</h2>
+          <p>Create an unforgettable culinary experience</p>
+        </button>
+        <button class="journey-btn" data-journey="weekly">
+          <h2>I Need Weekly Meals</h2>
+          <p>Personal chef services for your home</p>
+        </button>
+        <button class="journey-btn" data-journey="exploring">
+          <h2>Just Browsing</h2>
+          <p>Discover our chefs and menus</p>
+        </button>
+      </div>
+    </section>
 
-    <!-- Menus Section -->
-    <div id="menusContainer" class="tab-content">
-      <div class="loading">Loading our curated menus...</div>
-    </div>
+    <!-- Event Journey -->
+    <section id="eventJourney" class="journey-container" style="display: none;">
+      <div class="form-container">
+        <form id="eventForm" class="intake-form">
+          <h2>Tell Us About Your Event</h2>
+          
+          <!-- Basic Info -->
+          <div class="form-group">
+            <label for="firstName">First Name*</label>
+            <input type="text" id="firstName" name="First Name" required>
+          </div>
+          <div class="form-group">
+            <label for="lastName">Last Name*</label>
+            <input type="text" id="lastName" name="Last Name" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Email*</label>
+            <input type="email" id="email" name="Email" required>
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone Number*</label>
+            <input type="tel" id="phone" name="Phone" required>
+          </div>
 
-    <div id="servicesContainer" class="tab-content">
-      <div class="services-section">
-        <div class="services-grid">
-          <div class="service-card">
-            <h3>Private Chef Services</h3>
-            <p>From intimate dinners to family gatherings, our chefs create personalized dining experiences in your home. Each menu is thoughtfully crafted to your preferences and dietary needs.</p>
+          <!-- Event Details -->
+          <div class="form-group">
+            <label for="eventType">Event Type*</label>
+            <select id="eventType" name="Event Type" required>
+              <option value="">Select Event Type</option>
+              <!-- Options loaded dynamically -->
+            </select>
           </div>
-          <div class="service-card">
-            <h3>Event Catering</h3>
-            <p>Elevate your special occasions with our custom catering services. From weddings to corporate events, we handle everything from menu planning to execution.</p>
+          <div class="form-group">
+            <label for="eventDate">Event Date*</label>
+            <input type="date" id="eventDate" name="Event Date" required>
           </div>
-          <div class="service-card">
-            <h3>Cooking Classes</h3>
-            <p>Learn the secrets of exceptional cooking with our interactive classes. Perfect for team building, special occasions, or expanding your culinary horizons.</p>
+          <div class="form-group">
+            <label for="eventTime">Event Time*</label>
+            <input type="time" id="eventTime" name="Event Time" required>
           </div>
-          <div class="service-card">
-            <h3>Meal Preparation</h3>
-            <p>Weekly meal prep services tailored to your dietary preferences and lifestyle needs. Fresh, healthy, and convenient meals prepared in your home.</p>
+          <div class="form-group">
+            <label for="guestCount">Number of Guests*</label>
+            <input type="number" id="guestCount" name="Guest Count" min="1" required>
           </div>
-          <div class="service-card">
-            <h3>Wine Pairing</h3>
-            <p>Expert wine selection and pairing services to complement your menu. Our sommeliers create the perfect wine experience for your event.</p>
+          <div class="form-group">
+            <label for="eventAddress">Event Address*</label>
+            <textarea id="eventAddress" name="Event Address" required></textarea>
           </div>
-          <div class="service-card">
-            <h3>Kitchen Organization</h3>
-            <p>Professional kitchen setup and organization services. We help optimize your space for efficiency and enjoyment.</p>
+
+          <!-- Preferences -->
+          <div class="form-group">
+            <label for="budgetRange">Budget Range</label>
+            <select id="budgetRange" name="Budget">
+              <option value="">Select Budget Range</option>
+              <!-- Options loaded dynamically -->
+            </select>
           </div>
+          <div class="form-group">
+            <label for="dietaryNeeds">Dietary Needs</label>
+            <textarea id="dietaryNeeds" name="Dietary Needs"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Preferred Cuisines</label>
+            <div id="cuisinePreferences" class="checkbox-group">
+              <!-- Options loaded dynamically -->
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Event Vibe</label>
+            <div id="vibeWords" class="checkbox-group">
+              <!-- Options loaded dynamically -->
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="mustHaves">Must-Have Ingredients</label>
+            <textarea id="mustHaves" name="Must Haves"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Optional Add-Ons</label>
+            <div id="optionalServices" class="checkbox-group">
+              <!-- Options loaded dynamically -->
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="notes">Additional Notes</label>
+            <textarea id="notes" name="Notes"></textarea>
+          </div>
+
+          <button type="submit" class="submit-btn">Submit Inquiry</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Weekly Journey -->
+    <section id="weeklyJourney" class="journey-container" style="display: none;">
+      <div class="form-container">
+        <form id="weeklyForm" class="intake-form">
+          <h2>Weekly Meal Service Inquiry</h2>
+          
+          <!-- Basic Info -->
+          <div class="form-group">
+            <label for="weeklyFirstName">First Name*</label>
+            <input type="text" id="weeklyFirstName" name="First Name" required>
+          </div>
+          <div class="form-group">
+            <label for="weeklyLastName">Last Name*</label>
+            <input type="text" id="weeklyLastName" name="Last Name" required>
+          </div>
+          <div class="form-group">
+            <label for="weeklyEmail">Email*</label>
+            <input type="email" id="weeklyEmail" name="Email" required>
+          </div>
+          <div class="form-group">
+            <label for="weeklyPhone">Phone Number*</label>
+            <input type="tel" id="weeklyPhone" name="Phone" required>
+          </div>
+
+          <!-- Service Details -->
+          <div class="form-group">
+            <label for="serviceAddress">Service Address*</label>
+            <textarea id="serviceAddress" name="Address" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="householdCount">Adults & Children*</label>
+            <input type="text" id="householdCount" name="Household Count" required>
+          </div>
+          <div class="form-group">
+            <label for="mealsPerWeek">Meals per Week*</label>
+            <select id="mealsPerWeek" name="Meals per Week" required>
+              <option value="">Select Number of Meals</option>
+              <option value="3">3 Meals</option>
+              <option value="5">5 Meals</option>
+              <option value="7">7 Meals</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Days of the Week*</label>
+            <div id="daysOfWeek" class="checkbox-group">
+              <!-- Days checkboxes -->
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Meal Types*</label>
+            <div id="mealTypes" class="checkbox-group">
+              <!-- Meal type checkboxes -->
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="serviceType">Service Type*</label>
+            <select id="serviceType" name="Service Type" required>
+              <option value="">Select Service Type</option>
+              <option value="In-Home Cooking">In-Home Cooking</option>
+              <option value="Delivery – Glass">Delivery – Glass Containers</option>
+              <option value="Delivery – Disposable">Delivery – Disposable Containers</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="servingStyle">Serving Style*</label>
+            <select id="servingStyle" name="Serving Style" required>
+              <option value="">Select Serving Style</option>
+              <option value="Individual">Individual Portions</option>
+              <option value="Family Style">Family Style</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="weeklyDietaryNeeds">Dietary Preferences</label>
+            <textarea id="weeklyDietaryNeeds" name="Dietary Needs"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="weeklyNotes">Additional Notes</label>
+            <textarea id="weeklyNotes" name="Notes"></textarea>
+          </div>
+
+          <button type="submit" class="submit-btn">Submit Inquiry</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Exploring Journey -->
+    <section id="exploringJourney" class="journey-container" style="display: none;">
+      <div class="exploring-content">
+        <div class="exploring-header">
+          <h2>Discover SBCC</h2>
+          <p>Explore our chefs, menus, and artistry. Whether you're planning ahead or just gathering ideas, there's plenty to explore.</p>
         </div>
         
-        <section class="estate-chef-section">
-          <h2>Full-Time Estate Chef Placement</h2>
-          <p class="subtitle">Live-in OR Offsite Options Available</p>
-          
-          <div class="partnership-announcement">
-            <h3>Exclusive Yacht & Estate Placement Partnership</h3>
-            <p>Santa Barbara Chef Collective is thrilled to announce our exclusive partnership with premier private yacht placement agencies, offering discerning clients access to the world's top culinary talent.</p>
-          </div>
-          
-          <div class="step-grid">
-            <div class="step-card">
-              <h4>1. Chef Selection</h4>
-              <p>Receive carefully curated resumes of international chefs matched to your preferences and requirements.</p>
+        <div class="action-tiles">
+          <button class="action-tile" data-action="viewChefs">
+            <h3>View Chefs</h3>
+            <p>Meet our talented culinary artists</p>
+          </button>
+          <button class="action-tile" data-action="viewMenus">
+            <h3>View Menus</h3>
+            <p>Browse our curated menu selections</p>
+          </button>
+          <button class="action-tile" data-action="learnMore">
+            <h3>Learn How It Works</h3>
+            <p>Discover our process and services</p>
+          </button>
+        </div>
+
+        <!-- Quick Contact Form -->
+        <div id="quickContact" class="quick-contact">
+          <h3>Ready to talk food?</h3>
+          <form id="quickInquiryForm" class="quick-form">
+            <div class="form-group">
+              <label for="quickName">Name</label>
+              <input type="text" id="quickName" name="Name" required>
             </div>
-            <div class="step-card">
-              <h4>2. Personal Interviews</h4>
-              <p>Interview chefs personally to ensure their culinary style and personality align with your vision.</p>
+            <div class="form-group">
+              <label for="quickEmail">Email</label>
+              <input type="email" id="quickEmail" name="Email" required>
             </div>
-            <div class="step-card">
-              <h4>3. Perfect Match</h4>
-              <p>Select your ideal chef with our expert guidance for a seamless culinary partnership.</p>
+            <div class="form-group">
+              <label for="quickInterest">I'm Interested In</label>
+              <select id="quickInterest" name="Interest Type" required>
+                <option value="">Select Interest</option>
+                <option value="Event">Planning an Event</option>
+                <option value="Weekly">Weekly Meal Service</option>
+                <option value="Other">Something Else</option>
+              </select>
             </div>
-          </div>
-          
-          <div class="global-network">
-            <h3>Access to Global Culinary Talent</h3>
-            <p>Connect with world-class chefs specializing in diverse cuisines and styles, from Michelin-starred professionals to innovative culinary artists.</p>
+            <div class="form-group">
+              <label for="quickMessage">Message</label>
+              <textarea id="quickMessage" name="Message" required></textarea>
+            </div>
+            <button type="submit" class="submit-btn">Send Message</button>
+          </form>
+        </div>
       </div>
 
-          <div class="cta-buttons">
-            <button class="cta-button">Inquire About Estate Chef Placement</button>
-          </div>
-        </section>
-      </div>
-    </div>
-
-    <div id="faqContainer" class="tab-content">
-      <div class="faq-container">
-          <div class="faq-section">
-              <h2 class="faq-section-title">Frequently Asked Questions</h2>
-              
-              <div class="faq-item">
-                  <h3 class="faq-question">How do I book?</h3>
-                  <div class="faq-answer">
-                      <p>Please navigate to our Contact Page and submit your inquiry. Once we receive your request, we will setup an initial phone call with you and see how we can best fulfill your needs! We will then set you up with one of our amazing chefs, depending on the specific style and nature of your event.</p>
-                  </div>
-              </div>
-
-              <div class="faq-item">
-                  <h3 class="faq-question">How does the payment process work?</h3>
-                  <div class="faq-answer">
-                      <p>With our Chef Collective, we will write you up a menu proposal with a set rate for your event, depending on your group size and meal specifications. We require you to pay half of the total fee in order to secure your date and the second half on the day of your event.</p>
-                  </div>
-              </div>
-
-              <div class="faq-item">
-                  <h3 class="faq-question">Is there a cancellation period?</h3>
-                  <div class="faq-answer">
-                      <p>Yes! You have up to 2 weeks before your event to receive a full refund. Anything after 2 weeks will be dealt with on a case by case basis, understanding that we are living in complicated times with unforeseen plan changes. We get it!</p>
-                  </div>
-              </div>
-
-              <div class="faq-item">
-                  <h3 class="faq-question">What does it cost?</h3>
-                  <div class="faq-answer">
-                      <p>Depending on the scale, size and nature of your event, the cost typically ranges from $125-$175 per person or an hourly rate ($65-$140) + groceries for meal delivery services. Please inquire for a quote catered directly to your needs.</p>
-                  </div>
-              </div>
-
-              <div class="faq-item">
-                  <h3 class="faq-question">What services do you offer?</h3>
-                  <div class="faq-answer">
-                      <p>We offer a comprehensive range of culinary services including:</p>
-                      <ul>
-                          <li>Private Chef Services for intimate dinners and events</li>
-                          <li>Event Catering for larger gatherings</li>
-                          <li>Cooking Classes and demonstrations</li>
-                          <li>Weekly Meal Preparation</li>
-                          <li>Wine Pairing consultation</li>
-                          <li>Kitchen Organization services</li>
-                          <li>Full-Time Estate Chef Placement</li>
-                      </ul>
-                  </div>
-              </div>
-
-              <div class="faq-item">
-                  <h3 class="faq-question">Do you accommodate dietary restrictions?</h3>
-                  <div class="faq-answer">
-                      <p>Absolutely! Our chefs are experienced in preparing meals for various dietary needs including:</p>
-                      <ul>
-                          <li>Vegetarian and Vegan</li>
-                          <li>Gluten-Free</li>
-                          <li>Dairy-Free</li>
-                          <li>Keto and Paleo</li>
-                          <li>Food Allergies and Sensitivities</li>
-                      </ul>
-                      <p>Please let us know your dietary requirements when booking, and we'll ensure they are accommodated.</p>
-                  </div>
-              </div>
-
-              <div class="faq-item">
-                  <h3 class="faq-question">What is your service area?</h3>
-                  <div class="faq-answer">
-                      <p>We primarily serve the Santa Barbara area, including Montecito, Carpinteria, Goleta, and surrounding communities. Travel fees may apply for locations outside our primary service area. For estate chef placement, we work with clients nationwide and internationally.</p>
-                  </div>
-              </div>
-
-              <div class="faq-item">
-                  <h3 class="faq-question">What is included in your service?</h3>
-                  <div class="faq-answer">
-                      <p>Our standard service includes:</p>
-                      <ul>
-                          <li>Menu planning and customization</li>
-                          <li>Grocery shopping and ingredient sourcing</li>
-                          <li>On-site preparation and cooking</li>
-                          <li>Professional service and presentation</li>
-                          <li>Kitchen cleanup after service</li>
-                          <li>All necessary cooking equipment</li>
-                      </ul>
-                      <p>Additional services such as rentals, staff, and bar service can be arranged upon request.</p>
-                  </div>
-              </div>
-
-              <div class="faq-item">
-                  <h3 class="faq-question">How far in advance should I book?</h3>
-                  <div class="faq-answer">
-                      <p>We recommend booking at least:</p>
-                      <ul>
-                          <li>2-3 weeks in advance for private dining</li>
-                          <li>4-6 weeks for special events and holidays</li>
-                          <li>2-3 months for large events and weddings</li>
-                      </ul>
-                      <p>However, we understand that last-minute requests happen and will do our best to accommodate when possible.</p>
-                  </div>
-              </div>
-
-              <div class="faq-item">
-                  <h3 class="faq-question">Can you handle large events?</h3>
-                  <div class="faq-answer">
-                      <p>Yes! We have experience catering events of all sizes, from intimate dinners to large gatherings of 200+ guests. For larger events, we provide additional staff and equipment as needed to ensure smooth service.</p>
-                  </div>
-              </div>
-          </div>
-      </div>
-    </div>
-
-    <div id="pricing-content" class="tab-content">
-      <section class="pricing-section">
-        <h2 class="pricing-title">Private Chef Experience</h2>
-        <div class="pricing-grid">
-          <div class="pricing-card">
-            <h3>Intimate Dining</h3>
-            <p class="price">From $175 per person</p>
-            <p class="guests">2-6 guests</p>
-            <div class="pricing-details">
-              <h4>Base Menu Includes:</h4>
-              <ul>
-                <li>One appetizer</li>
-                <li>One main course</li>
-                <li>One dessert</li>
-              </ul>
-              <div class="add-ons">
-                <h4>Available Add-ons:</h4>
-                <ul>
-                  <li>Additional appetizer (+$12pp)</li>
-                  <li>Premium protein upgrade (+$18pp)</li>
-                  <li>Second dessert (+$10pp)</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div class="pricing-card featured">
-            <h3>Group Dining</h3>
-            <p class="price">From $150 per person</p>
-            <p class="guests">7-12 guests</p>
-            <div class="pricing-details">
-              <h4>Base Menu Includes:</h4>
-              <ul>
-                <li>Two appetizers</li>
-                <li>Choice of two mains</li>
-                <li>One dessert</li>
-              </ul>
-              <div class="add-ons">
-                <h4>Available Add-ons:</h4>
-                <ul>
-                  <li>Additional appetizer (+$10pp)</li>
-                  <li>Premium protein upgrade (+$15pp)</li>
-                  <li>Second dessert (+$8pp)</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div class="pricing-card">
-            <h3>Event Dining</h3>
-            <p class="price">From $125 per person</p>
-            <p class="guests">13+ guests</p>
-            <div class="pricing-details">
-              <h4>Base Menu Includes:</h4>
-              <ul>
-                <li>Three appetizers</li>
-                <li>Choice of three mains</li>
-                <li>Two desserts</li>
-              </ul>
-              <div class="add-ons">
-                <h4>Available Add-ons:</h4>
-                <ul>
-                  <li>Additional appetizer (+$8pp)</li>
-                  <li>Premium protein upgrade (+$12pp)</li>
-                  <li>Additional dessert (+$6pp)</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="pricing-notes">
-          <p class="pricing-note">* All experiences include chef service, kitchen cleanup, and basic ingredients</p>
-          <p class="pricing-note">* Premium ingredients and special dietary accommodations may affect final pricing</p>
-          <p class="pricing-note">* Travel fees may apply for locations outside Santa Barbara</p>
-        </div>
-        <div class="cta-buttons">
-          <button class="cta-button" id="customizeMenuButton">Customize Your Menu</button>
-          <button class="cta-button secondary" id="planGatheringButton">Plan Your Gathering</button>
-        </div>
-      </section>
-    </div>
-
-    <div id="event-form-content" class="tab-content">
-      <section class="event-form-section">
-        <h2 class="form-title">Plan Your Gathering</h2>
-        <form class="event-form" id="eventForm">
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="name">Full Name</label>
-              <input type="text" id="name" name="name" required>
-            </div>
-            <div class="form-group">
-              <label for="email">Email</label>
-              <input type="email" id="email" name="email" required>
-            </div>
-            <div class="form-group">
-              <label for="phone">Phone</label>
-              <input type="tel" id="phone" name="phone" required>
-            </div>
-            <div class="form-group">
-              <label for="guests">Number of Guests</label>
-              <input type="number" id="guests" name="guests" min="2" required>
-            </div>
-            <div class="form-group full-width">
-              <label for="date">Preferred Date</label>
-              <input type="date" id="date" name="date" required>
-            </div>
-            <div class="form-group full-width">
-              <label>Event Type</label>
-              <div class="checkbox-group">
-                <label><input type="radio" name="eventType" value="dinner"> Intimate Dinner</label>
-                <label><input type="radio" name="eventType" value="party"> Dinner Party</label>
-                <label><input type="radio" name="eventType" value="special"> Special Event</label>
-              </div>
-            </div>
-            <div class="form-group full-width">
-              <label for="message">Additional Details</label>
-              <textarea id="message" name="message" rows="4"></textarea>
-            </div>
-          </div>
-          <button type="submit" class="submit-button">Submit Inquiry</button>
-        </form>
-      </section>
-    </div>
-
-    <div id="meal-service-content" class="tab-content">
-      <section class="event-form-section">
-        <h2 class="form-title">Personal Chef Service</h2>
-        <form class="event-form" id="mealServiceForm">
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="msName">Full Name</label>
-              <input type="text" id="msName" name="name" required>
-            </div>
-            <div class="form-group">
-              <label for="msEmail">Email</label>
-              <input type="email" id="msEmail" name="email" required>
-            </div>
-            <div class="form-group">
-              <label for="msPhone">Phone</label>
-              <input type="tel" id="msPhone" name="phone" required>
-            </div>
-            <div class="form-group">
-              <label for="household">Household Size</label>
-              <input type="number" id="household" name="household" min="1" required>
-            </div>
-            <div class="form-group full-width">
-              <label>Dietary Preferences</label>
-              <div class="checkbox-group">
-                <label><input type="checkbox" name="dietary" value="vegetarian"> Vegetarian</label>
-                <label><input type="checkbox" name="dietary" value="vegan"> Vegan</label>
-                <label><input type="checkbox" name="dietary" value="gluten-free"> Gluten-Free</label>
-                <label><input type="checkbox" name="dietary" value="dairy-free"> Dairy-Free</label>
-                <label><input type="checkbox" name="dietary" value="keto"> Keto</label>
-                <label><input type="checkbox" name="dietary" value="paleo"> Paleo</label>
-              </div>
-            </div>
-            <div class="form-group full-width">
-              <label>Service Frequency</label>
-              <div class="checkbox-group">
-                <label><input type="radio" name="frequency" value="weekly"> Weekly</label>
-                <label><input type="radio" name="frequency" value="biweekly"> Bi-Weekly</label>
-                <label><input type="radio" name="frequency" value="monthly"> Monthly</label>
-              </div>
-            </div>
-            <div class="form-group full-width">
-              <label for="msMessage">Additional Requirements</label>
-              <textarea id="msMessage" name="message" rows="4"></textarea>
-            </div>
-          </div>
-          <button type="submit" class="submit-button">Request Service</button>
-        </form>
-      </section>
-    </div>
-  </main>
+      <!-- Dynamic Content Areas -->
+      <div id="chefsContainer" class="content-container" style="display: none;"></div>
+      <div id="menusContainer" class="content-container" style="display: none;"></div>
+      <div id="servicesContainer" class="content-container" style="display: none;"></div>
+    </section>
+  </div>
 
   <!-- Load JavaScript -->
   <script src="assets/js/final-app.js"></script>

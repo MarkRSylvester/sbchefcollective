@@ -11,18 +11,26 @@ const AIRTABLE_BASE_ID = 'appOWFyYIGbLoKalt';
 const TABLES = {
     getChefs: 'Chefs',
     getMenus: 'Menus',
-    getDishes: 'Dishes'
+    getDishes: 'Dishes',
+    getServices: 'Services',
+    getInquiries: 'Inquiries (Full)',
+    getInquiriesSummary: 'Inquiries (Ops Summary)',
+    getDubsadoLogs: 'Dubsado Sync Log',
+    getImages: 'Images',
+    getColors: 'Colors',
+    submitInquiry: 'Inquiries (Full)'
 };
 
 // Log configuration for debugging
-console.log('API Function Configuration:');
-console.log('- Base ID:', AIRTABLE_BASE_ID);
-console.log('- API Key Length:', AIRTABLE_API_KEY.length);
-console.log('- Tables:', Object.keys(TABLES).join(', '));
+console.log('API Function Configuration:', {
+    baseId: AIRTABLE_BASE_ID,
+    apiKeyLength: AIRTABLE_API_KEY.length,
+    availableEndpoints: Object.keys(TABLES)
+});
 
 // Helper function to safely get field value
 const getField = (record, fieldName) => {
-    if (!record || !record.fields) {
+    if (!record?.fields) {
         console.log('Invalid record structure:', record);
         return null;
     }
@@ -35,15 +43,44 @@ const getPhotoUrl = (record, fieldName) => {
     if (!field) return null;
     
     if (typeof field === 'string') return field;
-    if (Array.isArray(field) && field[0] && field[0].url) return field[0].url;
+    if (Array.isArray(field) && field[0]?.url) return field[0].url;
     
     console.log('Unexpected photo field structure:', field);
     return null;
 };
 
+// Helper function to simulate Dubsado sync
+const simulateDubsadoSync = async (inquiryData) => {
+    try {
+        const payload = {
+            fields: {
+                'Inquiry ID': inquiryData.id,
+                'Timestamp': new Date().toISOString(),
+                'Operation': 'Create Inquiry',
+                'Payload Summary': JSON.stringify(inquiryData),
+                'Sync Status': 'Simulated'
+            }
+        };
+
+        await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${TABLES.getDubsadoLogs}`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        return true;
+    } catch (error) {
+        console.error('Dubsado sync simulation error:', error);
+        return false;
+    }
+};
+
 // Export the handler function
 exports.handler = async (event) => {
-    console.log('Received request:', {
+    console.log('Request received:', {
         method: event.httpMethod,
         path: event.path,
         params: event.queryStringParameters
@@ -75,7 +112,54 @@ exports.handler = async (event) => {
             };
         }
 
-        // Build Airtable API URL
+        // Handle form submissions
+        if (action === 'submitInquiry') {
+            if (event.httpMethod !== 'POST') {
+                return {
+                    statusCode: 405,
+                    headers,
+                    body: JSON.stringify({ error: 'Method not allowed' })
+                };
+            }
+
+            const formData = JSON.parse(event.body);
+            
+            // Create inquiry record
+            const inquiryResponse = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${TABLES.submitInquiry}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    fields: {
+                        ...formData,
+                        'Status': 'New',
+                        'Created Time': new Date().toISOString()
+                    }
+                })
+            });
+
+            if (!inquiryResponse.ok) {
+                throw new Error(`Failed to create inquiry: ${inquiryResponse.statusText}`);
+            }
+
+            const inquiry = await inquiryResponse.json();
+            
+            // Simulate Dubsado sync
+            await simulateDubsadoSync(inquiry);
+
+            return {
+                statusCode: 200,
+                headers,
+                body: JSON.stringify({
+                    success: true,
+                    inquiry: inquiry
+                })
+            };
+        }
+
+        // Handle GET requests
         let url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(TABLES[action])}`;
         
         // Add filters if needed
@@ -125,28 +209,63 @@ exports.handler = async (event) => {
                 case 'getChefs':
                     return {
                         id: record.id,
-                        name: getField(record, 'Chef Name') || '',
-                        bio: getField(record, 'Chef Description') || '',
-                        photo: getPhotoUrl(record, 'Chef Photo'),
-                        specialties: getField(record, 'Specialties') || [],
-                        availability: getField(record, 'Availability') || ''
+                        name: getField(record, 'Name'),
+                        bio: getField(record, 'Bio'),
+                        vibe: getField(record, 'Vibe'),
+                        image: getPhotoUrl(record, 'Image URL'),
+                        assignedMenus: getField(record, 'Assigned Menus'),
+                        availability: getField(record, 'Availability'),
+                        location: getField(record, 'Location'),
+                        active: getField(record, 'Active')
                     };
                 case 'getMenus':
                     return {
                         id: record.id,
-                        name: getField(record, 'Menu Name') || '',
-                        description: getField(record, 'Menu Description') || '',
-                        menuNumber: parseInt(getField(record, 'Menu Number')) || 9999,
-                        type: getField(record, 'Menu Type') || '',
-                        photo: getPhotoUrl(record, 'Stock Images')
+                        name: getField(record, 'Menu Name'),
+                        description: getField(record, 'Description'),
+                        menuTier: getField(record, 'Menu Tier'),
+                        associatedDishes: getField(record, 'Associated Dishes'),
+                        chefs: getField(record, 'Chef(s)'),
+                        heroImage: getPhotoUrl(record, 'Hero Image'),
+                        tags: getField(record, 'Tags'),
+                        active: getField(record, 'Active')
                     };
                 case 'getDishes':
                     return {
                         id: record.id,
-                        name: getField(record, 'Dish Name') || '',
-                        description: getField(record, 'Dish Description') || '',
-                        category: getField(record, 'Category') || '',
-                        menuId: getField(record, 'Menu ID') || ''
+                        name: getField(record, 'Dish Name'),
+                        category: getField(record, 'Category'),
+                        description: getField(record, 'Description'),
+                        isPremium: getField(record, 'Is Premium?'),
+                        menuId: getField(record, 'Menu ID'),
+                        sortOrder: getField(record, 'Sort Order')
+                    };
+                case 'getServices':
+                    return {
+                        id: record.id,
+                        name: getField(record, 'Service Name'),
+                        type: getField(record, 'Type'),
+                        description: getField(record, 'Description'),
+                        requiresVendor: getField(record, 'Requires Vendor'),
+                        usage: getField(record, 'Usage'),
+                        costLogic: getField(record, 'Cost Logic'),
+                        notes: getField(record, 'Notes')
+                    };
+                case 'getImages':
+                    return {
+                        id: record.id,
+                        url: getField(record, 'URL'),
+                        filename: getField(record, 'Filename'),
+                        moodTags: getField(record, 'Mood Tags'),
+                        useCase: getField(record, 'Use Case'),
+                        paletteTag: getField(record, 'Palette Tag')
+                    };
+                case 'getColors':
+                    return {
+                        id: record.id,
+                        name: getField(record, 'Name'),
+                        hue: getField(record, 'Hue'),
+                        usage: getField(record, 'Usage')
                     };
                 default:
                     return record;
