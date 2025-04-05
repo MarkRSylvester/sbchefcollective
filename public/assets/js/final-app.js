@@ -641,6 +641,7 @@ async function loadCuisinePreferences() {
             ${cuisines.map(cuisine => `
                 <label>
                     <input type="checkbox" name="Cuisine Preference" value="${cuisine}">
+                    <span class="checkmark"></span>
                     ${cuisine}
                 </label>
             `).join('')}
@@ -674,6 +675,7 @@ async function loadVibeWords() {
             ${vibes.map(vibe => `
                 <label>
                     <input type="checkbox" name="Event Vibe" value="${vibe}">
+                    <span class="checkmark"></span>
                     ${vibe}
                 </label>
             `).join('')}
