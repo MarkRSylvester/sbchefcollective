@@ -404,14 +404,23 @@ body {
 }
 
 .form-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 24px;
+    width: 100%;
 }
 
 .form-group label {
     display: block;
-    font-size: 1rem;
+    margin-bottom: 8px;
     color: #4F5D6C;
-    margin-bottom: 0.5rem;
+    font-weight: 500;
+    font-size: 1.1rem;
+}
+
+.form-group .instructions {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 1rem;
+    font-style: italic;
 }
 
 .form-group input[type="text"],
@@ -665,27 +674,15 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
-.form-group {
-    margin-bottom: 24px;
-    width: 100%;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    color: var(--text-color);
-    font-weight: 500;
-}
-
 /* Checkbox group container */
 #cuisinePreferences,
 #vibeWords {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
     padding: 20px;
-    background: #f9f9f9;
-    border-radius: var(--border-radius);
+    background: #f8f9fa;
+    border-radius: 12px;
     margin-top: 8px;
 }
 
@@ -707,7 +704,7 @@ body {
 }
 
 .checkbox-label:hover {
-    border-color: var(--primary-color);
+    border-color: #4F5D6C;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     transform: translateY(-1px);
 }
@@ -718,7 +715,7 @@ body {
     -webkit-appearance: none;
     width: 20px;
     height: 20px;
-    border: 2px solid var(--primary-color);
+    border: 2px solid #4F5D6C;
     border-radius: 4px;
     margin: 0;
     flex-shrink: 0;
@@ -729,8 +726,8 @@ body {
 }
 
 .checkbox-label input[type="checkbox"]:checked {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
+    background-color: #4F5D6C;
+    border-color: #4F5D6C;
 }
 
 .checkbox-label input[type="checkbox"]:checked::after {
@@ -748,11 +745,11 @@ body {
 /* Submit button styling */
 .submit-btn {
     display: block;
-    background-color: var(--primary-color);
+    background-color: #4F5D6C;
     color: white;
     padding: 16px 32px;
     border: none;
-    border-radius: var(--border-radius);
+    border-radius: 8px;
     font-size: 1.1rem;
     font-weight: 500;
     cursor: pointer;
@@ -764,13 +761,13 @@ body {
 }
 
 .submit-btn:hover {
-    background-color: var(--secondary-color);
+    background-color: #3d4852;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .submit-btn:disabled {
-    background-color: #ccc;
+    background-color: #a0a0a0;
     cursor: not-allowed;
     transform: none;
 }
@@ -780,22 +777,60 @@ body {
     position: relative;
 }
 
-.submit-btn.loading::after {
-    content: '';
-    position: absolute;
-    width: 24px;
-    height: 24px;
-    top: 50%;
-    left: 50%;
-    margin: -12px 0 0 -12px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top-color: white;
-    animation: spin 0.8s infinite linear;
+/* Form validation */
+.invalid {
+    border-color: #dc3545 !important;
 }
 
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
+.validation-message {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 4px;
+}
+
+/* Success and error messages */
+.success-message {
+    background: #d4edda;
+    color: #155724;
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    text-align: center;
+}
+
+.error-message {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    text-align: center;
+}
+
+@media (max-width: 1200px) {
+    #cuisinePreferences,
+    #vibeWords {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 992px) {
+    #cuisinePreferences,
+    #vibeWords {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    #cuisinePreferences,
+    #vibeWords {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    #cuisinePreferences,
+    #vibeWords {
+        grid-template-columns: 1fr;
     }
 }

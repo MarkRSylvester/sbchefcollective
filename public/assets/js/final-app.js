@@ -190,225 +190,118 @@ document.querySelectorAll('.journey-btn').forEach(btn => {
     });
 });
 
-// Event Journey
+// Date validation
+function setMinDate() {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const minDate = tomorrow.toISOString().split('T')[0];
+    document.getElementById('eventDate').setAttribute('min', minDate);
+}
+
+// Initialize form
 function initializeEventForm() {
-    const eventForm = document.getElementById('eventForm');
-    const submitButton = eventForm.querySelector('.submit-btn');
+    setMinDate();
     
-    // Initialize all form elements
-    loadEventTypes();
-    loadCuisinePreferences();
-    loadVibeWords();
-    loadBudgetRanges();
-    
+    // Form validation
+    const form = document.getElementById('eventForm');
+    const requiredFields = form.querySelectorAll('[required]');
+    const submitBtn = form.querySelector('.submit-btn');
+
     // Add validation to required fields
-    const requiredFields = eventForm.querySelectorAll('input[required], select[required], textarea[required]');
-    
-    function validateField(field) {
-        const isValid = field.checkValidity();
-        if (!isValid) {
-            field.classList.add('invalid');
-            let validationMessage = field.nextElementSibling;
-            if (!validationMessage || !validationMessage.classList.contains('validation-message')) {
-                validationMessage = document.createElement('div');
-                validationMessage.className = 'validation-message';
-                field.parentNode.insertBefore(validationMessage, field.nextSibling);
-            }
-            validationMessage.textContent = field.validationMessage || 'This field is required';
-        } else {
-            field.classList.remove('invalid');
-            const validationMessage = field.nextElementSibling;
-            if (validationMessage && validationMessage.classList.contains('validation-message')) {
-                validationMessage.remove();
-            }
-        }
-        return isValid;
-    }
-    
-    // Add validation on blur
     requiredFields.forEach(field => {
-        field.addEventListener('blur', () => {
-            validateField(field);
-        });
-        
-        field.addEventListener('input', () => {
-            if (field.classList.contains('invalid')) {
-                validateField(field);
-            }
-        });
+        field.addEventListener('blur', () => validateField(field));
+        field.addEventListener('input', () => validateField(field));
     });
-    
-    // Add validation for checkbox groups
-    const validateCheckboxGroup = (groupName) => {
-        const checkboxes = eventForm.querySelectorAll(`input[name="${groupName}"]`);
-        const container = checkboxes[0]?.closest('.checkbox-group');
-        if (!container) return true;
-        
-        const isValid = Array.from(checkboxes).some(cb => cb.checked);
-        const validationMessage = container.nextElementSibling;
-        
-        if (!isValid) {
-            container.style.borderColor = '#dc3545';
-            if (!validationMessage || !validationMessage.classList.contains('validation-message')) {
-                const message = document.createElement('div');
-                message.className = 'validation-message';
-                message.textContent = 'Please select at least one option';
-                container.parentNode.insertBefore(message, container.nextSibling);
-            }
-        } else {
-            container.style.borderColor = '';
-            if (validationMessage && validationMessage.classList.contains('validation-message')) {
-                validationMessage.remove();
-            }
-        }
-        return isValid;
-    };
-    
-    // Add form submission handler
-    eventForm.addEventListener('submit', async (e) => {
+
+    // Form submission
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
-        // Validate all required fields
         let isValid = true;
+
+        // Validate all required fields
         requiredFields.forEach(field => {
             if (!validateField(field)) {
                 isValid = false;
             }
         });
-        
-        // Validate checkbox groups
-        if (!validateCheckboxGroup('Cuisine Preference')) isValid = false;
-        if (!validateCheckboxGroup('Event Vibe')) isValid = false;
-        
+
         if (!isValid) {
-            // Scroll to first error
-            const firstError = eventForm.querySelector('.invalid, .validation-message');
-            if (firstError) {
-                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Find first invalid field and scroll to it
+            const firstInvalid = form.querySelector('.invalid');
+            if (firstInvalid) {
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
             return;
         }
-        
+
         // Show loading state
-        submitButton.disabled = true;
-        submitButton.classList.add('loading');
-        const originalText = submitButton.textContent;
-        submitButton.textContent = 'Submitting...';
-        
+        submitBtn.classList.add('loading');
+        submitBtn.disabled = true;
+
         try {
-            // Collect form data
-            const formData = {
-                'First Name': eventForm.querySelector('#firstName').value,
-                'Last Name': eventForm.querySelector('#lastName').value,
-                'Email': eventForm.querySelector('#email').value,
-                'Phone': eventForm.querySelector('#phone').value,
-                'Event Type': eventForm.querySelector('#eventType').value,
-                'Event Date': eventForm.querySelector('#eventDate').value,
-                'Event Time': eventForm.querySelector('#eventTime').value,
-                'Guest Count': eventForm.querySelector('#guestCount').value,
-                'Event Address': eventForm.querySelector('#eventAddress').value,
-                'Budget': eventForm.querySelector('#budgetRange').value,
-                'Dietary Needs': eventForm.querySelector('#dietaryNeeds').value,
-                'Must Haves': eventForm.querySelector('#mustHaves').value,
-                'Notes': eventForm.querySelector('#notes').value,
-                'Cuisine Preference': Array.from(eventForm.querySelectorAll('input[name="Cuisine Preference"]:checked')).map(cb => cb.value),
-                'Event Vibe': Array.from(eventForm.querySelectorAll('input[name="Event Vibe"]:checked')).map(cb => cb.value)
-            };
-
-            // Submit to API
-            const response = await fetch('/.netlify/functions/api?action=submitInquiry', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const result = await response.json();
-            console.log('Form submission result:', result);
-
+            // Your form submission logic here
+            await submitForm(form);
+            
             // Show success message
-            eventForm.innerHTML = `
-                <div class="success-message">
-                    <h3>Thank you for your inquiry!</h3>
-                    <p>We've received your event details and will be in touch within 24-48 hours to discuss your vision in detail.</p>
-                    <div class="next-steps">
-                        <h4>What's Next?</h4>
-                        <ol>
-                            <li>Our team will review your event details</li>
-                            <li>We'll prepare a customized proposal based on your preferences</li>
-                            <li>We'll schedule a consultation to discuss the menu and logistics</li>
-                            <li>Once confirmed, we'll begin detailed planning for your event</li>
-                        </ol>
-                    </div>
-                </div>
-            `;
+            showSuccessMessage();
+            form.reset();
         } catch (error) {
-            console.error('Form submission error:', error);
-            // Show error message
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'error-message';
-            errorDiv.textContent = 'There was an error submitting your inquiry. Please try again or contact us directly.';
-            submitButton.parentNode.insertBefore(errorDiv, submitButton);
+            showErrorMessage(error.message);
         } finally {
-            // Reset button state
-            submitButton.disabled = false;
-            submitButton.classList.remove('loading');
-            submitButton.textContent = originalText;
+            submitBtn.classList.remove('loading');
+            submitBtn.disabled = false;
         }
     });
 }
 
-function loadEventTypes() {
-    const select = document.getElementById('eventType');
-    if (!select) return;
+// Field validation
+function validateField(field) {
+    const isValid = field.checkValidity();
+    field.classList.toggle('invalid', !isValid);
     
-    select.innerHTML = '<option value="">Select event type...</option>';
+    // Show validation message
+    let messageElement = field.nextElementSibling;
+    if (!messageElement || !messageElement.classList.contains('validation-message')) {
+        messageElement = document.createElement('div');
+        messageElement.className = 'validation-message';
+        field.parentNode.insertBefore(messageElement, field.nextSibling);
+    }
     
-    const types = [
-        'Dinner Party',
-        'Boutique Wedding',
-        'Retreat',
-        'Corporate Event',
-        'Holiday Celebration',
-        'Birthday Party',
-        'Anniversary',
-        'Other'
-    ];
+    messageElement.textContent = isValid ? '' : field.validationMessage;
+    messageElement.style.display = isValid ? 'none' : 'block';
     
-    types.forEach(type => {
-        const option = document.createElement('option');
-        option.value = type;
-        option.textContent = type;
-        select.appendChild(option);
-    });
+    return isValid;
 }
 
-function loadBudgetRanges() {
-    const select = document.getElementById('budgetRange');
-    if (!select) return;
+// Success message
+function showSuccessMessage() {
+    const successMessage = document.createElement('div');
+    successMessage.className = 'success-message';
+    successMessage.innerHTML = `
+        <h3>Thank You!</h3>
+        <p>Your inquiry has been submitted successfully. We'll be in touch within 24 hours.</p>
+    `;
     
-    select.innerHTML = '<option value="">Select budget range...</option>';
+    const form = document.getElementById('eventForm');
+    form.parentNode.insertBefore(successMessage, form);
+    form.style.display = 'none';
     
-    const budgetRanges = [
-        'Under $75 (light fare or appetizers only)',
-        '$75-$100 (casual meals or small gatherings)',
-        '$100-$150 (full-service dinner with chef)',
-        '$150-$200 (elevated menus, plated service)',
-        '$200-$300 (premium ingredients, multi-course)',
-        '$300+ (luxury tasting menus, wine pairings)'
-    ];
+    // Scroll to success message
+    successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// Error message
+function showErrorMessage(message) {
+    const errorMessage = document.createElement('div');
+    errorMessage.className = 'error-message';
+    errorMessage.textContent = message || 'Something went wrong. Please try again.';
     
-    budgetRanges.forEach(range => {
-        const option = document.createElement('option');
-        option.value = range;
-        option.textContent = range;
-        select.appendChild(option);
-    });
+    const submitBtn = document.querySelector('.submit-btn');
+    submitBtn.parentNode.insertBefore(errorMessage, submitBtn);
+    
+    // Remove error message after 5 seconds
+    setTimeout(() => errorMessage.remove(), 5000);
 }
 
 // Weekly Journey
@@ -899,29 +792,6 @@ async function loadServices() {
         console.error('Error loading services:', error);
         servicesContainer.innerHTML = '<div class="error">Failed to load services. Please try again later.</div>';
     }
-}
-
-// Utility Functions
-function showSuccessMessage(message) {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'success-message';
-    messageDiv.textContent = message;
-    document.body.appendChild(messageDiv);
-    
-    setTimeout(() => {
-        messageDiv.remove();
-    }, 5000);
-}
-
-function showErrorMessage(message) {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'error-message';
-    messageDiv.textContent = message;
-    document.body.appendChild(messageDiv);
-    
-    setTimeout(() => {
-        messageDiv.remove();
-    }, 5000);
 }
 
 // Initialize the app
