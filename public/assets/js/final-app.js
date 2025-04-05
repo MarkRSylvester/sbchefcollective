@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Constants
-const API_ENDPOINT = '/.netlify/functions/api';
+const API_ENDPOINT = '/api';  // Updated to use the new API endpoint
 
 // Tab Navigation
 function setupTabNavigation() {
@@ -200,34 +200,25 @@ async function loadChefs() {
         return;
     }
 
-    // Show loading state
     chefsContainer.innerHTML = '<div class="loading">Loading our talented chefs...</div>';
 
     try {
-        console.log('Fetching chefs from API...');
-        const response = await fetch(`${API_ENDPOINT}/chefs?action=getChefs`);
+        const response = await fetch(`${API_ENDPOINT}?action=getChefs`);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const chefs = await response.json();
-        console.log('Chefs data received:', JSON.stringify(chefs, null, 2));
     
         if (!chefs || chefs.length === 0) {
             chefsContainer.innerHTML = '<div class="error">No chefs found. Please try again later.</div>';
             return;
         }
     
-        // Sort chefs by ID
-        const sortedChefs = sortChefs(chefs);
-        
-        // Clear loading state
         chefsContainer.innerHTML = '';
         
-        // Create chef cards
-        sortedChefs.forEach(chef => {
-            console.log('Creating chef card with photo URL:', chef.photo);
+        chefs.forEach(chef => {
             const chefCard = createChefCard(chef);
             chefsContainer.appendChild(chefCard);
         });
@@ -237,154 +228,26 @@ async function loadChefs() {
     }
 }
 
-// Sort chefs by ID
-function sortChefs(chefs) {
-    return chefs.sort((a, b) => {
-        // Extract numeric part from ID, defaulting to 0 if ID is missing
-        const idA = a.id ? parseInt(a.id.replace(/\D/g, '')) || 0 : 0;
-        const idB = b.id ? parseInt(b.id.replace(/\D/g, '')) || 0 : 0;
-        return idA - idB;
-    });
-}
-
 // Create Chef Card
 function createChefCard(chef) {
-    console.log('Creating chef card for:', chef.name);
+    const card = document.createElement('div');
+    card.className = 'chef-card';
     
-    const accordion = document.createElement('div');
-    accordion.className = 'chef-accordion';
+    const photoUrl = chef.photo || DEFAULT_CHEF_IMAGE;
     
-    // Create header
-    const header = document.createElement('div');
-    header.className = 'accordion-header';
+    card.innerHTML = `
+        <div class="chef-photo">
+            <img src="${photoUrl}" alt="${chef.name}" onerror="this.src='${DEFAULT_CHEF_IMAGE}'">
+        </div>
+        <div class="chef-info">
+            <h3>${chef.name}</h3>
+            <p>${chef.bio}</p>
+            ${chef.specialties ? `<p class="specialties">Specialties: ${chef.specialties.join(', ')}</p>` : ''}
+            ${chef.availability ? `<p class="availability">Availability: ${chef.availability}</p>` : ''}
+        </div>
+    `;
     
-    // Create image container for header (small version)
-    const headerImageContainer = document.createElement('div');
-    headerImageContainer.className = 'chef-image-small';
-    
-    // Create and set header image
-    const headerImg = document.createElement('img');
-    console.log('Setting chef photo URL:', chef.photo);
-    const proxyUrl = 'https://images.weserv.nl/?url=';
-    const imageUrl = chef.photo ? `${proxyUrl}${encodeURIComponent(chef.photo)}` : DEFAULT_CHEF_IMAGE;
-    headerImg.src = imageUrl;
-    headerImg.alt = `${chef.name || 'Chef'} photo`;
-    headerImg.crossOrigin = "anonymous";
-    headerImg.onerror = () => {
-        console.error('Failed to load image:', chef.photo);
-        headerImg.src = DEFAULT_CHEF_IMAGE;
-    };
-    headerImageContainer.appendChild(headerImg);
-
-    // Create title container
-    const titleContainer = document.createElement('div');
-    titleContainer.className = 'title-container';
-    
-    // Add chef name
-    const name = document.createElement('h3');
-    name.textContent = chef.name || 'Chef Name Not Available';
-    titleContainer.appendChild(name);
-    
-    // Add chef vibe if available
-    if (chef.vibe) {
-        const vibe = document.createElement('div');
-        vibe.className = 'chef-vibe-preview';
-        vibe.textContent = chef.vibe;
-        titleContainer.appendChild(vibe);
-    }
-    
-    // Create arrow
-    const arrow = document.createElement('span');
-    arrow.className = 'accordion-arrow';
-    arrow.innerHTML = '▶';
-    
-    // Assemble header
-    header.appendChild(headerImageContainer);
-    header.appendChild(titleContainer);
-    header.appendChild(arrow);
-    
-    // Create content
-    const content = document.createElement('div');
-    content.className = 'accordion-content';
-
-    // Create expanded content layout
-    const expandedLayout = document.createElement('div');
-    expandedLayout.className = 'expanded-layout';
-
-    // Create large image container
-    const largeImageContainer = document.createElement('div');
-    largeImageContainer.className = 'chef-image-large';
-    
-    // Create and set large image
-    const largeImg = document.createElement('img');
-    largeImg.src = imageUrl;
-    largeImg.alt = `${chef.name || 'Chef'} photo`;
-    largeImg.crossOrigin = "anonymous";
-    largeImg.onerror = () => {
-        largeImg.src = DEFAULT_CHEF_IMAGE;
-    };
-    largeImageContainer.appendChild(largeImg);
-
-    // Create text content container
-    const textContent = document.createElement('div');
-    textContent.className = 'chef-text-content';
-    
-    // Add chef name in Playfair font
-    const expandedName = document.createElement('h2');
-    expandedName.textContent = chef.name || 'Chef Name Not Available';
-    textContent.appendChild(expandedName);
-    
-    // Add vibe if available
-    if (chef.vibe) {
-        const expandedVibe = document.createElement('div');
-        expandedVibe.className = 'chef-vibe';
-        expandedVibe.textContent = chef.vibe;
-        textContent.appendChild(expandedVibe);
-    }
-    
-    // Add bio if available
-    if (chef.bio) {
-        const bio = document.createElement('div');
-        bio.className = 'chef-bio';
-        bio.textContent = chef.bio;
-        textContent.appendChild(bio);
-    }
-
-    // Assemble expanded layout
-    expandedLayout.appendChild(largeImageContainer);
-    expandedLayout.appendChild(textContent);
-    content.appendChild(expandedLayout);
-    
-    // Add click handler
-    header.addEventListener('click', () => {
-        // Close other open accordions
-        document.querySelectorAll('.chef-accordion .accordion-content.open').forEach(openContent => {
-            if (openContent !== content) {
-                openContent.classList.remove('open');
-                const otherArrow = openContent.previousElementSibling.querySelector('.accordion-arrow');
-                otherArrow.innerHTML = '▶';
-                // Show header of other accordions
-                openContent.previousElementSibling.style.display = 'flex';
-            }
-        });
-        
-        // Toggle current accordion
-        content.classList.toggle('open');
-        arrow.innerHTML = content.classList.contains('open') ? '▼' : '▶';
-        
-        // Hide/show current accordion header based on state
-        if (content.classList.contains('open')) {
-            header.style.display = 'none';
-        } else {
-            header.style.display = 'flex';
-        }
-    });
-    
-    // Assemble accordion
-    accordion.appendChild(header);
-    accordion.appendChild(content);
-    
-    return accordion;
+    return card;
 }
 
 // Load Menus
@@ -394,94 +257,30 @@ async function loadMenus() {
         console.error('Menus container not found');
         return;
     }
-    
-    // Show loading state
-    menusContainer.innerHTML = '<div class="loading">Loading our curated menus...</div>';
-    
+
+    menusContainer.innerHTML = '<div class="loading">Loading our delicious menus...</div>';
+
     try {
-        console.log('Fetching menus from API...');
-        const response = await fetch(`${API_ENDPOINT}/menus?action=getMenus`);
+        const response = await fetch(`${API_ENDPOINT}?action=getMenus`);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const menus = await response.json();
-        console.log('Raw menus data received:', JSON.stringify(menus, null, 2));
     
         if (!menus || menus.length === 0) {
             menusContainer.innerHTML = '<div class="error">No menus found. Please try again later.</div>';
             return;
         }
-
-        // Debug menu data
-        console.log('Menu data before sorting:');
-        menus.forEach((menu, index) => {
-            const menuNumber = menu.menuNumber || menu.fields?.menuNumber;
-            console.log(`${index}: Menu: ${menu.name || menu.fields?.name}, Number: ${menuNumber}, Type: ${typeof menuNumber}`);
-        });
-
-        // Sort menus by menu number field from Airtable
-        const sortedMenus = menus.sort((a, b) => {
-            // With the new API structure, menuNumber is always at the top level
-            let numA = a.menuNumber || 0;
-            let numB = b.menuNumber || 0;
-            
-            // Log the menu data for debugging
-            console.log(`Menu "${a.name}" order value: ${numA}`);
-            console.log(`Menu "${b.name}" order value: ${numB}`);
-            
-            // Handle arrays (extract first element) - just in case
-            if (Array.isArray(numA)) numA = numA[0];
-            if (Array.isArray(numB)) numB = numB[0];
-            
-            // Ensure we have numbers for comparison
-            const parsedA = parseFloat(numA);
-            const parsedB = parseFloat(numB);
-            
-            // Default to large numbers for invalid values
-            numA = !isNaN(parsedA) ? parsedA : 9999;
-            numB = !isNaN(parsedB) ? parsedB : 9999;
-            
-            console.log(`Comparing: "${a.name}" (${numA}) vs "${b.name}" (${numB})`);
-            
-            // Standard numeric comparison
-            return numA - numB;
-        });
+    
+        // Sort menus by menuNumber
+        const sortedMenus = menus.sort((a, b) => (a.menuNumber || 9999) - (b.menuNumber || 9999));
         
-        // Debug sorted menu data
-        console.log('Menu data after sorting:');
-        sortedMenus.forEach((menu, index) => {
-            const menuNumber = menu.menuNumber ?? menu.fields?.menuNumber;
-            const menuName = menu.name || menu.fields?.name;
-            const orderFieldUsed = menu.orderField || 'unknown';
-            console.log(`${index+1}. "${menuName}" (order value: ${menuNumber}, field: ${orderFieldUsed})`);
-        });
-        
-        // Replace with improved logging
-        console.log('===== FINAL MENU ORDER =====');
-        sortedMenus.forEach((menu, index) => {
-            const menuNumber = menu.menuNumber ?? menu.fields?.menuNumber;
-            const menuName = menu.name || menu.fields?.name;
-            const orderFieldUsed = menu.orderField || 'unknown';
-            console.log(`${index+1}. "${menuName}" (order value: ${menuNumber}, field: ${orderFieldUsed})`);
-        });
-        
-        // Clear loading state
         menusContainer.innerHTML = '';
         
-        // Create menu cards
         sortedMenus.forEach(menu => {
-            // With the new API structure, all properties are at the top level
-            const menuData = {
-                id: menu.id,
-                name: menu.name || '',
-                description: menu.description || '',
-                menuNumber: menu.menuNumber || 0
-            };
-            
-            console.log('Creating menu card with data:', menuData);
-            const menuCard = createMenuCard(menuData);
+            const menuCard = createMenuCard(menu);
             menusContainer.appendChild(menuCard);
         });
     } catch (error) {
@@ -492,231 +291,111 @@ async function loadMenus() {
 
 // Create Menu Card
 function createMenuCard(menu) {
-    console.log('Creating menu card for:', menu);
-    console.log(`Menu details - Name: "${menu.name}", Description: "${menu.description}", MenuNumber: ${menu.menuNumber}`);
+    const card = document.createElement('div');
+    card.className = 'menu-accordion';
     
-    const accordion = document.createElement('div');
-    accordion.className = 'menu-accordion';
-    accordion.setAttribute('data-menu-id', menu.id);
-    
-    // Set the border color based on menu name
     const menuColor = MENU_COLORS[menu.name] || '#f9f9f9';
-    accordion.style.borderLeftColor = menuColor;
+    card.style.backgroundColor = menuColor;
     
     const header = document.createElement('div');
     header.className = 'accordion-header';
-    
-    const titleContainer = document.createElement('div');
-    titleContainer.className = 'title-container';
-    
-    const name = document.createElement('h3');
-    name.className = 'menu-name';
-    name.textContent = menu.name;
-    
-    const description = document.createElement('p');
-    description.className = 'menu-description';
-    description.textContent = menu.description || '';
-    
-    const arrow = document.createElement('span');
-    arrow.className = 'accordion-arrow';
-    arrow.textContent = '►';
-    
-    titleContainer.appendChild(name);
-    
-    // Add debug element to show what's happening with description
-    console.log(`Description check: '${menu.description}', Empty? ${!menu.description}, Trimmed empty? ${!menu.description || menu.description.trim() === ''}`);
-    
-    // Only add description if it exists and is not empty
-    if (menu.description && menu.description.trim() !== '') {
-        console.log('Adding description to menu:', menu.name, 'Description:', menu.description);
-        titleContainer.appendChild(description);
-    } else {
-        console.log('No description for menu:', menu.name);
-        
-        // Add a placeholder to make it obvious there should be a description
-        const noDesc = document.createElement('p');
-        noDesc.className = 'menu-description menu-description-missing';
-        noDesc.textContent = 'No description available';
-        noDesc.style.color = '#999';
-        noDesc.style.fontStyle = 'italic';
-        titleContainer.appendChild(noDesc);
-    }
-    
-    header.appendChild(titleContainer);
-    header.appendChild(arrow);
+    header.innerHTML = `
+        <h3>${menu.name}</h3>
+        <div class="accordion-arrow"></div>
+    `;
     
     const content = document.createElement('div');
     content.className = 'accordion-content';
+    content.style.display = 'none';
     
-    // Add loading state
+    if (menu.description) {
+        const description = document.createElement('p');
+        description.className = 'menu-description';
+        description.textContent = menu.description;
+        content.appendChild(description);
+    }
+    
     const loading = document.createElement('div');
     loading.className = 'loading';
-    loading.textContent = 'Loading menu items...';
+    loading.textContent = 'Loading dishes...';
     content.appendChild(loading);
     
-    accordion.appendChild(header);
-    accordion.appendChild(content);
-    
-    // Track selected items for this menu
-    let selectedItems = new Set();
+    card.appendChild(header);
+    card.appendChild(content);
     
     header.addEventListener('click', async () => {
-        const isOpen = accordion.classList.contains('open');
+        const isOpen = content.style.display === 'block';
         
-        // Close all other accordions
-        document.querySelectorAll('.menu-accordion').forEach(acc => {
-            if (acc !== accordion) {
-                acc.classList.remove('open');
-                acc.querySelector('.accordion-arrow').textContent = '►';
-            }
-        });
+        // Close currently open accordion if exists
+        if (currentOpenAccordion && currentOpenAccordion !== content) {
+            currentOpenAccordion.style.display = 'none';
+            currentOpenAccordion.previousElementSibling.classList.remove('active');
+        }
         
-        // Toggle current accordion
-        accordion.classList.toggle('open');
-        arrow.textContent = isOpen ? '►' : '▼';
+        header.classList.toggle('active');
+        content.style.display = isOpen ? 'none' : 'block';
         
-        if (!isOpen && content.querySelector('.loading')) {
-            try {
-                console.log(`Loading dishes for menu: ${menu.id}`);
-                const response = await fetch(`${API_ENDPOINT}/menus/${menu.id}/dishes?action=getDishes&menuId=${menu.id}`);
-                
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error(`Error loading dishes: ${response.status} ${response.statusText}`, errorText);
-                    throw new Error(`Failed to fetch menu items: ${response.status}`);
-                }
-                
-                const items = await response.json();
-                console.log('Dishes data received:', items);
-                
-                content.innerHTML = '';
-                
-                if (!items || items.length === 0) {
-                    const noItems = document.createElement('p');
-                    noItems.className = 'no-dishes';
-                    noItems.textContent = 'No dishes available';
-                    content.appendChild(noItems);
-                    return;
-                }
-                
-                // Group items by category
-                const categories = {};
-                items.forEach(item => {
-                    // With the new API, all properties are at the top level
-                    const category = item.category || 'Other';
+        if (!isOpen) {
+            currentOpenAccordion = content;
+            if (!content.querySelector('.dish-category')) {
+                try {
+                    const response = await fetch(`${API_ENDPOINT}?action=getDishes&menuId=${menu.id}`);
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     
-                    if (!categories[category]) {
-                        categories[category] = [];
-                    }
+                    const dishes = await response.json();
+                    loading.remove();
                     
-                    categories[category].push({
-                        id: item.id,
-                        name: item.name || '',
-                        description: item.description || ''
-                    });
-                });
-                
-                // Sort categories in a specific order
-                const categoryOrder = [
-                    'Appetizers',
-                    'Small Plates',
-                    'Salads',
-                    'Soups',
-                    'Main Courses',
-                    'Entrees',
-                    'Sides',
-                    'Desserts'
-                ];
-                
-                // Create category sections in order
-                const sortedCategories = Object.keys(categories).sort((a, b) => {
-                    const indexA = categoryOrder.indexOf(a);
-                    const indexB = categoryOrder.indexOf(b);
-                    if (indexA === -1 && indexB === -1) return a.localeCompare(b);
-                    if (indexA === -1) return 1;
-                    if (indexB === -1) return -1;
-                    return indexA - indexB;
-                });
-                
-                sortedCategories.forEach(category => {
-                    const categoryItems = categories[category];
-                    
-                    const categorySection = document.createElement('div');
-                    categorySection.className = 'menu-category';
-                    
-                    const categoryTitle = document.createElement('h4');
-                    categoryTitle.className = 'menu-category-title';
-                    categoryTitle.textContent = category;
-                    categorySection.appendChild(categoryTitle);
-                    
-                    categoryItems.forEach(item => {
-                        const dishItem = document.createElement('div');
-                        dishItem.className = 'dish-item';
-                        
-                        const checkbox = document.createElement('input');
-                        checkbox.type = 'checkbox';
-                        checkbox.className = 'dish-checkbox';
-                        checkbox.setAttribute('data-item-id', item.id);
-                        checkbox.style.borderColor = menuColor;
-                        
-                        const dishContent = document.createElement('div');
-                        dishContent.className = 'dish-content';
-                        
-                        const dishName = document.createElement('h5');
-                        dishName.className = 'dish-name';
-                        dishName.textContent = item.name;
-                        
-                        const dishDescription = document.createElement('p');
-                        dishDescription.className = 'dish-description';
-                        dishDescription.textContent = item.description;
-                        
-                        dishContent.appendChild(dishName);
-                        if (item.description) {
-                            dishContent.appendChild(dishDescription);
-                        }
-                        
-                        dishItem.appendChild(checkbox);
-                        dishItem.appendChild(dishContent);
-                        categorySection.appendChild(dishItem);
-                        
-                        // Handle checkbox changes
-                        checkbox.addEventListener('change', (e) => {
-                            const itemId = e.target.getAttribute('data-item-id');
-                            if (e.target.checked) {
-                                selectedItems.add(itemId);
-                            } else {
-                                selectedItems.delete(itemId);
-                                // Prevent unchecking if it's the last selected item
-                                if (selectedItems.size === 0) {
-                                    e.target.checked = true;
-                                    selectedItems.add(itemId);
-                                }
+                    if (dishes && dishes.length > 0) {
+                        // Group dishes by category
+                        const categories = {};
+                        dishes.forEach(dish => {
+                            const category = dish.category || 'Other';
+                            if (!categories[category]) {
+                                categories[category] = [];
                             }
+                            categories[category].push(dish);
                         });
-                    });
-                    
-                    content.appendChild(categorySection);
-                });
-                
-                // Select first item by default
-                const firstCheckbox = content.querySelector('.dish-checkbox');
-                if (firstCheckbox) {
-                    firstCheckbox.checked = true;
-                    selectedItems.add(firstCheckbox.getAttribute('data-item-id'));
+                        
+                        // Create sections for each category
+                        Object.entries(categories).forEach(([category, categoryDishes]) => {
+                            const categorySection = document.createElement('div');
+                            categorySection.className = 'dish-category';
+                            categorySection.innerHTML = `<h4>${category}</h4>`;
+                            
+                            const dishList = document.createElement('div');
+                            dishList.className = 'dish-list';
+                            
+                            categoryDishes.forEach(dish => {
+                                const dishItem = document.createElement('div');
+                                dishItem.className = 'dish-item';
+                                dishItem.innerHTML = `
+                                    <label class="dish-checkbox">
+                                        <input type="checkbox">
+                                        <span class="checkmark"></span>
+                                        <span class="dish-name">${dish.name}</span>
+                                    </label>
+                                    ${dish.description ? `<p class="dish-description">${dish.description}</p>` : ''}
+                                `;
+                                dishList.appendChild(dishItem);
+                            });
+                            
+                            categorySection.appendChild(dishList);
+                            content.appendChild(categorySection);
+                        });
+                    } else {
+                        content.innerHTML = '<p class="no-dishes">No dishes available for this menu.</p>';
+                    }
+                } catch (error) {
+                    console.error('Error loading dishes:', error);
+                    content.innerHTML = '<p class="error">Failed to load dishes. Please try again later.</p>';
                 }
-                
-            } catch (error) {
-                console.error('Error loading menu items:', error);
-                content.innerHTML = `
-                    <div class="error">
-                        <p>Failed to load menu items. Please try again later.</p>
-                    </div>
-                `;
             }
+        } else {
+            currentOpenAccordion = null;
         }
     });
     
-    return accordion;
+    return card;
 }
 
 // Load Dishes

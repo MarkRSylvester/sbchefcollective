@@ -819,4 +819,192 @@ body {
     text-align: center;
     color: #666;
     font-style: italic;
+}
+
+/* Chef Cards */
+.chef-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin: 20px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.chef-card:hover {
+    transform: translateY(-5px);
+}
+
+.chef-photo {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+}
+
+.chef-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.chef-info {
+    padding: 20px;
+}
+
+.chef-info h3 {
+    margin: 0 0 10px;
+    color: #333;
+    font-family: 'Playfair Display', serif;
+}
+
+.chef-info p {
+    margin: 10px 0;
+    color: #666;
+    line-height: 1.6;
+}
+
+.specialties, .availability {
+    font-size: 0.9em;
+    color: #888;
+    margin-top: 15px;
+}
+
+/* Menu Accordions */
+.menu-accordion {
+    margin: 15px;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.accordion-header {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.accordion-header h3 {
+    margin: 0;
+    color: #333;
+    font-family: 'Playfair Display', serif;
+}
+
+.accordion-arrow {
+    width: 20px;
+    height: 20px;
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+.accordion-header.active .accordion-arrow {
+    transform: rotate(180deg);
+}
+
+.accordion-content {
+    background: white;
+    padding: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.accordion-header.active + .accordion-content {
+    padding: 20px;
+    max-height: 1000px;
+}
+
+.menu-description {
+    margin: 0 0 20px;
+    padding: 15px;
+    background: rgba(255,255,255,0.7);
+    border-radius: 4px;
+    font-style: italic;
+}
+
+.dish-category {
+    margin: 20px 0;
+}
+
+.dish-category h4 {
+    color: #333;
+    margin: 0 0 15px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid rgba(0,0,0,0.1);
+}
+
+.dish-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.dish-item {
+    padding: 10px;
+    background: rgba(255,255,255,0.7);
+    border-radius: 4px;
+}
+
+.dish-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.dish-checkbox input {
+    display: none;
+}
+
+.checkmark {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #3e5c76;
+    border-radius: 4px;
+    display: inline-block;
+    position: relative;
+}
+
+.dish-checkbox input:checked + .checkmark:after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid #3e5c76;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.dish-name {
+    font-weight: 500;
+    color: #333;
+}
+
+.dish-description {
+    margin: 5px 0 0 30px;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.error {
+    color: #d32f2f;
+    text-align: center;
+    padding: 20px;
+}
+
+.no-dishes {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-style: italic;
 } 

@@ -1,39 +1,28 @@
 const fetch = require('node-fetch');
 
-// Use environment variable for API key - ensure it's properly formatted
+// Use environment variable for API key
 let AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY || '';
-// Remove any whitespace, newlines, or quotes
 AIRTABLE_API_KEY = AIRTABLE_API_KEY.trim().replace(/^["']|["']$/g, '');
 
 // Specify the exact Airtable base ID
 const AIRTABLE_BASE_ID = 'appOWFyYIGbLoKalt';
 
-// Define table names for each data type - must match exactly what's in Airtable
+// Define table names for each data type - matching the new separate tables
 const TABLES = {
-    getChefs: 'Chefs',     // Tab name for chefs
-    getMenus: 'Menus',     // Tab name for menus
-    getDishes: 'Dishes'    // Tab name for dishes
+    getChefs: 'Chefs',
+    getMenus: 'Menus',
+    getDishes: 'Dishes',
+    getImages: 'Images',
+    getServices: 'Services',
+    getFAQ: 'FAQ',
+    getEventTypes: 'Event Types'
 };
-
-// Default table is kept for backward compatibility
-const DEFAULT_TABLE = 'SBCC MAIN';
 
 // Log configuration
 console.log('Airtable configuration:');
 console.log(`- Base ID: ${AIRTABLE_BASE_ID}`);
 console.log(`- API Key (first/last 5 chars): ${AIRTABLE_API_KEY.substring(0, 5)}...${AIRTABLE_API_KEY.substring(AIRTABLE_API_KEY.length-5)}`);
 console.log(`- Tables: ${JSON.stringify(TABLES)}`);
-
-// Validate required environment variables
-if (!AIRTABLE_API_KEY) {
-    console.error('Missing required AIRTABLE_API_KEY environment variable');
-    throw new Error('Missing required AIRTABLE_API_KEY environment variable');
-}
-
-// Function to safely log URLs without exposing API keys
-const safeLogUrl = (url) => {
-    return url.replace(AIRTABLE_API_KEY, '[REDACTED]');
-};
 
 // Helper function to safely get field value
 const getField = (record, fieldName) => {
@@ -50,15 +39,12 @@ const getPhotoUrl = (record, fieldName) => {
         return '';
     }
     
-    // If the field is a direct URL string
     const photoField = record.fields[fieldName];
     if (typeof photoField === 'string') {
         return photoField;
     }
     
-    // Fallback for attachment type fields
     if (Array.isArray(photoField) && photoField.length > 0) {
-        console.log('Attachment found:', photoField[0]);
         return photoField[0].url || '';
     }
     
@@ -67,7 +53,6 @@ const getPhotoUrl = (record, fieldName) => {
 
 // Export the handler function
 module.exports.handler = async (event) => {
-    // Set CORS headers
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
@@ -75,95 +60,54 @@ module.exports.handler = async (event) => {
         'Content-Type': 'application/json'
     };
 
-    // Handle OPTIONS request for CORS
     if (event.httpMethod === 'OPTIONS') {
-        return {
-            statusCode: 200,
-            headers,
-            body: ''
-        };
+        return { statusCode: 200, headers, body: '' };
     }
 
-    console.log('API Request:', {
-        httpMethod: event.httpMethod,
-        path: event.path,
-        queryParams: event.queryStringParameters || {},
-        body: event.body ? 'Present' : 'Not present'
-    });
-
     try {
-        // Parse parameters from either query string or body
         const params = event.httpMethod === 'GET'
             ? event.queryStringParameters || {}
             : JSON.parse(event.body || '{}');
 
-        console.log('Request params:', params);
-
         const { action } = params;
 
-        if (!action) {
-            console.error('Missing action parameter');
+        if (!action || !TABLES[action]) {
             return {
                 statusCode: 400,
                 headers,
-                body: JSON.stringify({ error: 'Action parameter is required' })
+                body: JSON.stringify({ error: 'Invalid or missing action parameter' })
             };
         }
 
-        console.log('Processing action:', action);
-
-        const tableName = TABLES[action] || DEFAULT_TABLE;
-        
-        // Construct the Airtable API URL according to their documentation
-        let url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(tableName)}`;
+        let url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(TABLES[action])}`;
         let filterFormula = '';
 
         // Add filters based on action
         switch (action) {
-            case 'getChefs':
-                // When using the dedicated Chefs table, no filter needed
-                // Just ensure we have sufficient fields
-                break;
-            case 'getMenus':
-                // When using the dedicated Menus table, no filter needed
-                break;
             case 'getDishes':
                 if (!params.menuId) {
                     return {
                         statusCode: 400,
                         headers,
-                        body: JSON.stringify({ error: 'Menu ID is required' })
+                        body: JSON.stringify({ error: 'Menu ID is required for dishes' })
                     };
                 }
-                
-                // For dishes, filter by the Menu ID field that appears in the CSV
                 filterFormula = `{Menu ID}='${params.menuId}'`;
                 break;
-            default:
-                return {
-                    statusCode: 400,
-                    headers,
-                    body: JSON.stringify({ error: 'Invalid action' })
-                };
+            case 'getImages':
+                if (params.category) {
+                    filterFormula = `{Category}='${params.category}'`;
+                }
+                break;
         }
 
-        // Add filter to URL if present
         if (filterFormula) {
             url += `?filterByFormula=${encodeURIComponent(filterFormula)}`;
         }
 
-        // Add debug logging for API key before making the request
-        console.log('Fetching from Airtable:', url);
-        console.log('Using API key:', AIRTABLE_API_KEY ? `${AIRTABLE_API_KEY.substring(0, 5)}...` : 'Missing');
-        console.log('Filter formula:', filterFormula);
-
-        // Ensure proper authentication header format
-        const authHeader = `Bearer ${AIRTABLE_API_KEY}`;
-        console.log('Auth header format (first 10 chars):', authHeader.substring(0, 10) + '...');
-
         const response = await fetch(url, {
             headers: {
-                'Authorization': authHeader,
+                'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
                 'Content-Type': 'application/json'
             }
         });
@@ -173,8 +117,7 @@ module.exports.handler = async (event) => {
             console.error('Airtable API error:', {
                 status: response.status,
                 statusText: response.statusText,
-                error: errorText,
-                url: safeLogUrl(url)
+                error: errorText
             });
             return {
                 statusCode: response.status,
@@ -187,71 +130,73 @@ module.exports.handler = async (event) => {
         }
 
         const data = await response.json();
-        
-        // Log the first record to see its structure
-        if (data.records && data.records.length > 0) {
-            console.log('First record structure:', JSON.stringify(data.records[0], null, 2));
-            console.log('Available fields:', Object.keys(data.records[0].fields).join(', '));
-        }
-        
-        // Process the records based on action
         let processedRecords = [];
+
         if (data.records) {
-            // Debug: Log the first record's fields
-            if (data.records.length > 0) {
-                console.log('First record fields:', JSON.stringify(data.records[0].fields, null, 2));
-            }
-            
             processedRecords = data.records.map(record => {
                 switch (action) {
                     case 'getChefs':
-                        // Adjust field names to match the Chefs tab structure from CSV
                         return {
                             id: record.id,
-                            name: getField(record, 'Chef Name') || '',
-                            bio: getField(record, 'Chef Description') || '',
-                            photo: getPhotoUrl(record, 'Chef Photo'),
-                            vibe: getField(record, 'Vibe') || ''
+                            name: getField(record, 'Name') || '',
+                            bio: getField(record, 'Bio') || '',
+                            photo: getPhotoUrl(record, 'Photo'),
+                            specialties: getField(record, 'Specialties') || [],
+                            availability: getField(record, 'Availability') || ''
                         };
                     case 'getMenus':
-                        // Log all available fields for debugging
-                        console.log('Menu record fields for:', record.id);
-                        console.log('Available fields:', Object.keys(record.fields).join(', '));
-                        
-                        // Use exact field names from the Menus CSV
-                        const menuOrderValue = getField(record, 'Menu Number') || '9999';
-                        
-                        // Convert to a number if possible
-                        const menuNumberValue = Number(menuOrderValue);
-                        const finalMenuNumber = isNaN(menuNumberValue) ? 9999 : menuNumberValue;
-                        
                         return {
                             id: record.id,
-                            name: getField(record, 'Menu Name') || '',
-                            description: getField(record, 'Menu Description') || '',
-                            menuNumber: finalMenuNumber,
-                            photo: getPhotoUrl(record, 'Stock Images'),
-                            type: getField(record, 'Menu Type') || ''
+                            name: getField(record, 'Name') || '',
+                            description: getField(record, 'Description') || '',
+                            menuNumber: Number(getField(record, 'Menu Number')) || 9999,
+                            type: getField(record, 'Type') || '',
+                            photo: getPhotoUrl(record, 'Photo')
                         };
                     case 'getDishes':
-                        // Adjust field names to match the Dishes tab structure from CSV
                         return {
                             id: record.id,
-                            name: getField(record, 'Dish Name') || '',
-                            description: getField(record, 'Dish Description') || '',
+                            name: getField(record, 'Name') || '',
+                            description: getField(record, 'Description') || '',
                             category: getField(record, 'Category') || '',
                             menuId: getField(record, 'Menu ID') || ''
+                        };
+                    case 'getImages':
+                        return {
+                            id: record.id,
+                            url: getPhotoUrl(record, 'Image'),
+                            category: getField(record, 'Category') || '',
+                            description: getField(record, 'Description') || ''
+                        };
+                    case 'getServices':
+                        return {
+                            id: record.id,
+                            name: getField(record, 'Name') || '',
+                            description: getField(record, 'Description') || '',
+                            photo: getPhotoUrl(record, 'Photo'),
+                            price: getField(record, 'Price') || ''
+                        };
+                    case 'getFAQ':
+                        return {
+                            id: record.id,
+                            question: getField(record, 'Question') || '',
+                            answer: getField(record, 'Answer') || '',
+                            category: getField(record, 'Category') || ''
+                        };
+                    case 'getEventTypes':
+                        return {
+                            id: record.id,
+                            name: getField(record, 'Name') || '',
+                            description: getField(record, 'Description') || '',
+                            photo: getPhotoUrl(record, 'Photo'),
+                            minGuests: getField(record, 'Min Guests') || '',
+                            maxGuests: getField(record, 'Max Guests') || ''
                         };
                     default:
                         return record;
                 }
             });
         }
-
-        // Add debug logging
-        console.log(`${action} - First record fields:`, data.records?.[0]?.fields);
-        console.log(`${action} - First processed record:`, processedRecords[0]);
-        console.log(`${action} - Total records processed:`, processedRecords.length);
 
         return {
             statusCode: 200,
@@ -260,11 +205,11 @@ module.exports.handler = async (event) => {
         };
 
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Function error:', error);
         return {
             statusCode: 500,
             headers,
-            body: JSON.stringify({ error: error.message })
+            body: JSON.stringify({ error: 'Internal server error', details: error.message })
         };
     }
 }; 
