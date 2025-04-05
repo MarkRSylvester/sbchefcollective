@@ -189,7 +189,6 @@ function showEventJourney() {
     const container = document.getElementById('eventJourney') || createJourneyContainer('eventJourney');
     container.style.display = 'block';
     
-    // Only initialize the form if it hasn't been initialized yet
     if (!container.dataset.initialized) {
         container.innerHTML = `
             <div class="journey-header">
@@ -201,7 +200,38 @@ function showEventJourney() {
                     <label for="eventDate">Event Date*</label>
                     <input type="date" id="eventDate" name="eventDate" required>
                 </div>
-                <!-- Rest of the form will be initialized by initializeEventForm -->
+                <div class="form-group">
+                    <label for="guestCount">Number of Guests*</label>
+                    <input type="number" id="guestCount" name="guestCount" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventType">Event Type*</label>
+                    <select id="eventType" name="eventType" required>
+                        <option value="">Select an event type</option>
+                        <option value="dinner">Dinner Party</option>
+                        <option value="cocktail">Cocktail Party</option>
+                        <option value="wedding">Wedding</option>
+                        <option value="corporate">Corporate Event</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Cuisine Preferences</label>
+                    <div id="cuisinePreferences" class="checkbox-group"></div>
+                </div>
+                <div class="form-group">
+                    <label>Event Vibe</label>
+                    <div id="vibeWords" class="checkbox-group"></div>
+                </div>
+                <div class="form-group">
+                    <label for="dietaryNeeds">Dietary Restrictions/Preferences</label>
+                    <textarea id="dietaryNeeds" name="dietaryNeeds" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="additionalNotes">Additional Notes</label>
+                    <textarea id="additionalNotes" name="additionalNotes" rows="3"></textarea>
+                </div>
+                <button type="submit" class="submit-btn">Submit Inquiry</button>
             </form>
         `;
         container.dataset.initialized = 'true';
@@ -220,7 +250,33 @@ function showWeeklyJourney() {
                 <button class="back-btn" onclick="returnToHome()">← Back to Home</button>
             </div>
             <form id="weeklyForm" class="weekly-form">
-                <!-- Form content will be initialized by initializeWeeklyForm -->
+                <div class="form-group">
+                    <label for="weeklyMealCount">Meals per Week*</label>
+                    <select id="weeklyMealCount" name="weeklyMealCount" required>
+                        <option value="">Select number of meals</option>
+                        <option value="3">3 meals per week</option>
+                        <option value="4">4 meals per week</option>
+                        <option value="5">5 meals per week</option>
+                        <option value="7">7 meals per week</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="servingsPerMeal">Servings per Meal*</label>
+                    <input type="number" id="servingsPerMeal" name="servingsPerMeal" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label>Cuisine Preferences</label>
+                    <div id="weeklyCuisinePrefs" class="checkbox-group"></div>
+                </div>
+                <div class="form-group">
+                    <label for="weeklyDietaryNeeds">Dietary Restrictions/Preferences</label>
+                    <textarea id="weeklyDietaryNeeds" name="weeklyDietaryNeeds" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="weeklyNotes">Additional Notes</label>
+                    <textarea id="weeklyNotes" name="weeklyNotes" rows="3"></textarea>
+                </div>
+                <button type="submit" class="submit-btn">Submit Inquiry</button>
             </form>
         `;
         container.dataset.initialized = 'true';
@@ -239,7 +295,38 @@ function showExploringJourney() {
                 <button class="back-btn" onclick="returnToHome()">← Back to Home</button>
             </div>
             <div class="exploring-content">
-                <!-- Content will be initialized by initializeExploringJourney -->
+                <div class="section-group">
+                    <h3>Our Chefs</h3>
+                    <div id="chefsList" class="chefs-grid"></div>
+                </div>
+                <div class="section-group">
+                    <h3>Sample Menus</h3>
+                    <div id="menusList" class="menus-grid"></div>
+                </div>
+                <div class="section-group">
+                    <h3>Get Updates</h3>
+                    <form id="exploringForm" class="exploring-form">
+                        <div class="form-group">
+                            <label for="exploringEmail">Email Address</label>
+                            <input type="email" id="exploringEmail" name="exploringEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label>I'm interested in:</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="interests" value="events"> Special Events
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="interests" value="weekly"> Weekly Service
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="interests" value="updates"> Chef Updates
+                                </label>
+                            </div>
+                        </div>
+                        <button type="submit" class="submit-btn">Stay Connected</button>
+                    </form>
+                </div>
             </div>
         `;
         container.dataset.initialized = 'true';
