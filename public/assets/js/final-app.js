@@ -151,13 +151,91 @@ if (personalChefButton) {
     });
 }
 
-// Initialize the page with chefs tab
+// Initialize the page
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM loaded, initializing app...');
-    loadChefs();
-    setupTabNavigation();
+    console.log('Initializing SBCC application...');
+    initializeJourneyButtons();
     initializeContactAccordion();
 });
+
+// Initialize journey buttons
+function initializeJourneyButtons() {
+    document.querySelectorAll('.action-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const journey = btn.dataset.journey;
+            if (!journey) return;
+            
+            // Hide main content
+            document.querySelector('.main-content').style.display = 'none';
+            
+            // Show appropriate journey content
+            switch(journey) {
+                case 'event':
+                    showEventJourney();
+                    break;
+                case 'weekly':
+                    showWeeklyJourney();
+                    break;
+                case 'exploring':
+                    showExploringJourney();
+                    break;
+            }
+        });
+    });
+}
+
+// Journey display functions
+function showEventJourney() {
+    const container = document.getElementById('eventJourney') || createJourneyContainer('eventJourney');
+    container.style.display = 'block';
+    initializeEventForm();
+}
+
+function showWeeklyJourney() {
+    const container = document.getElementById('weeklyJourney') || createJourneyContainer('weeklyJourney');
+    container.style.display = 'block';
+    initializeWeeklyForm();
+}
+
+function showExploringJourney() {
+    const container = document.getElementById('exploringJourney') || createJourneyContainer('exploringJourney');
+    container.style.display = 'block';
+    initializeExploringJourney();
+}
+
+function createJourneyContainer(id) {
+    const container = document.createElement('div');
+    container.id = id;
+    container.className = 'journey-container';
+    document.querySelector('.hero').insertAdjacentElement('afterend', container);
+    return container;
+}
+
+// Initialize contact form accordion
+function initializeContactAccordion() {
+    const toggle = document.querySelector('.contact-toggle');
+    const wrapper = document.querySelector('.contact-form-wrapper');
+    const form = document.querySelector('.contact-form');
+    
+    if (!toggle || !wrapper || !form) return;
+    
+    toggle.addEventListener('click', () => {
+        const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', !isExpanded);
+        
+        if (!isExpanded) {
+            wrapper.classList.add('expanded');
+            setTimeout(() => {
+                form.classList.add('visible');
+            }, 100);
+        } else {
+            form.classList.remove('visible');
+            setTimeout(() => {
+                wrapper.classList.remove('expanded');
+            }, 300);
+        }
+    });
+}
 
 // Constants
 const API_ENDPOINT = '/.netlify/functions/api';
@@ -167,29 +245,6 @@ const journeySelection = document.getElementById('journeySelection');
 const eventJourney = document.getElementById('eventJourney');
 const weeklyJourney = document.getElementById('weeklyJourney');
 const exploringJourney = document.getElementById('exploringJourney');
-
-// Journey Selection
-document.querySelectorAll('.journey-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        const journey = btn.dataset.journey;
-        journeySelection.style.display = 'none';
-        
-        switch(journey) {
-            case 'event':
-                eventJourney.style.display = 'block';
-                initializeEventForm();
-                break;
-            case 'weekly':
-                weeklyJourney.style.display = 'block';
-                initializeWeeklyForm();
-                break;
-            case 'exploring':
-                exploringJourney.style.display = 'block';
-                initializeExploringJourney();
-                break;
-        }
-    });
-});
 
 // Date validation
 function setMinDate() {
@@ -437,7 +492,7 @@ function initializeWeeklyForm() {
             console.error('Error submitting form:', error);
             showWeeklyErrorMessage(error.message || 'Sorry, there was an error submitting your inquiry. Please try again.', weeklyForm);
         } finally {
-            submitBtn.classList.remove('loading');
+            submitBtn.remove('loading');
             submitBtn.disabled = false;
             submitBtn.innerHTML = 'Submit Inquiry';
         }
@@ -920,43 +975,6 @@ async function loadServices() {
         servicesContainer.innerHTML = '<div class="error">Failed to load services. Please try again later.</div>';
     }
 }
-
-// Initialize contact form accordion
-function initializeContactAccordion() {
-    const toggle = document.querySelector('.contact-toggle');
-    const wrapper = document.querySelector('.contact-form-wrapper');
-    const form = document.querySelector('.contact-form');
-    
-    if (!toggle || !wrapper || !form) return;
-    
-    toggle.addEventListener('click', () => {
-        const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
-        toggle.setAttribute('aria-expanded', !isExpanded);
-        
-        if (!isExpanded) {
-            wrapper.style.display = 'block';
-            // Trigger reflow
-            wrapper.offsetHeight;
-            wrapper.classList.add('expanded');
-            setTimeout(() => {
-                form.classList.add('visible');
-            }, 100);
-        } else {
-            form.classList.remove('visible');
-            setTimeout(() => {
-                wrapper.classList.remove('expanded');
-                setTimeout(() => {
-                    wrapper.style.display = 'none';
-                }, 500);
-            }, 300);
-        }
-    });
-}
-
-// Initialize the app
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('Initializing SBCC application...');
-});
 
 
 
