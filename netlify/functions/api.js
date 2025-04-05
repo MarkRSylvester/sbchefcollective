@@ -27,7 +27,8 @@ console.log('API Function Configuration:', {
     apiKey: `${AIRTABLE_API_KEY.substring(0, 10)}...`,
     apiKeyLength: AIRTABLE_API_KEY.length,
     availableEndpoints: Object.keys(TABLES),
-    environment: process.env
+    environment: process.env,
+    tables: TABLES
 });
 
 // Helper function to safely get field value
