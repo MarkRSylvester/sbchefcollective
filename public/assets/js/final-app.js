@@ -202,7 +202,33 @@ function setMinDate() {
 // Initialize form
 function initializeEventForm() {
     setMinDate();
-    loadEventTypes();
+    
+    // Ensure event type is loaded first
+    const eventTypeSelect = document.getElementById('eventType');
+    if (eventTypeSelect) {
+        const eventTypes = [
+            'Dinner Party',
+            'Boutique Wedding',
+            'Retreat',
+            'Birthday Celebration',
+            'Anniversary',
+            'Holiday Gathering',
+            'Corporate Event',
+            'Cooking Class',
+            'Wine Pairing',
+            'Other'
+        ];
+        
+        eventTypeSelect.innerHTML = '<option value="">Select Event Type</option>';
+        eventTypes.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type;
+            option.textContent = type;
+            eventTypeSelect.appendChild(option);
+        });
+    }
+    
+    // Load other form elements
     loadCuisinePreferences();
     loadVibeWords();
     
@@ -801,32 +827,6 @@ async function loadServices() {
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Initializing SBCC application...');
 });
-
-function loadEventTypes() {
-    const select = document.getElementById('eventType');
-    if (!select) return;
-    
-    const eventTypes = [
-        'Dinner Party',
-        'Boutique Wedding',
-        'Retreat',
-        'Birthday Celebration',
-        'Anniversary',
-        'Holiday Gathering',
-        'Corporate Event',
-        'Cooking Class',
-        'Wine Pairing',
-        'Other'
-    ];
-    
-    select.innerHTML = '<option value="">Select Event Type</option>';
-    eventTypes.forEach(type => {
-        const option = document.createElement('option');
-        option.value = type;
-        option.textContent = type;
-        select.appendChild(option);
-    });
-}
 
 
 
