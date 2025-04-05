@@ -156,6 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM loaded, initializing app...');
     loadChefs();
     setupTabNavigation();
+    initializeContactAccordion();
 });
 
 // Constants
@@ -918,6 +919,38 @@ async function loadServices() {
         console.error('Error loading services:', error);
         servicesContainer.innerHTML = '<div class="error">Failed to load services. Please try again later.</div>';
     }
+}
+
+// Initialize contact form accordion
+function initializeContactAccordion() {
+    const toggle = document.querySelector('.contact-toggle');
+    const wrapper = document.querySelector('.contact-form-wrapper');
+    const form = document.querySelector('.contact-form');
+    
+    if (!toggle || !wrapper || !form) return;
+    
+    toggle.addEventListener('click', () => {
+        const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', !isExpanded);
+        
+        if (!isExpanded) {
+            wrapper.style.display = 'block';
+            // Trigger reflow
+            wrapper.offsetHeight;
+            wrapper.classList.add('expanded');
+            setTimeout(() => {
+                form.classList.add('visible');
+            }, 100);
+        } else {
+            form.classList.remove('visible');
+            setTimeout(() => {
+                wrapper.classList.remove('expanded');
+                setTimeout(() => {
+                    wrapper.style.display = 'none';
+                }, 500);
+            }, 300);
+        }
+    });
 }
 
 // Initialize the app
