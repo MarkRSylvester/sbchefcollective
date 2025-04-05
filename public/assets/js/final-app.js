@@ -201,10 +201,13 @@ function setMinDate() {
 
 // Initialize form
 function initializeEventForm() {
+    console.log('Initializing event form...');
     setMinDate();
     
     // Ensure event type is loaded first
     const eventTypeSelect = document.getElementById('eventType');
+    console.log('Event type select element:', eventTypeSelect);
+    
     if (eventTypeSelect) {
         const eventTypes = [
             'Dinner Party',
@@ -219,6 +222,7 @@ function initializeEventForm() {
             'Other'
         ];
         
+        console.log('Loading event types:', eventTypes);
         eventTypeSelect.innerHTML = '<option value="">Select Event Type</option>';
         eventTypes.forEach(type => {
             const option = document.createElement('option');
@@ -226,6 +230,9 @@ function initializeEventForm() {
             option.textContent = type;
             eventTypeSelect.appendChild(option);
         });
+        console.log('Event types loaded');
+    } else {
+        console.error('Event type select element not found');
     }
     
     // Load other form elements
