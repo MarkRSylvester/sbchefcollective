@@ -193,15 +193,53 @@ document.querySelectorAll('.journey-btn').forEach(btn => {
 // Event Journey
 function initializeEventForm() {
     const eventForm = document.getElementById('eventForm');
+    const submitButton = eventForm.querySelector('.submit-btn');
+    
+    // Add validation feedback
+    eventForm.querySelectorAll('input[required], select[required], textarea[required]').forEach(field => {
+        field.addEventListener('invalid', (e) => {
+            e.preventDefault();
+            field.classList.add('invalid');
+            
+            // Add or update validation message
+            let validationMessage = field.nextElementSibling;
+            if (!validationMessage || !validationMessage.classList.contains('validation-message')) {
+                validationMessage = document.createElement('div');
+                validationMessage.className = 'validation-message';
+                field.parentNode.insertBefore(validationMessage, field.nextSibling);
+            }
+            validationMessage.textContent = field.validationMessage || 'This field is required';
+        });
+        
+        field.addEventListener('input', () => {
+            field.classList.remove('invalid');
+            const validationMessage = field.nextElementSibling;
+            if (validationMessage && validationMessage.classList.contains('validation-message')) {
+                validationMessage.remove();
+            }
+        });
+    });
     
     // Load dynamic options
     loadEventTypes();
     loadCuisinePreferences();
     loadVibeWords();
     loadOptionalServices();
+    loadBudgetRanges();
     
     eventForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        // Check form validity
+        if (!eventForm.checkValidity()) {
+            eventForm.reportValidity();
+            return;
+        }
+        
+        // Disable submit button and show loading state
+        submitButton.disabled = true;
+        submitButton.classList.add('loading');
+        submitButton.textContent = 'Submitting...';
         
         const formData = new FormData(eventForm);
         const data = {
@@ -241,6 +279,11 @@ function initializeEventForm() {
         } catch (error) {
             console.error('Error submitting form:', error);
             showErrorMessage('Sorry, there was an error submitting your inquiry. Please try again.');
+        } finally {
+            // Re-enable submit button and restore original state
+            submitButton.disabled = false;
+            submitButton.classList.remove('loading');
+            submitButton.textContent = 'Submit Inquiry';
         }
     });
 }
@@ -248,6 +291,12 @@ function initializeEventForm() {
 // Weekly Journey
 function initializeWeeklyForm() {
     const weeklyForm = document.getElementById('weeklyForm');
+    
+    // Initialize meal types dropdown
+    loadMealTypes();
+    
+    // Initialize days of the week
+    loadDaysOfWeek();
     
     weeklyForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -294,71 +343,152 @@ function initializeWeeklyForm() {
     });
 }
 
+function loadMealTypes() {
+    const select = document.getElementById('mealType');
+    if (!select) return;
+    
+    const mealTypes = [
+        'Breakfast',
+        'Lunch',
+        'Dinner',
+        'Snacks',
+        'Full Day Meal Plan',
+        'Custom Plan'
+    ];
+    
+    select.innerHTML = '<option value="">Select meal type...</option>';
+    mealTypes.forEach(type => {
+        const option = document.createElement('option');
+        option.value = type;
+        option.textContent = type;
+        select.appendChild(option);
+    });
+}
+
+function loadDaysOfWeek() {
+    const container = document.getElementById('daysOfWeek');
+    if (!container) return;
+    
+    const days = [
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+        'Sunday'
+    ];
+    
+    container.innerHTML = '';
+    days.forEach(day => {
+        const label = document.createElement('label');
+        label.className = 'checkbox-label';
+        label.innerHTML = `
+            <input type="checkbox" name="Preferred Days" value="${day}">
+            <span class="checkmark"></span>
+            ${day}
+        `;
+        container.appendChild(label);
+    });
+}
+
 // Exploring Journey
 function initializeExploringJourney() {
+    const exploringContent = document.querySelector('.exploring-content');
+    const contentContainers = document.querySelectorAll('.content-container');
+    
     document.querySelectorAll('.action-tile').forEach(tile => {
         tile.addEventListener('click', () => {
             const action = tile.dataset.action;
             
+            // Hide exploring content and all content containers first
+            exploringContent.style.display = 'none';
+            contentContainers.forEach(container => {
+                container.style.display = 'none';
+            });
+            
             switch(action) {
                 case 'viewChefs':
-                    loadChefs();
+                    const chefsContainer = document.getElementById('chefsContainer');
                     chefsContainer.style.display = 'block';
-                    menusContainer.style.display = 'none';
-                    servicesContainer.style.display = 'none';
+                    loadChefs();
                     break;
                 case 'viewMenus':
-                    loadMenus();
-                    chefsContainer.style.display = 'none';
+                    const menusContainer = document.getElementById('menusContainer');
                     menusContainer.style.display = 'block';
-                    servicesContainer.style.display = 'none';
+                    loadMenus();
                     break;
                 case 'learnMore':
-                    loadServices();
-                    chefsContainer.style.display = 'none';
-                    menusContainer.style.display = 'none';
+                    const servicesContainer = document.getElementById('servicesContainer');
                     servicesContainer.style.display = 'block';
+                    loadServices();
                     break;
+            }
+            
+            // Add back button
+            if (!document.querySelector('.back-to-exploring')) {
+                const backButton = document.createElement('button');
+                backButton.className = 'back-to-exploring';
+                backButton.textContent = '← Back to Exploring';
+                backButton.addEventListener('click', () => {
+                    contentContainers.forEach(container => {
+                        container.style.display = 'none';
+                    });
+                    exploringContent.style.display = 'block';
+                    backButton.remove();
+                });
+                document.getElementById('exploringJourney').insertBefore(backButton, document.querySelector('.content-container'));
             }
         });
     });
     
     const quickForm = document.getElementById('quickInquiryForm');
-    quickForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const formData = new FormData(quickForm);
-        const data = {
-            'Type': 'Exploring',
-            'Status': 'New'
-        };
-        
-        formData.forEach((value, key) => {
-            data[key] = value;
-        });
-        
-        try {
-            const response = await fetch(`${API_ENDPOINT}?action=submitInquiry`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
+    if (quickForm) {
+        quickForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitButton = quickForm.querySelector('.submit-btn');
+            submitButton.disabled = true;
+            submitButton.classList.add('loading');
+            submitButton.textContent = 'Sending...';
+            
+            const formData = new FormData(quickForm);
+            const data = {
+                'Type': 'Quick Inquiry',
+                'Status': 'New'
+            };
+            
+            formData.forEach((value, key) => {
+                data[key] = value;
             });
             
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            try {
+                const response = await fetch(`${API_ENDPOINT}?action=submitInquiry`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                showSuccessMessage('Thank you! We will contact you shortly.');
+                quickForm.reset();
+                
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                showErrorMessage('Sorry, there was an error submitting your inquiry. Please try again.');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.classList.remove('loading');
+                submitButton.textContent = 'Send Message';
             }
-            
-            const result = await response.json();
-            showSuccessMessage('Thank you! We will contact you shortly.');
-            quickForm.reset();
-            
-        } catch (error) {
-            console.error('Error submitting form:', error);
-            showErrorMessage('Sorry, there was an error submitting your inquiry. Please try again.');
-        }
-    });
+        });
+    }
 }
 
 // Load Dynamic Content
@@ -464,6 +594,28 @@ async function loadOptionalServices() {
     } catch (error) {
         console.error('Error loading services:', error);
     }
+}
+
+// Add budget ranges loading function
+function loadBudgetRanges() {
+    const select = document.getElementById('budgetRange');
+    const ranges = [
+        'Under $500',
+        '$500 - $1,000',
+        '$1,000 - $2,000',
+        '$2,000 - $3,500',
+        '$3,500 - $5,000',
+        '$5,000 - $7,500',
+        '$7,500 - $10,000',
+        'Over $10,000'
+    ];
+    
+    ranges.forEach(range => {
+        const option = document.createElement('option');
+        option.value = range;
+        option.textContent = range;
+        select.appendChild(option);
+    });
 }
 
 // Load Content Functions
