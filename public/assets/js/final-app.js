@@ -296,68 +296,66 @@ function initializeEventForm() {
         submitButton.textContent = 'Submitting...';
         
         try {
-            const formData = new FormData(eventForm);
-            const data = {
-                'Type': 'Event',
-                'Status': 'New'
+            // Collect form data
+            const formData = {
+                'First Name': eventForm.querySelector('#firstName').value,
+                'Last Name': eventForm.querySelector('#lastName').value,
+                'Email': eventForm.querySelector('#email').value,
+                'Phone': eventForm.querySelector('#phone').value,
+                'Event Type': eventForm.querySelector('#eventType').value,
+                'Event Date': eventForm.querySelector('#eventDate').value,
+                'Event Time': eventForm.querySelector('#eventTime').value,
+                'Guest Count': eventForm.querySelector('#guestCount').value,
+                'Event Address': eventForm.querySelector('#eventAddress').value,
+                'Budget': eventForm.querySelector('#budgetRange').value,
+                'Dietary Needs': eventForm.querySelector('#dietaryNeeds').value,
+                'Must Haves': eventForm.querySelector('#mustHaves').value,
+                'Notes': eventForm.querySelector('#notes').value,
+                'Cuisine Preference': Array.from(eventForm.querySelectorAll('input[name="Cuisine Preference"]:checked')).map(cb => cb.value),
+                'Event Vibe': Array.from(eventForm.querySelectorAll('input[name="Event Vibe"]:checked')).map(cb => cb.value)
             };
-            
-            formData.forEach((value, key) => {
-                if (data[key]) {
-                    if (Array.isArray(data[key])) {
-                        data[key].push(value);
-                    } else {
-                        data[key] = [data[key], value];
-                    }
-                } else {
-                    data[key] = value;
-                }
-            });
-            
-            const response = await fetch(`${API_ENDPOINT}?action=submitInquiry`, {
+
+            // Submit to API
+            const response = await fetch('/.netlify/functions/api?action=submitInquiry', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(data)
+                body: JSON.stringify(formData)
             });
-            
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
+
             const result = await response.json();
-            
-            // Show success message and next steps
-            showSuccessMessage('Thank you! Your inquiry has been submitted successfully.');
-            
-            // Show next steps
-            const nextStepsContainer = document.createElement('div');
-            nextStepsContainer.className = 'next-steps';
-            nextStepsContainer.innerHTML = `
-                <h3>Next Steps</h3>
-                <p>Here's what happens next:</p>
-                <ol>
-                    <li>Our team will review your event details within 24 hours</li>
-                    <li>We'll match you with available chefs based on your preferences</li>
-                    <li>You'll receive an email with chef recommendations and menu options</li>
-                    <li>We'll schedule a brief call to discuss your event in detail</li>
-                </ol>
-                <button class="back-to-home">Return to Home</button>
+            console.log('Form submission result:', result);
+
+            // Show success message
+            eventForm.innerHTML = `
+                <div class="success-message">
+                    <h3>Thank you for your inquiry!</h3>
+                    <p>We've received your event details and will be in touch within 24-48 hours to discuss your vision in detail.</p>
+                    <div class="next-steps">
+                        <h4>What's Next?</h4>
+                        <ol>
+                            <li>Our team will review your event details</li>
+                            <li>We'll prepare a customized proposal based on your preferences</li>
+                            <li>We'll schedule a consultation to discuss the menu and logistics</li>
+                            <li>Once confirmed, we'll begin detailed planning for your event</li>
+                        </ol>
+                    </div>
+                </div>
             `;
-            
-            eventForm.style.display = 'none';
-            eventForm.parentNode.appendChild(nextStepsContainer);
-            
-            const backButton = nextStepsContainer.querySelector('.back-to-home');
-            backButton.addEventListener('click', () => {
-                window.location.reload();
-            });
-            
         } catch (error) {
-            console.error('Error submitting form:', error);
-            showErrorMessage('Sorry, there was an error submitting your inquiry. Please try again.');
+            console.error('Form submission error:', error);
+            // Show error message
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = 'There was an error submitting your inquiry. Please try again or contact us directly.';
+            submitButton.parentNode.insertBefore(errorDiv, submitButton);
         } finally {
+            // Reset button state
             submitButton.disabled = false;
             submitButton.classList.remove('loading');
             submitButton.textContent = originalText;
@@ -397,14 +395,12 @@ function loadBudgetRanges() {
     select.innerHTML = '<option value="">Select budget range...</option>';
     
     const budgetRanges = [
-        'Under $1,000',
-        '$1,000 - $2,500',
-        '$2,500 - $5,000',
-        '$5,000 - $7,500',
-        '$7,500 - $10,000',
-        '$10,000 - $15,000',
-        '$15,000 - $25,000',
-        '$25,000+'
+        'Under $75 (light fare or appetizers only)',
+        '$75-$100 (casual meals or small gatherings)',
+        '$100-$150 (full-service dinner with chef)',
+        '$150-$200 (elevated menus, plated service)',
+        '$200-$300 (premium ingredients, multi-course)',
+        '$300+ (luxury tasting menus, wine pairings)'
     ];
     
     budgetRanges.forEach(range => {

@@ -127,6 +127,7 @@ exports.handler = async (event) => {
             }
 
             const formData = JSON.parse(event.body);
+            console.log('Form data received:', formData);
             
             // Create inquiry record
             const inquiryResponse = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${TABLES.submitInquiry}`, {
@@ -138,6 +139,7 @@ exports.handler = async (event) => {
                 body: JSON.stringify({
                     fields: {
                         ...formData,
+                        'Budget Range': formData.Budget || '',
                         'Status': 'New',
                         'Created Time': new Date().toISOString()
                     }
@@ -155,6 +157,7 @@ exports.handler = async (event) => {
             }
 
             const inquiry = await inquiryResponse.json();
+            console.log('Created inquiry:', inquiry);
             
             // Simulate Dubsado sync
             await simulateDubsadoSync(inquiry);
