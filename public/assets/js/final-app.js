@@ -391,6 +391,12 @@ function initializeWeeklyForm() {
         const submitBtn = weeklyForm.querySelector('.submit-btn');
         submitBtn.classList.add('loading');
         submitBtn.disabled = true;
+        
+        // Add loading spinner
+        submitBtn.innerHTML = `
+            <span class="spinner"></span>
+            <span class="btn-text">Submitting...</span>
+        `;
 
         try {
             const formData = new FormData(weeklyForm);
@@ -424,43 +430,59 @@ function initializeWeeklyForm() {
             }
             
             const result = await response.json();
-            showWeeklySuccessMessage();
+            showWeeklySuccessMessage(weeklyForm);
             weeklyForm.reset();
             
         } catch (error) {
             console.error('Error submitting form:', error);
-            showWeeklyErrorMessage('Sorry, there was an error submitting your inquiry. Please try again.');
+            showWeeklyErrorMessage('Sorry, there was an error submitting your inquiry. Please try again.', weeklyForm);
         } finally {
             submitBtn.classList.remove('loading');
             submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Submit Inquiry';
         }
     });
 }
 
-function showWeeklySuccessMessage() {
+function showWeeklySuccessMessage(form) {
+    // Remove any existing messages
+    const existingMessages = document.querySelectorAll('.success-message, .error-message');
+    existingMessages.forEach(msg => msg.remove());
+    
     const successMessage = document.createElement('div');
-    successMessage.className = 'success-message';
+    successMessage.className = 'success-message fade-in';
     successMessage.innerHTML = `
         <h3>Thank You!</h3>
         <p>Your weekly meal service inquiry has been submitted successfully. We'll be in touch within 24 hours.</p>
     `;
     
-    const form = document.getElementById('weeklyForm');
     form.parentNode.insertBefore(successMessage, form);
     form.style.display = 'none';
     
+    // Scroll to success message
     successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-function showWeeklyErrorMessage(message) {
+function showWeeklyErrorMessage(message, form) {
+    // Remove any existing messages
+    const existingMessages = document.querySelectorAll('.success-message, .error-message');
+    existingMessages.forEach(msg => msg.remove());
+    
     const errorMessage = document.createElement('div');
-    errorMessage.className = 'error-message';
+    errorMessage.className = 'error-message fade-in';
     errorMessage.textContent = message || 'Something went wrong. Please try again.';
     
-    const submitBtn = document.querySelector('.submit-btn');
-    submitBtn.parentNode.insertBefore(errorMessage, submitBtn);
+    const submitBtn = form.querySelector('.submit-btn');
+    form.insertBefore(errorMessage, submitBtn);
     
-    setTimeout(() => errorMessage.remove(), 5000);
+    // Scroll to error message
+    errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    // Remove error message after 5 seconds
+    setTimeout(() => {
+        errorMessage.classList.add('fade-out');
+        setTimeout(() => errorMessage.remove(), 300);
+    }, 5000);
 }
 
 function loadMealTypes() {
