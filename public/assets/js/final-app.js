@@ -340,7 +340,42 @@ function showErrorMessage(message) {
     setTimeout(() => errorMessage.remove(), 5000);
 }
 
-// Weekly Journey
+// Form submission function
+async function submitForm(form) {
+    const formData = new FormData(form);
+    const data = {
+        'Type': 'Event',
+        'Status': 'New'
+    };
+    
+    formData.forEach((value, key) => {
+        if (data[key]) {
+            if (Array.isArray(data[key])) {
+                data[key].push(value);
+            } else {
+                data[key] = [data[key], value];
+            }
+        } else {
+            data[key] = value;
+        }
+    });
+
+    const response = await fetch(`${API_ENDPOINT}?action=submitInquiry`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+}
+
+// Weekly form submission
 function initializeWeeklyForm() {
     const weeklyForm = document.getElementById('weeklyForm');
     
@@ -353,25 +388,29 @@ function initializeWeeklyForm() {
     weeklyForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const formData = new FormData(weeklyForm);
-        const data = {
-            'Type': 'Weekly',
-            'Status': 'New'
-        };
-        
-        formData.forEach((value, key) => {
-            if (data[key]) {
-                if (Array.isArray(data[key])) {
-                    data[key].push(value);
-                } else {
-                    data[key] = [data[key], value];
-                }
-            } else {
-                data[key] = value;
-            }
-        });
-        
+        const submitBtn = weeklyForm.querySelector('.submit-btn');
+        submitBtn.classList.add('loading');
+        submitBtn.disabled = true;
+
         try {
+            const formData = new FormData(weeklyForm);
+            const data = {
+                'Type': 'Weekly',
+                'Status': 'New'
+            };
+            
+            formData.forEach((value, key) => {
+                if (data[key]) {
+                    if (Array.isArray(data[key])) {
+                        data[key].push(value);
+                    } else {
+                        data[key] = [data[key], value];
+                    }
+                } else {
+                    data[key] = value;
+                }
+            });
+            
             const response = await fetch(`${API_ENDPOINT}?action=submitInquiry`, {
                 method: 'POST',
                 headers: {
@@ -385,14 +424,43 @@ function initializeWeeklyForm() {
             }
             
             const result = await response.json();
-            showSuccessMessage('Thank you! We will contact you shortly.');
+            showWeeklySuccessMessage();
             weeklyForm.reset();
             
         } catch (error) {
             console.error('Error submitting form:', error);
-            showErrorMessage('Sorry, there was an error submitting your inquiry. Please try again.');
+            showWeeklyErrorMessage('Sorry, there was an error submitting your inquiry. Please try again.');
+        } finally {
+            submitBtn.classList.remove('loading');
+            submitBtn.disabled = false;
         }
     });
+}
+
+function showWeeklySuccessMessage() {
+    const successMessage = document.createElement('div');
+    successMessage.className = 'success-message';
+    successMessage.innerHTML = `
+        <h3>Thank You!</h3>
+        <p>Your weekly meal service inquiry has been submitted successfully. We'll be in touch within 24 hours.</p>
+    `;
+    
+    const form = document.getElementById('weeklyForm');
+    form.parentNode.insertBefore(successMessage, form);
+    form.style.display = 'none';
+    
+    successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function showWeeklyErrorMessage(message) {
+    const errorMessage = document.createElement('div');
+    errorMessage.className = 'error-message';
+    errorMessage.textContent = message || 'Something went wrong. Please try again.';
+    
+    const submitBtn = document.querySelector('.submit-btn');
+    submitBtn.parentNode.insertBefore(errorMessage, submitBtn);
+    
+    setTimeout(() => errorMessage.remove(), 5000);
 }
 
 function loadMealTypes() {
