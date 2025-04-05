@@ -195,6 +195,12 @@ function initializeEventForm() {
     const eventForm = document.getElementById('eventForm');
     const submitButton = eventForm.querySelector('.submit-btn');
     
+    // Initialize all form elements
+    loadEventTypes();
+    loadCuisinePreferences();
+    loadVibeWords();
+    loadBudgetRanges();
+    
     // Add validation to required fields
     const requiredFields = eventForm.querySelectorAll('input[required], select[required], textarea[required]');
     
@@ -356,6 +362,56 @@ function initializeEventForm() {
             submitButton.classList.remove('loading');
             submitButton.textContent = originalText;
         }
+    });
+}
+
+function loadEventTypes() {
+    const select = document.getElementById('eventType');
+    if (!select) return;
+    
+    select.innerHTML = '<option value="">Select event type...</option>';
+    
+    const types = [
+        'Dinner Party',
+        'Boutique Wedding',
+        'Retreat',
+        'Corporate Event',
+        'Holiday Celebration',
+        'Birthday Party',
+        'Anniversary',
+        'Other'
+    ];
+    
+    types.forEach(type => {
+        const option = document.createElement('option');
+        option.value = type;
+        option.textContent = type;
+        select.appendChild(option);
+    });
+}
+
+function loadBudgetRanges() {
+    const select = document.getElementById('budgetRange');
+    if (!select) return;
+    
+    select.innerHTML = '<option value="">Select budget range...</option>';
+    
+    const budgetRanges = [
+        'Under $1,000',
+        '$1,000 - $2,500',
+        '$2,500 - $5,000',
+        '$5,000 - $7,500',
+        '$7,500 - $10,000',
+        '$10,000 - $15,000',
+        '$15,000 - $25,000',
+        '$25,000+'
+    ];
+    
+    budgetRanges.forEach(range => {
+        const option = document.createElement('option');
+        option.value = range;
+        option.textContent = range;
+        select.appendChild(option);
     });
 }
 
@@ -562,28 +618,6 @@ function initializeExploringJourney() {
     }
 }
 
-// Load Dynamic Content
-async function loadEventTypes() {
-    const select = document.getElementById('eventType');
-    const types = [
-        'Dinner Party',
-        'Boutique Wedding',
-        'Retreat',
-        'Corporate Event',
-        'Holiday Celebration',
-        'Birthday Party',
-        'Anniversary',
-        'Other'
-    ];
-    
-    types.forEach(type => {
-        const option = document.createElement('option');
-        option.value = type;
-        option.textContent = type;
-        select.appendChild(option);
-    });
-}
-
 async function loadCuisinePreferences() {
     const container = document.getElementById('cuisinePreferences');
     const cuisines = [
@@ -673,31 +707,6 @@ async function loadOptionalServices() {
     } catch (error) {
         console.error('Error loading services:', error);
     }
-}
-
-// Add budget ranges loading function
-function loadBudgetRanges() {
-    const select = document.getElementById('budgetRange');
-    if (!select) return;
-    
-    const budgetRanges = [
-        'Under $1,000',
-        '$1,000 - $2,500',
-        '$2,500 - $5,000',
-        '$5,000 - $7,500',
-        '$7,500 - $10,000',
-        '$10,000 - $15,000',
-        '$15,000 - $25,000',
-        '$25,000+'
-    ];
-    
-    select.innerHTML = '<option value="">Select budget range...</option>';
-    budgetRanges.forEach(range => {
-        const option = document.createElement('option');
-        option.value = range;
-        option.textContent = range;
-        select.appendChild(option);
-    });
 }
 
 // Load Content Functions
@@ -925,5 +934,6 @@ function showErrorMessage(message) {
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Initializing SBCC application...');
 });
+
 
 
