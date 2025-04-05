@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Constants
-const API_ENDPOINT = '/api';  // Updated to use the new API endpoint
+const API_ENDPOINT = '/.netlify/functions/api';  // Updated to use the correct Netlify functions path
 
 // Tab Navigation
 function setupTabNavigation() {
