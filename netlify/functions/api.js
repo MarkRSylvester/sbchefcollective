@@ -24,8 +24,10 @@ const TABLES = {
 // Log configuration for debugging
 console.log('API Function Configuration:', {
     baseId: AIRTABLE_BASE_ID,
+    apiKey: `${AIRTABLE_API_KEY.substring(0, 10)}...`,
     apiKeyLength: AIRTABLE_API_KEY.length,
-    availableEndpoints: Object.keys(TABLES)
+    availableEndpoints: Object.keys(TABLES),
+    environment: process.env
 });
 
 // Helper function to safely get field value
@@ -83,7 +85,8 @@ exports.handler = async (event) => {
     console.log('Request received:', {
         method: event.httpMethod,
         path: event.path,
-        params: event.queryStringParameters
+        params: event.queryStringParameters,
+        headers: event.headers
     });
 
     // CORS Headers
@@ -141,6 +144,12 @@ exports.handler = async (event) => {
             });
 
             if (!inquiryResponse.ok) {
+                const errorText = await inquiryResponse.text();
+                console.error('Failed to create inquiry:', {
+                    status: inquiryResponse.status,
+                    statusText: inquiryResponse.statusText,
+                    error: errorText
+                });
                 throw new Error(`Failed to create inquiry: ${inquiryResponse.statusText}`);
             }
 
@@ -167,7 +176,13 @@ exports.handler = async (event) => {
             url += `?filterByFormula=${encodeURIComponent(`{Menu ID}='${params.menuId}'`)}`;
         }
 
-        console.log('Fetching from Airtable:', url);
+        console.log('Airtable request:', {
+            url,
+            headers: {
+                'Authorization': `Bearer ${AIRTABLE_API_KEY.substring(0, 10)}...`,
+                'Content-Type': 'application/json'
+            }
+        });
 
         const response = await fetch(url, {
             headers: {
@@ -181,7 +196,8 @@ exports.handler = async (event) => {
             console.error('Airtable API error:', {
                 status: response.status,
                 statusText: response.statusText,
-                error: errorText
+                error: errorText,
+                url
             });
             return {
                 statusCode: response.status,
@@ -204,73 +220,52 @@ exports.handler = async (event) => {
             };
         }
 
-        const processedRecords = data.records.map(record => {
-            switch (action) {
-                case 'getChefs':
-                    return {
-                        id: record.id,
-                        name: getField(record, 'Name'),
-                        bio: getField(record, 'Bio'),
-                        vibe: getField(record, 'Vibe'),
-                        image: getPhotoUrl(record, 'Image URL'),
-                        assignedMenus: getField(record, 'Assigned Menus'),
-                        availability: getField(record, 'Availability'),
-                        location: getField(record, 'Location'),
-                        active: getField(record, 'Active')
-                    };
-                case 'getMenus':
-                    return {
-                        id: record.id,
-                        name: getField(record, 'Menu Name'),
-                        description: getField(record, 'Description'),
-                        menuTier: getField(record, 'Menu Tier'),
-                        associatedDishes: getField(record, 'Associated Dishes'),
-                        chefs: getField(record, 'Chef(s)'),
-                        heroImage: getPhotoUrl(record, 'Hero Image'),
-                        tags: getField(record, 'Tags'),
-                        active: getField(record, 'Active')
-                    };
-                case 'getDishes':
-                    return {
-                        id: record.id,
-                        name: getField(record, 'Dish Name'),
-                        category: getField(record, 'Category'),
-                        description: getField(record, 'Description'),
-                        isPremium: getField(record, 'Is Premium?'),
-                        menuId: getField(record, 'Menu ID'),
-                        sortOrder: getField(record, 'Sort Order')
-                    };
-                case 'getServices':
-                    return {
-                        id: record.id,
-                        name: getField(record, 'Service Name'),
-                        type: getField(record, 'Type'),
-                        description: getField(record, 'Description'),
-                        requiresVendor: getField(record, 'Requires Vendor'),
-                        usage: getField(record, 'Usage'),
-                        costLogic: getField(record, 'Cost Logic'),
-                        notes: getField(record, 'Notes')
-                    };
-                case 'getImages':
-                    return {
-                        id: record.id,
-                        url: getField(record, 'URL'),
-                        filename: getField(record, 'Filename'),
-                        moodTags: getField(record, 'Mood Tags'),
-                        useCase: getField(record, 'Use Case'),
-                        paletteTag: getField(record, 'Palette Tag')
-                    };
-                case 'getColors':
-                    return {
-                        id: record.id,
-                        name: getField(record, 'Name'),
-                        hue: getField(record, 'Hue'),
-                        usage: getField(record, 'Usage')
-                    };
-                default:
-                    return record;
-            }
-        });
+        // Process records based on action
+        let processedRecords = data.records;
+        
+        switch (action) {
+            case 'getChefs':
+                processedRecords = data.records.map(record => ({
+                    id: record.id,
+                    name: getField(record, 'Name'),
+                    bio: getField(record, 'Bio'),
+                    image: getPhotoUrl(record, 'Photo'),
+                    specialties: getField(record, 'Specialties'),
+                    availability: getField(record, 'Availability'),
+                    active: getField(record, 'Active') === true
+                }));
+                break;
+                
+            case 'getMenus':
+                processedRecords = data.records.map(record => ({
+                    id: record.id,
+                    name: getField(record, 'Name'),
+                    description: getField(record, 'Description'),
+                    menuTier: getField(record, 'Menu Tier'),
+                    active: getField(record, 'Active') === true
+                }));
+                break;
+                
+            case 'getDishes':
+                processedRecords = data.records.map(record => ({
+                    id: record.id,
+                    name: getField(record, 'Name'),
+                    description: getField(record, 'Description'),
+                    category: getField(record, 'Category'),
+                    menuId: getField(record, 'Menu ID'),
+                    sortOrder: getField(record, 'Sort Order')
+                }));
+                break;
+                
+            case 'getServices':
+                processedRecords = data.records.map(record => ({
+                    id: record.id,
+                    name: getField(record, 'Name'),
+                    description: getField(record, 'Description'),
+                    type: getField(record, 'Type')
+                }));
+                break;
+        }
 
         return {
             statusCode: 200,
@@ -283,11 +278,7 @@ exports.handler = async (event) => {
         return {
             statusCode: 500,
             headers,
-            body: JSON.stringify({
-                error: 'Internal server error',
-                details: error.message,
-                stack: error.stack
-            })
+            body: JSON.stringify({ error: 'Internal server error', details: error.message })
         };
     }
 }; 
