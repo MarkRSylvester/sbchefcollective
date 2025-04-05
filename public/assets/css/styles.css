@@ -323,7 +323,8 @@ body {
 
 .hero h1 {
     font-family: 'Playfair Display', serif;
-    font-size: 4rem;
+    font-size: 4.5rem;
+    line-height: 1.2;
     margin: 0 0 1.5rem 0;
     color: white;
     font-weight: 400;
@@ -331,62 +332,122 @@ body {
 
 .hero p {
     font-size: 1.25rem;
-    margin: 0 0 3rem 0;
+    margin: 0;
     color: white;
     line-height: 1.6;
     font-weight: 300;
     font-family: 'Helvetica Neue', Arial, sans-serif;
 }
 
-.tab-navigation {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    flex-wrap: wrap;
+/* Journey Selection */
+.journey-selection {
+    padding: 2rem;
+    background: white;
 }
 
-.tab-button {
-    padding: 0.75rem 2rem;
-    font-family: 'Playfair Display', serif;
-    font-size: 1rem;
-    background: transparent;
-    color: white;
-    border: 2px solid white;
-    border-radius: 6px;
+.journey-options {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    padding: 1rem;
+}
+
+.journey-btn {
+    background: white;
+    border: 1px solid #4F5D6C;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: left;
     cursor: pointer;
     transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    min-width: 160px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
-.tab-button:hover {
-    background: white;
+.journey-btn h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
     color: #4F5D6C;
+    margin: 0 0 1rem 0;
 }
 
-.tab-button.active {
+.journey-btn p {
+    font-size: 1rem;
+    color: #666;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.journey-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Form Styling */
+.form-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
     background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.intake-form h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
     color: #4F5D6C;
+    margin: 0 0 2rem 0;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: 1rem;
+    color: #4F5D6C;
+    margin-bottom: 0.5rem;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="tel"],
+.form-group input[type="date"],
+.form-group input[type="time"],
+.form-group input[type="number"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #4F5D6C;
+    outline: none;
 }
 
 @media (max-width: 768px) {
     .hero h1 {
-        font-size: 3rem;
+        font-size: 3.5rem;
     }
     
-    .hero p {
-        font-size: 1.1rem;
-        margin: 0 0 2rem 0;
+    .journey-options {
+        grid-template-columns: 1fr;
     }
     
-    .tab-navigation {
-        gap: 0.75rem;
-    }
-    
-    .tab-button {
-        padding: 0.6rem 1.5rem;
-        min-width: 140px;
+    .journey-btn {
+        padding: 1.5rem;
     }
 }
 
@@ -399,9 +460,8 @@ body {
         font-size: 2.5rem;
     }
     
-    .tab-button {
-        width: 100%;
-        margin: 0.25rem 0;
+    .form-container {
+        padding: 1.5rem;
     }
 }
 
