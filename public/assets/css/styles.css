@@ -1244,3 +1244,73 @@ body {
     margin: 0;
     line-height: 1.5;
 }
+
+.journey-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.journey-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.journey-header h2 {
+    margin: 0;
+    color: #4F5D6C;
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+}
+
+.back-btn {
+    padding: 0.5rem 1rem;
+    background: none;
+    border: 1px solid #4F5D6C;
+    border-radius: 4px;
+    color: #4F5D6C;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+    background: #4F5D6C;
+    color: white;
+}
+
+.action-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+}
+
+@media (max-width: 768px) {
+    .action-buttons {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .journey-container {
+        margin: 1rem;
+        padding: 1rem;
+    }
+    
+    .journey-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .journey-header h2 {
+        font-size: 1.5rem;
+    }
+}

@@ -165,8 +165,8 @@ function initializeJourneyButtons() {
             const journey = btn.dataset.journey;
             if (!journey) return;
             
-            // Hide main content
-            document.querySelector('.main-content').style.display = 'none';
+            // Only hide the action buttons, not the entire main content
+            document.querySelector('.action-buttons').style.display = 'none';
             
             // Show appropriate journey content
             switch(journey) {
@@ -188,28 +188,86 @@ function initializeJourneyButtons() {
 function showEventJourney() {
     const container = document.getElementById('eventJourney') || createJourneyContainer('eventJourney');
     container.style.display = 'block';
-    initializeEventForm();
+    
+    // Only initialize the form if it hasn't been initialized yet
+    if (!container.dataset.initialized) {
+        container.innerHTML = `
+            <div class="journey-header">
+                <h2>Plan Your Event</h2>
+                <button class="back-btn" onclick="returnToHome()">← Back to Home</button>
+            </div>
+            <form id="eventForm" class="event-form">
+                <div class="form-group">
+                    <label for="eventDate">Event Date*</label>
+                    <input type="date" id="eventDate" name="eventDate" required>
+                </div>
+                <!-- Rest of the form will be initialized by initializeEventForm -->
+            </form>
+        `;
+        container.dataset.initialized = 'true';
+        initializeEventForm();
+    }
 }
 
 function showWeeklyJourney() {
     const container = document.getElementById('weeklyJourney') || createJourneyContainer('weeklyJourney');
     container.style.display = 'block';
-    initializeWeeklyForm();
+    
+    if (!container.dataset.initialized) {
+        container.innerHTML = `
+            <div class="journey-header">
+                <h2>Weekly Meal Service</h2>
+                <button class="back-btn" onclick="returnToHome()">← Back to Home</button>
+            </div>
+            <form id="weeklyForm" class="weekly-form">
+                <!-- Form content will be initialized by initializeWeeklyForm -->
+            </form>
+        `;
+        container.dataset.initialized = 'true';
+        initializeWeeklyForm();
+    }
 }
 
 function showExploringJourney() {
     const container = document.getElementById('exploringJourney') || createJourneyContainer('exploringJourney');
     container.style.display = 'block';
-    initializeExploringJourney();
+    
+    if (!container.dataset.initialized) {
+        container.innerHTML = `
+            <div class="journey-header">
+                <h2>Explore Our Services</h2>
+                <button class="back-btn" onclick="returnToHome()">← Back to Home</button>
+            </div>
+            <div class="exploring-content">
+                <!-- Content will be initialized by initializeExploringJourney -->
+            </div>
+        `;
+        container.dataset.initialized = 'true';
+        initializeExploringJourney();
+    }
 }
 
 function createJourneyContainer(id) {
     const container = document.createElement('div');
     container.id = id;
     container.className = 'journey-container';
-    document.querySelector('.hero').insertAdjacentElement('afterend', container);
+    document.querySelector('.main-content').appendChild(container);
     return container;
 }
+
+// Return to home function
+function returnToHome() {
+    // Hide all journey containers
+    document.querySelectorAll('.journey-container').forEach(container => {
+        container.style.display = 'none';
+    });
+    
+    // Show the action buttons
+    document.querySelector('.action-buttons').style.display = 'grid';
+}
+
+// Make returnToHome available globally
+window.returnToHome = returnToHome;
 
 // Initialize contact form accordion
 function initializeContactAccordion() {
