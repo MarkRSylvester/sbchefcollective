@@ -239,6 +239,7 @@ function initializeEventForm() {
         // Disable submit button and show loading state
         submitButton.disabled = true;
         submitButton.classList.add('loading');
+        const originalText = submitButton.textContent;
         submitButton.textContent = 'Submitting...';
         
         const formData = new FormData(eventForm);
@@ -276,6 +277,31 @@ function initializeEventForm() {
             showSuccessMessage('Thank you! We will contact you shortly.');
             eventForm.reset();
             
+            // Show next steps after successful submission
+            const nextStepsContainer = document.createElement('div');
+            nextStepsContainer.className = 'next-steps';
+            nextStepsContainer.innerHTML = `
+                <h3>Next Steps</h3>
+                <p>Your inquiry has been submitted successfully! Here's what happens next:</p>
+                <ol>
+                    <li>Our team will review your event details within 24 hours</li>
+                    <li>We'll match you with available chefs based on your preferences</li>
+                    <li>You'll receive an email with chef recommendations and menu options</li>
+                    <li>We'll schedule a brief call to discuss your event in detail</li>
+                </ol>
+                <button class="back-to-home">Return to Home</button>
+            `;
+            
+            // Replace form with next steps
+            eventForm.style.display = 'none';
+            eventForm.parentNode.appendChild(nextStepsContainer);
+            
+            // Add event listener to the back button
+            const backButton = nextStepsContainer.querySelector('.back-to-home');
+            backButton.addEventListener('click', () => {
+                window.location.reload();
+            });
+            
         } catch (error) {
             console.error('Error submitting form:', error);
             showErrorMessage('Sorry, there was an error submitting your inquiry. Please try again.');
@@ -283,7 +309,7 @@ function initializeEventForm() {
             // Re-enable submit button and restore original state
             submitButton.disabled = false;
             submitButton.classList.remove('loading');
-            submitButton.textContent = 'Submit Inquiry';
+            submitButton.textContent = originalText;
         }
     });
 }
@@ -533,14 +559,18 @@ async function loadCuisinePreferences() {
         'Vegetarian / Plant-Based'
     ];
     
-    cuisines.forEach(cuisine => {
-        const label = document.createElement('label');
-        label.innerHTML = `
-            <input type="checkbox" name="Cuisine Preference" value="${cuisine}">
-            ${cuisine}
-        `;
-        container.appendChild(label);
-    });
+    container.innerHTML = `
+        <h4>Cuisine Preferences</h4>
+        <p class="helper-text">Select all cuisines that interest you for your event</p>
+        <div class="checkbox-group">
+            ${cuisines.map(cuisine => `
+                <label>
+                    <input type="checkbox" name="Cuisine Preference" value="${cuisine}">
+                    ${cuisine}
+                </label>
+            `).join('')}
+        </div>
+    `;
 }
 
 async function loadVibeWords() {
@@ -562,14 +592,18 @@ async function loadVibeWords() {
         'Minimalist'
     ];
     
-    vibes.forEach(vibe => {
-        const label = document.createElement('label');
-        label.innerHTML = `
-            <input type="checkbox" name="Event Vibe" value="${vibe}">
-            ${vibe}
-        `;
-        container.appendChild(label);
-    });
+    container.innerHTML = `
+        <h4>Event Vibe</h4>
+        <p class="helper-text">Choose words that best describe your desired event atmosphere</p>
+        <div class="checkbox-group">
+            ${vibes.map(vibe => `
+                <label>
+                    <input type="checkbox" name="Event Vibe" value="${vibe}">
+                    ${vibe}
+                </label>
+            `).join('')}
+        </div>
+    `;
 }
 
 async function loadOptionalServices() {
