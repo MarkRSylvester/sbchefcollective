@@ -202,6 +202,9 @@ function setMinDate() {
 // Initialize form
 function initializeEventForm() {
     setMinDate();
+    loadEventTypes();
+    loadCuisinePreferences();
+    loadVibeWords();
     
     // Form validation
     const form = document.getElementById('eventForm');
@@ -798,6 +801,32 @@ async function loadServices() {
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Initializing SBCC application...');
 });
+
+function loadEventTypes() {
+    const select = document.getElementById('eventType');
+    if (!select) return;
+    
+    const eventTypes = [
+        'Dinner Party',
+        'Boutique Wedding',
+        'Retreat',
+        'Birthday Celebration',
+        'Anniversary',
+        'Holiday Gathering',
+        'Corporate Event',
+        'Cooking Class',
+        'Wine Pairing',
+        'Other'
+    ];
+    
+    select.innerHTML = '<option value="">Select Event Type</option>';
+    eventTypes.forEach(type => {
+        const option = document.createElement('option');
+        option.value = type;
+        option.textContent = type;
+        select.appendChild(option);
+    });
+}
 
 
 
