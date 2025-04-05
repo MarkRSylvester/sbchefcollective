@@ -195,13 +195,13 @@ function initializeEventForm() {
     const eventForm = document.getElementById('eventForm');
     const submitButton = eventForm.querySelector('.submit-btn');
     
-    // Add validation feedback
-    eventForm.querySelectorAll('input[required], select[required], textarea[required]').forEach(field => {
-        field.addEventListener('invalid', (e) => {
-            e.preventDefault();
+    // Add validation to required fields
+    const requiredFields = eventForm.querySelectorAll('input[required], select[required], textarea[required]');
+    
+    function validateField(field) {
+        const isValid = field.checkValidity();
+        if (!isValid) {
             field.classList.add('invalid');
-            
-            // Add or update validation message
             let validationMessage = field.nextElementSibling;
             if (!validationMessage || !validationMessage.classList.contains('validation-message')) {
                 validationMessage = document.createElement('div');
@@ -209,58 +209,105 @@ function initializeEventForm() {
                 field.parentNode.insertBefore(validationMessage, field.nextSibling);
             }
             validationMessage.textContent = field.validationMessage || 'This field is required';
-        });
-        
-        field.addEventListener('input', () => {
+        } else {
             field.classList.remove('invalid');
             const validationMessage = field.nextElementSibling;
             if (validationMessage && validationMessage.classList.contains('validation-message')) {
                 validationMessage.remove();
             }
+        }
+        return isValid;
+    }
+    
+    // Add validation on blur
+    requiredFields.forEach(field => {
+        field.addEventListener('blur', () => {
+            validateField(field);
+        });
+        
+        field.addEventListener('input', () => {
+            if (field.classList.contains('invalid')) {
+                validateField(field);
+            }
         });
     });
     
-    // Load dynamic options
-    loadEventTypes();
-    loadCuisinePreferences();
-    loadVibeWords();
-    loadOptionalServices();
-    loadBudgetRanges();
+    // Add validation for checkbox groups
+    const validateCheckboxGroup = (groupName) => {
+        const checkboxes = eventForm.querySelectorAll(`input[name="${groupName}"]`);
+        const container = checkboxes[0]?.closest('.checkbox-group');
+        if (!container) return true;
+        
+        const isValid = Array.from(checkboxes).some(cb => cb.checked);
+        const validationMessage = container.nextElementSibling;
+        
+        if (!isValid) {
+            container.style.borderColor = '#dc3545';
+            if (!validationMessage || !validationMessage.classList.contains('validation-message')) {
+                const message = document.createElement('div');
+                message.className = 'validation-message';
+                message.textContent = 'Please select at least one option';
+                container.parentNode.insertBefore(message, container.nextSibling);
+            }
+        } else {
+            container.style.borderColor = '';
+            if (validationMessage && validationMessage.classList.contains('validation-message')) {
+                validationMessage.remove();
+            }
+        }
+        return isValid;
+    };
     
+    // Add form submission handler
     eventForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        // Check form validity
-        if (!eventForm.checkValidity()) {
-            eventForm.reportValidity();
+        // Validate all required fields
+        let isValid = true;
+        requiredFields.forEach(field => {
+            if (!validateField(field)) {
+                isValid = false;
+            }
+        });
+        
+        // Validate checkbox groups
+        if (!validateCheckboxGroup('Cuisine Preference')) isValid = false;
+        if (!validateCheckboxGroup('Event Vibe')) isValid = false;
+        
+        if (!isValid) {
+            // Scroll to first error
+            const firstError = eventForm.querySelector('.invalid, .validation-message');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
             return;
         }
         
-        // Disable submit button and show loading state
+        // Show loading state
         submitButton.disabled = true;
         submitButton.classList.add('loading');
         const originalText = submitButton.textContent;
         submitButton.textContent = 'Submitting...';
         
-        const formData = new FormData(eventForm);
-        const data = {
-            'Type': 'Event',
-            'Status': 'New'
-        };
-        
-        formData.forEach((value, key) => {
-            if (data[key]) {
-                if (Array.isArray(data[key])) {
-                    data[key].push(value);
-                } else {
-                    data[key] = [data[key], value];
-                }
-            } else {
-                data[key] = value;
-            }
-        });
-        
         try {
+            const formData = new FormData(eventForm);
+            const data = {
+                'Type': 'Event',
+                'Status': 'New'
+            };
+            
+            formData.forEach((value, key) => {
+                if (data[key]) {
+                    if (Array.isArray(data[key])) {
+                        data[key].push(value);
+                    } else {
+                        data[key] = [data[key], value];
+                    }
+                } else {
+                    data[key] = value;
+                }
+            });
+            
             const response = await fetch(`${API_ENDPOINT}?action=submitInquiry`, {
                 method: 'POST',
                 headers: {
@@ -274,15 +321,16 @@ function initializeEventForm() {
             }
             
             const result = await response.json();
-            showSuccessMessage('Thank you! We will contact you shortly.');
-            eventForm.reset();
             
-            // Show next steps after successful submission
+            // Show success message and next steps
+            showSuccessMessage('Thank you! Your inquiry has been submitted successfully.');
+            
+            // Show next steps
             const nextStepsContainer = document.createElement('div');
             nextStepsContainer.className = 'next-steps';
             nextStepsContainer.innerHTML = `
                 <h3>Next Steps</h3>
-                <p>Your inquiry has been submitted successfully! Here's what happens next:</p>
+                <p>Here's what happens next:</p>
                 <ol>
                     <li>Our team will review your event details within 24 hours</li>
                     <li>We'll match you with available chefs based on your preferences</li>
@@ -292,11 +340,9 @@ function initializeEventForm() {
                 <button class="back-to-home">Return to Home</button>
             `;
             
-            // Replace form with next steps
             eventForm.style.display = 'none';
             eventForm.parentNode.appendChild(nextStepsContainer);
             
-            // Add event listener to the back button
             const backButton = nextStepsContainer.querySelector('.back-to-home');
             backButton.addEventListener('click', () => {
                 window.location.reload();
@@ -306,7 +352,6 @@ function initializeEventForm() {
             console.error('Error submitting form:', error);
             showErrorMessage('Sorry, there was an error submitting your inquiry. Please try again.');
         } finally {
-            // Re-enable submit button and restore original state
             submitButton.disabled = false;
             submitButton.classList.remove('loading');
             submitButton.textContent = originalText;
@@ -633,18 +678,21 @@ async function loadOptionalServices() {
 // Add budget ranges loading function
 function loadBudgetRanges() {
     const select = document.getElementById('budgetRange');
-    const ranges = [
-        'Under $500',
-        '$500 - $1,000',
-        '$1,000 - $2,000',
-        '$2,000 - $3,500',
-        '$3,500 - $5,000',
+    if (!select) return;
+    
+    const budgetRanges = [
+        'Under $1,000',
+        '$1,000 - $2,500',
+        '$2,500 - $5,000',
         '$5,000 - $7,500',
         '$7,500 - $10,000',
-        'Over $10,000'
+        '$10,000 - $15,000',
+        '$15,000 - $25,000',
+        '$25,000+'
     ];
     
-    ranges.forEach(range => {
+    select.innerHTML = '<option value="">Select budget range...</option>';
+    budgetRanges.forEach(range => {
         const option = document.createElement('option');
         option.value = range;
         option.textContent = range;
