@@ -5,6 +5,9 @@
  * app.js - Main application logic for Santa Barbara Chef Collective
  */
 
+// Main application logic for Santa Barbara Chef Collective
+
+// DOM Elements
 const chefsContainer = document.getElementById('chefsContainer');
 const menusContainer = document.getElementById('menusContainer');
 const chefsButton = document.getElementById('chefsButton');
