@@ -51,7 +51,6 @@ body {
 .header-logo {
   height: 50px;  /* Match footer logo size exactly */
   width: auto;
-  filter: brightness(0) invert(1);  /* This will make the logo white */
 }
 
 .header-text {
@@ -301,7 +300,6 @@ footer {
 .footer-logo {
   height: 50px;
   width: auto;
-  filter: brightness(0) invert(1);  /* This will make the logo white */
 }
 
 .footer-info {
