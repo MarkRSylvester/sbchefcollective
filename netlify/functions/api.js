@@ -1,312 +1,260 @@
-const fetch = require('node-fetch');
+const Airtable = require('airtable');
 
-// Use environment variable for API key
-let AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY || '';
-AIRTABLE_API_KEY = AIRTABLE_API_KEY.trim().replace(/^["']|["']$/g, '');
+// Initialize Airtable with error handling
+const initAirtable = () => {
+  const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
+  const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
 
-// Get base ID from environment variable
-const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID || '';
+  if (!AIRTABLE_API_KEY) {
+    throw new Error('Missing AIRTABLE_API_KEY environment variable');
+  }
+  if (!AIRTABLE_BASE_ID) {
+    throw new Error('Missing AIRTABLE_BASE_ID environment variable');
+  }
 
-// Define table names for each data type
-const TABLES = {
-    getChefs: 'Chefs',
-    getMenus: 'Menus',
-    getDishes: 'Dishes',
-    getServices: 'Services',
-    getInquiries: 'Inquiries (Full)',
-    getInquiriesSummary: 'Inquiries (Ops Summary)',
-    getDubsadoLogs: 'Dubsado Sync Log',
-    getImages: 'Images',
-    getColors: 'Colors',
-    submitInquiry: 'Inquiries (Full)'
+  return new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
 };
-
-// Log configuration for debugging
-console.log('API Function Configuration:', {
-    baseId: AIRTABLE_BASE_ID,
-    apiKeyLength: AIRTABLE_API_KEY.length,
-    apiKeyPrefix: AIRTABLE_API_KEY.substring(0, 10),
-    environment: process.env.NODE_ENV,
-    tables: TABLES
-});
 
 // Helper function to safely get field value
 const getField = (record, fieldName) => {
-    if (!record?.fields) {
-        console.log('Invalid record structure:', record);
-        return null;
-    }
-    return record.fields[fieldName];
+  if (!record?.fields) {
+    console.log('Invalid record:', record);
+    return null;
+  }
+  return record.fields[fieldName] || null;
 };
 
-// Helper function to get photo URL
+// Helper function to get photo URL from Airtable attachment
 const getPhotoUrl = (record, fieldName) => {
-    const field = getField(record, fieldName);
-    if (!field) return null;
-    
-    if (typeof field === 'string') return field;
-    if (Array.isArray(field) && field[0]?.url) return field[0].url;
-    
-    console.log('Unexpected photo field structure:', field);
-    return null;
+  if (!record?.fields?.[fieldName]) return '';
+  const attachments = record.fields[fieldName];
+  return Array.isArray(attachments) && attachments[0]?.url ? attachments[0].url : '';
 };
 
 // Helper function to simulate Dubsado sync
-const simulateDubsadoSync = async (inquiryData) => {
-    try {
-        const payload = {
-            fields: {
-                'Inquiry ID': inquiryData.id,
-                'Timestamp': new Date().toISOString(),
-                'Operation': 'Create Inquiry',
-                'Payload Summary': JSON.stringify(inquiryData),
-                'Sync Status': 'Simulated'
-            }
-        };
-
-        await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${TABLES.getDubsadoLogs}`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        });
-
-        return true;
-    } catch (error) {
-        console.error('Dubsado sync simulation error:', error);
-        return false;
-    }
+const simulateDubsadoSync = async (base, inquiryData) => {
+  try {
+    await base('Dubsado Sync Log').create({
+      fields: {
+        'Inquiry ID': inquiryData.id,
+        'Timestamp': new Date().toISOString(),
+        'Operation': 'Create Inquiry',
+        'Payload Summary': JSON.stringify(inquiryData),
+        'Sync Status': 'Simulated'
+      }
+    });
+    return { projectId: `MOCK-${Date.now()}` };
+  } catch (error) {
+    console.error('Dubsado sync simulation error:', error);
+    return { projectId: null };
+  }
 };
 
-// Export the handler function
-exports.handler = async (event) => {
-    console.log('Request received:', {
-        method: event.httpMethod,
-        path: event.path,
-        params: event.queryStringParameters,
-        headers: event.headers
-    });
+// Main handler function
+exports.handler = async (event, context) => {
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Content-Type': 'application/json'
+  };
 
-    // CORS Headers
-    const headers = {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Content-Type': 'application/json'
+  // Handle OPTIONS request for CORS
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 200, headers, body: '' };
+  }
+
+  try {
+    const base = initAirtable();
+    const params = event.httpMethod === 'GET'
+      ? event.queryStringParameters || {}
+      : JSON.parse(event.body || '{}');
+
+    console.log('Request params:', params);
+    const { action } = params;
+
+    if (!action) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'Action parameter is required' })
+      };
+    }
+
+    // Handle form submissions
+    if (action === 'submitInquiry') {
+      if (event.httpMethod !== 'POST') {
+        return {
+          statusCode: 405,
+          headers,
+          body: JSON.stringify({ error: 'Method not allowed' })
+        };
+      }
+
+      // Validate required fields
+      const requiredFields = [
+        'eventName',
+        'eventDate',
+        'eventTime',
+        'guestCount',
+        'budgetPerPerson',
+        'eventType',
+        'cuisinePreferences',
+        'name',
+        'email',
+        'phone'
+      ];
+
+      const missingFields = requiredFields.filter(field => !params[field]);
+      if (missingFields.length > 0) {
+        return {
+          statusCode: 400,
+          headers,
+          body: JSON.stringify({
+            error: 'Missing required fields',
+            fields: missingFields
+          })
+        };
+      }
+
+      // Create inquiry record
+      const record = await base('Inquiries (Full)').create({
+        'Event Name': params.eventName,
+        'Event Date': params.eventDate,
+        'Event Time': params.eventTime,
+        'Guest Count': parseInt(params.guestCount),
+        'Budget per Person': parseFloat(params.budgetPerPerson),
+        'Event Type': params.eventType,
+        'Cuisine Preferences': params.cuisinePreferences,
+        'First Name': params.name.split(' ')[0],
+        'Last Name': params.name.split(' ').slice(1).join(' '),
+        'Email': params.email,
+        'Phone': params.phone,
+        'Status': 'New Inquiry',
+        'Created At': new Date().toISOString()
+      });
+
+      // Simulate Dubsado sync
+      const dubsadoResponse = await simulateDubsadoSync(base, record);
+
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          success: true,
+          inquiry: record,
+          dubsadoProjectId: dubsadoResponse.projectId
+        })
+      };
+    }
+
+    // Handle GET requests for data
+    let table, filterFormula;
+    switch (action) {
+      case 'getChefs':
+        table = 'Chefs';
+        filterFormula = 'AND(NOT({Name} = ""), {Active} = TRUE())';
+        break;
+      case 'getMenus':
+        table = 'Menus';
+        filterFormula = 'AND(NOT({Name} = ""), {Active} = TRUE())';
+        break;
+      case 'getDishes':
+        if (!params.menuId) {
+          return {
+            statusCode: 400,
+            headers,
+            body: JSON.stringify({ error: 'Menu ID is required' })
+          };
+        }
+        table = 'Dishes';
+        filterFormula = `AND(NOT({Name} = ""), {Menu ID} = "${params.menuId}")`;
+        break;
+      default:
+        return {
+          statusCode: 400,
+          headers,
+          body: JSON.stringify({ error: 'Invalid action' })
+        };
+    }
+
+    const records = await base(table).select({
+      filterByFormula: filterFormula
+    }).all();
+
+    let formattedData;
+    switch (action) {
+      case 'getChefs':
+        formattedData = records.map(record => ({
+          id: record.id,
+          name: getField(record, 'Name'),
+          photo: getPhotoUrl(record, 'Photo'),
+          bio: getField(record, 'Bio'),
+          specialties: getField(record, 'Specialties'),
+          active: getField(record, 'Active')
+        }));
+        break;
+      case 'getMenus':
+        formattedData = records.map(record => ({
+          id: record.id,
+          name: getField(record, 'Name'),
+          description: getField(record, 'Description'),
+          photo: getPhotoUrl(record, 'Photo'),
+          priceRange: getField(record, 'Price Range'),
+          type: getField(record, 'Type')
+        }));
+        break;
+      case 'getDishes':
+        formattedData = records.map(record => ({
+          id: record.id,
+          name: getField(record, 'Name'),
+          description: getField(record, 'Description'),
+          category: getField(record, 'Category'),
+          price: getField(record, 'Price'),
+          menuId: getField(record, 'Menu ID'),
+          photo: getPhotoUrl(record, 'Photo')
+        }));
+        break;
+    }
+
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify(formattedData)
     };
 
-    // Handle OPTIONS request
-    if (event.httpMethod === 'OPTIONS') {
-        return { statusCode: 200, headers, body: '' };
+  } catch (error) {
+    console.error('Function error:', error);
+
+    if (error.message?.includes('AUTHENTICATION_REQUIRED')) {
+      return {
+        statusCode: 401,
+        headers,
+        body: JSON.stringify({
+          error: 'Authentication failed',
+          details: 'Invalid Airtable API key'
+        })
+      };
     }
 
-    try {
-        const params = event.queryStringParameters || {};
-        const { action } = params;
-
-        if (!action || !TABLES[action]) {
-            console.error('Invalid action:', action);
-            return {
-                statusCode: 400,
-                headers,
-                body: JSON.stringify({ error: 'Invalid or missing action parameter' })
-            };
-        }
-
-        // Handle form submissions
-        if (action === 'submitInquiry') {
-            if (event.httpMethod !== 'POST') {
-                return {
-                    statusCode: 405,
-                    headers,
-                    body: JSON.stringify({ error: 'Method not allowed' })
-                };
-            }
-
-            const formData = JSON.parse(event.body);
-            console.log('Form data received:', formData);
-            
-            // Process form data based on type
-            const processedData = {
-                ...formData,
-                'Status': 'New',
-                'Created Time': new Date().toISOString()
-            };
-            
-            // Handle weekly form specific fields
-            if (formData.Type === 'Weekly') {
-                processedData['Days of Week'] = Array.isArray(formData['Days of Week']) 
-                    ? formData['Days of Week'].join(', ')
-                    : formData['Days of Week'];
-                    
-                processedData['Meal Types'] = Array.isArray(formData['Meal Types'])
-                    ? formData['Meal Types'].join(', ')
-                    : formData['Meal Types'];
-            }
-            
-            // Create inquiry record
-            const inquiryResponse = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${TABLES.submitInquiry}`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    fields: processedData
-                })
-            });
-
-            if (!inquiryResponse.ok) {
-                const errorText = await inquiryResponse.text();
-                console.error('Failed to create inquiry:', {
-                    status: inquiryResponse.status,
-                    statusText: inquiryResponse.statusText,
-                    error: errorText,
-                    data: processedData
-                });
-                throw new Error(`Failed to create inquiry: ${inquiryResponse.statusText}`);
-            }
-
-            const inquiry = await inquiryResponse.json();
-            console.log('Created inquiry:', inquiry);
-            
-            // Simulate Dubsado sync
-            await simulateDubsadoSync(inquiry);
-
-            return {
-                statusCode: 200,
-                headers,
-                body: JSON.stringify({
-                    success: true,
-                    inquiry: inquiry
-                })
-            };
-        }
-
-        // Handle GET requests
-        let url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(TABLES[action])}`;
-        
-        // Add filters if needed
-        if (action === 'getDishes' && params.menuId) {
-            url += `?filterByFormula=${encodeURIComponent(`{Menu ID}='${params.menuId}'`)}`;
-        }
-
-        console.log('Airtable request:', {
-            url,
-            headers: {
-                'Authorization': `Bearer ${AIRTABLE_API_KEY.substring(0, 10)}...`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        const response = await fetch(url, {
-            headers: {
-                'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Airtable API error:', {
-                status: response.status,
-                statusText: response.statusText,
-                error: errorText,
-                url
-            });
-            return {
-                statusCode: response.status,
-                headers,
-                body: JSON.stringify({
-                    error: `Airtable API error: ${response.status} ${response.statusText}`,
-                    details: errorText
-                })
-            };
-        }
-
-        const data = await response.json();
-        
-        if (!data.records) {
-            console.error('No records found in response:', data);
-            return {
-                statusCode: 404,
-                headers,
-                body: JSON.stringify({ error: 'No records found' })
-            };
-        }
-
-        // Process records based on action
-        let processedRecords = data.records;
-        
-        switch (action) {
-            case 'getChefs':
-                processedRecords = data.records.map(record => ({
-                    id: record.id,
-                    name: getField(record, 'Name'),
-                    bio: getField(record, 'Bio'),
-                    image: getPhotoUrl(record, 'Photo'),
-                    specialties: getField(record, 'Specialties'),
-                    availability: getField(record, 'Availability'),
-                    active: getField(record, 'Active') === true
-                }));
-                break;
-                
-            case 'getMenus':
-                processedRecords = data.records.map(record => ({
-                    id: record.id,
-                    name: getField(record, 'Name'),
-                    description: getField(record, 'Description'),
-                    menuTier: getField(record, 'Menu Tier'),
-                    active: getField(record, 'Active') === true
-                }));
-                break;
-                
-            case 'getDishes':
-                processedRecords = data.records.map(record => ({
-                    id: record.id,
-                    name: getField(record, 'Name'),
-                    description: getField(record, 'Description'),
-                    category: getField(record, 'Category'),
-                    menuId: getField(record, 'Menu ID'),
-                    sortOrder: getField(record, 'Sort Order')
-                }));
-                break;
-                
-            case 'getServices':
-                processedRecords = data.records.map(record => ({
-                    id: record.id,
-                    name: getField(record, 'Name'),
-                    description: getField(record, 'Description'),
-                    type: getField(record, 'Type')
-                }));
-                break;
-
-            case 'getImages':
-                processedRecords = data.records.map(record => ({
-                    id: record.id,
-                    url: getPhotoUrl(record, 'URL'),
-                    filename: getField(record, 'Filename'),
-                    moodTags: getField(record, 'Mood Tags'),
-                    useCase: getField(record, 'Use Case'),
-                    paletteTag: getField(record, 'Palette Tag')
-                }));
-                break;
-        }
-
-        return {
-            statusCode: 200,
-            headers,
-            body: JSON.stringify(processedRecords)
-        };
-
-    } catch (error) {
-        console.error('Function error:', error);
-        return {
-            statusCode: 500,
-            headers,
-            body: JSON.stringify({ error: 'Internal server error', details: error.message })
-        };
+    if (error.message?.includes('NOT_FOUND')) {
+      return {
+        statusCode: 404,
+        headers,
+        body: JSON.stringify({
+          error: 'Resource not found',
+          details: 'Airtable base or table not found'
+        })
+      };
     }
+
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({
+        error: 'Internal server error',
+        details: error.message
+      })
+    };
+  }
 }; 
