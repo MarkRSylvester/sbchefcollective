@@ -267,40 +267,7 @@ footer {
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-}
-
-.footer-section {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.footer-logo {
-  height: 50px;
-  width: auto;
-}
-
-.footer-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  text-align: center;
-}
-
-.footer-info h3 {
-  font-family: 'Playfair Display', serif;
-  font-size: 0.9rem;
-  font-weight: 500;
-  margin: 0;
-  color: #2C3E50;
-}
-
-.footer-info p, .header-text p {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.56rem;  /* Reduced by 30% from 0.8rem */
-  margin: 0;
-  color: #2C3E50;
-  opacity: 0.8;
+  gap: 1rem;
 }
 
 .footer-links {
@@ -311,6 +278,7 @@ footer {
   font-family: 'Inter', sans-serif;
   flex-wrap: wrap;
   justify-content: center;
+  margin-bottom: 0.5rem;
 }
 
 .footer-links a {
@@ -324,6 +292,42 @@ footer {
 .footer-links a:hover {
   color: var(--primary-color);
   opacity: 1;
+}
+
+.footer-section {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;  /* Reduced from 1.5rem to bring logo and text closer */
+  margin-left: 0.25in;  /* Add 1/4 inch margin to move logo right */
+}
+
+.footer-logo {
+  height: 50px;
+  width: auto;
+}
+
+.footer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;  /* Reduced from 0.25rem to tighten leading */
+  text-align: center;
+}
+
+.footer-info h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin: 0;
+  color: #2C3E50;
+}
+
+.footer-info p {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.56rem;
+  margin: 0;
+  color: #2C3E50;
+  opacity: 0.8;
+  line-height: 1;  /* Added to match header tagline leading */
 }
 
 .social-icons {
