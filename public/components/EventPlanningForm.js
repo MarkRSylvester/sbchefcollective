@@ -3,9 +3,12 @@
 
 // EventPlanningForm.js
 class EventPlanningForm extends HTMLElement {
+  /** @type {ShadowRoot} */
+  shadowRoot;
+
   constructor() {
     super();
-    this.attachShadow({ mode: 'open' });
+    this.shadowRoot = this.attachShadow({ mode: 'open' });
   }
 
   connectedCallback() {
@@ -14,6 +17,7 @@ class EventPlanningForm extends HTMLElement {
   }
 
   render() {
+    if (!this.shadowRoot) return;
     this.shadowRoot.innerHTML = `
       <style>
         :host {
@@ -243,25 +247,40 @@ class EventPlanningForm extends HTMLElement {
   }
 
   setupListeners() {
+    if (!this.shadowRoot) return;
+
     // Handle multi-select items
     this.shadowRoot.querySelectorAll('.multi-select').forEach(container => {
       container.addEventListener('click', (e) => {
-        if (e.target.classList.contains('multi-select-item')) {
-          e.target.classList.toggle('selected');
+        const target = e.target;
+        if (!(target instanceof HTMLElement)) return;
+        
+        if (target.classList.contains('multi-select-item')) {
+          target.classList.toggle('selected');
           
           // Update hidden input with selected values
           const selectedItems = container.querySelectorAll('.selected');
-          const values = Array.from(selectedItems).map(item => item.dataset.value);
-          const hiddenInput = container.parentElement.querySelector('input[type="hidden"]');
-          hiddenInput.value = values.join(',');
+          const values = Array.from(selectedItems).map(item => {
+            if (!(item instanceof HTMLElement)) return '';
+            return item.dataset.value || '';
+          }).filter(Boolean);
+          
+          const hiddenInput = container.parentElement?.querySelector('input[type="hidden"]');
+          if (hiddenInput instanceof HTMLInputElement) {
+            hiddenInput.value = values.join(',');
+          }
         }
       });
     });
 
     // Handle form submission
-    this.shadowRoot.querySelector('form').addEventListener('submit', async (e) => {
+    const form = this.shadowRoot.querySelector('form');
+    if (!form) return;
+
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       
+      if (!(e.target instanceof HTMLFormElement)) return;
       const formData = new FormData(e.target);
       const data = Object.fromEntries(formData.entries());
       
