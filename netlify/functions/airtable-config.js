@@ -2,8 +2,8 @@ const Airtable = require('airtable');
 
 // Get API key and Base ID from environment variables with detailed logging
 const initAirtable = () => {
-  const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY?.trim().replace(/^["']|["']$/g, '');
-  const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID?.trim().replace(/^["']|["']$/g, '');
+  const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY?.trim();
+  const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID?.trim();
 
   if (!AIRTABLE_API_KEY) {
     console.error('Missing or invalid AIRTABLE_API_KEY:', {
@@ -27,9 +27,9 @@ const initAirtable = () => {
     keyPrefix: AIRTABLE_API_KEY.substring(0, 10)
   });
 
+  // Initialize Airtable with the PAT
   const base = new Airtable({ 
-    apiKey: AIRTABLE_API_KEY,
-    endpointUrl: 'https://api.airtable.com'
+    apiKey: AIRTABLE_API_KEY
   }).base(AIRTABLE_BASE_ID);
 
   return base;
