@@ -78,20 +78,27 @@ body {
 
 /* Hero Section */
 .hero {
-  background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('/assets/images/hero-bg.jpg');
+  background-image: url('/assets/images/hero-bg.jpg');
   background-size: cover;
   background-position: center;
-  min-height: 40vh;
+  height: 600px;  /* Increased by 20% from 500px */
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  color: white;
+  position: relative;
 }
 
 .hero-content {
   max-width: 800px;
   padding: 2rem;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: center;
 }
 
 .hero-content h2 {
@@ -102,18 +109,21 @@ body {
 }
 
 .hero-content p {
-  font-size: 1.2rem;
-  margin: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 1.1rem;
   line-height: 1.2;
-  opacity: 0.9;
+  color: #2C3E50;
+  margin-bottom: 3rem;  /* Add space before buttons */
 }
 
 /* CTA Buttons per spec */
 .cta-buttons {
+  margin-top: auto;
+  margin-bottom: 4rem;  /* Add space from bottom */
   display: flex;
-  gap: 1.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
   justify-content: center;
-  margin-top: 2rem;
 }
 
 .cta-btn {
