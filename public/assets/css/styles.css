@@ -60,7 +60,7 @@ body {
 
 /* Hero Section */
 .hero {
-    background: linear-gradient(rgba(79, 93, 108, 0.8), rgba(79, 93, 108, 0.8)), url('../images/ocean-bg.jpg');
+    background: linear-gradient(rgba(79, 93, 108, 0.85), rgba(79, 93, 108, 0.85)), url('../images/ocean-bg.jpg');
     background-size: cover;
     background-position: center;
     padding: 4rem 2rem;
@@ -96,14 +96,15 @@ body {
 }
 
 .action-buttons {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 2rem;
-    margin-bottom: 4rem;
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
 }
 
 .action-btn {
-    flex: 1;
     background: white;
     border: 1px solid #e9ecef;
     border-radius: 12px;
@@ -229,7 +230,7 @@ body {
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 1rem;
-    transition: border-color 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .form-group input:focus,
@@ -241,23 +242,53 @@ body {
 }
 
 .submit-btn {
+    display: block;
+    width: 100%;
+    max-width: 300px;
+    margin: 2rem auto 0;
+    padding: 1rem 2rem;
     background: #4F5D6C;
     color: white;
     border: none;
-    padding: 0.75rem 2rem;
-    font-size: 1rem;
     border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
+    position: relative;
 }
 
-.submit-btn:hover {
+.submit-btn:hover:not(:disabled) {
     background: #3d4852;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .submit-btn:disabled {
     background: #ccc;
     cursor: not-allowed;
+}
+
+.submit-btn.loading {
+    color: transparent;
+}
+
+.submit-btn.loading::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
 .error-message {
