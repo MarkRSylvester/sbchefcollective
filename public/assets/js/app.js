@@ -859,5 +859,79 @@ async function loadServices() {
     }
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+  // Get DOM elements
+  const eventPlanningModal = document.getElementById('eventPlanningModal');
+  const weeklyMealModal = document.getElementById('weeklyMealModal');
+  const chefDiscovery = document.getElementById('chefDiscovery');
+  const closeButtons = document.querySelectorAll('.modal-close');
+  
+  // Journey button click handlers
+  document.querySelectorAll('.journey-btn').forEach(button => {
+    button.addEventListener('click', () => {
+      const journey = button.dataset.journey;
+      
+      switch(journey) {
+        case 'event':
+          eventPlanningModal.style.display = 'block';
+          break;
+        case 'weekly':
+          weeklyMealModal.style.display = 'block';
+          break;
+        case 'discover':
+          chefDiscovery.classList.remove('hidden');
+          window.scrollTo({
+            top: chefDiscovery.offsetTop,
+            behavior: 'smooth'
+          });
+          break;
+      }
+    });
+  });
+  
+  // Close modal when clicking close button
+  closeButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const modal = button.closest('.modal');
+      modal.style.display = 'none';
+    });
+  });
+  
+  // Close modal when clicking outside
+  window.addEventListener('click', (event) => {
+    if (event.target.classList.contains('modal')) {
+      event.target.style.display = 'none';
+    }
+  });
+  
+  // Load chef data and populate the grid
+  fetch('/data/chefs.json')
+    .then(response => response.json())
+    .then(chefs => {
+      const chefGrid = document.getElementById('chefGrid');
+      chefs.forEach(chef => {
+        const chefCard = createChefCard(chef);
+        chefGrid.appendChild(chefCard);
+      });
+    })
+    .catch(error => console.error('Error loading chef data:', error));
+});
+
+function createChefCard(chef) {
+  const card = document.createElement('div');
+  card.className = 'chef-card';
+  
+  card.innerHTML = `
+    <img src="${chef.image}" alt="${chef.name}" class="chef-image">
+    <div class="chef-info">
+      <h3>${chef.name}</h3>
+      <p class="chef-specialty">${chef.specialty}</p>
+      <p class="chef-bio">${chef.bio}</p>
+    </div>
+  `;
+  
+  return card;
+}
+
 
 
