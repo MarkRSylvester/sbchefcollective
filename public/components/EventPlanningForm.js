@@ -12,6 +12,8 @@ class EventPlanningForm extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
+    this.render();
+    this.attachEventListeners();
   }
 
   connectedCallback() {
@@ -273,162 +275,123 @@ class EventPlanningForm extends HTMLElement {
         }
       </style>
 
-      <form id="eventPlanningForm">
-        <div class="form-section">
-          <h2>Event Details</h2>
-          
+      <form id="eventInquiryForm" class="inquiry-form">
+        <h2>Plan Your Event</h2>
+        <p>Tell us about your vision, and we'll help make it a reality.</p>
+        
+        <div class="form-group">
+          <label for="eventName">Event Name/Type</label>
+          <input type="text" id="eventName" name="eventName" required>
+        </div>
+        
+        <div class="form-row">
           <div class="form-group">
-            <label>Event Name <span class="required">*</span></label>
-            <input type="text" name="eventName" required>
+            <label for="eventDate">Date</label>
+            <input type="date" id="eventDate" name="eventDate" required>
           </div>
-
           <div class="form-group">
-            <label>Event Date <span class="required">*</span></label>
-            <input type="date" name="eventDate" required>
-          </div>
-
-          <div class="form-group">
-            <label>Event Time <span class="required">*</span></label>
-            <input type="time" name="eventTime" required>
-          </div>
-
-          <div class="form-group">
-            <label>Number of Guests <span class="required">*</span></label>
-            <input type="number" name="guestCount" min="1" required>
-          </div>
-
-          <div class="form-group">
-            <label>Budget per Person <span class="required">*</span></label>
-            <select name="budgetPerPerson" required>
-              <option value="">Select a budget range</option>
-              <option value="under75">Under $75</option>
-              <option value="75-125">$75 - $125</option>
-              <option value="125-175">$125 - $175</option>
-              <option value="175-225">$175 - $225</option>
-              <option value="225-300">$225 - $300</option>
-              <option value="over300">$300+</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Event Type <span class="required">*</span></label>
-            <select name="eventType" required>
-              <option value="">Select event type</option>
-              <option value="dinner">Dinner Party</option>
-              <option value="brunch">Brunch</option>
-              <option value="cocktail">Cocktail Party</option>
-              <option value="holiday">Holiday Celebration</option>
-              <option value="wedding">Wedding</option>
-              <option value="corporate">Corporate Event</option>
-              <option value="other">Other</option>
-            </select>
+            <label for="eventTime">Time</label>
+            <input type="time" id="eventTime" name="eventTime" required>
           </div>
         </div>
-
-        <div class="form-section">
-          <h2>Culinary Preferences</h2>
-          
+        
+        <div class="form-row">
           <div class="form-group">
-            <label>Cuisine Preferences <span class="required">*</span></label>
-            <div class="multi-select" id="cuisinePreferences">
-              <div class="multi-select-item" data-value="california">California / Farm-to-Table</div>
-              <div class="multi-select-item" data-value="mediterranean">Mediterranean</div>
-              <div class="multi-select-item" data-value="mexican">Mexican</div>
-              <div class="multi-select-item" data-value="paella">Paella</div>
-              <div class="multi-select-item" data-value="pasta">Pasta & Salads</div>
-              <div class="multi-select-item" data-value="sushi">Sushi</div>
-              <div class="multi-select-item" data-value="seafood">Seafood</div>
-              <div class="multi-select-item" data-value="greek">Greek</div>
-              <div class="multi-select-item" data-value="asian">Asian-Inspired</div>
-            </div>
-            <input type="hidden" name="cuisinePreferences" required>
+            <label for="guestCount">Number of Guests</label>
+            <input type="number" id="guestCount" name="guestCount" min="2" required>
           </div>
-
           <div class="form-group">
-            <label>Dietary Needs</label>
-            <div class="multi-select" id="dietaryNeeds">
-              <div class="multi-select-item" data-value="vegetarian">Vegetarian</div>
-              <div class="multi-select-item" data-value="vegan">Vegan</div>
-              <div class="multi-select-item" data-value="gluten-free">Gluten-Free</div>
-              <div class="multi-select-item" data-value="dairy-free">Dairy-Free</div>
-              <div class="multi-select-item" data-value="nut-free">Nut-Free</div>
-              <div class="multi-select-item" data-value="none">No Special Needs</div>
-            </div>
-            <input type="hidden" name="dietaryNeeds">
-          </div>
-
-          <div class="form-group">
-            <label>Dietary Notes</label>
-            <textarea name="dietaryNotes" rows="3" placeholder="Please tell us about any allergies or specific dietary requirements"></textarea>
+            <label for="budgetPerPerson">Budget per Person</label>
+            <input type="number" id="budgetPerPerson" name="budgetPerPerson" min="50" required>
           </div>
         </div>
-
-        <div class="form-section">
-          <h2>Event Atmosphere</h2>
-          
+        
+        <div class="form-group">
+          <label for="eventType">Event Type</label>
+          <select id="eventType" name="eventType" required>
+            <option value="">Select an event type</option>
+            <option value="dinner">Intimate Dinner</option>
+            <option value="party">Dinner Party</option>
+            <option value="celebration">Special Celebration</option>
+            <option value="corporate">Corporate Event</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="cuisinePreferences">Cuisine Preferences</label>
+          <textarea id="cuisinePreferences" name="cuisinePreferences" rows="3"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label for="name">Your Name</label>
+          <input type="text" id="name" name="name" required>
+        </div>
+        
+        <div class="form-row">
           <div class="form-group">
-            <label>Event Vibe</label>
-            <div class="multi-select" id="eventVibe">
-              <div class="multi-select-item" data-value="elegant">Elegant</div>
-              <div class="multi-select-item" data-value="casual">Casual</div>
-              <div class="multi-select-item" data-value="romantic">Romantic</div>
-              <div class="multi-select-item" data-value="family">Family-Friendly</div>
-              <div class="multi-select-item" data-value="cozy">Cozy & Intimate</div>
-              <div class="multi-select-item" data-value="luxurious">Luxurious</div>
-            </div>
-            <input type="hidden" name="eventVibe">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
           </div>
-
           <div class="form-group">
-            <label>Vibe Description</label>
-            <textarea name="vibeDescription" rows="3" placeholder="Tell us more about the atmosphere you want to create"></textarea>
+            <label for="phone">Phone</label>
+            <input type="tel" id="phone" name="phone" required>
           </div>
         </div>
-
-        <div class="form-section">
-          <h2>Contact Information</h2>
-          
-          <div class="form-group">
-            <label>Full Name <span class="required">*</span></label>
-            <input type="text" name="name" required>
-          </div>
-
-          <div class="form-group">
-            <label>Email <span class="required">*</span></label>
-            <input type="email" name="email" required>
-          </div>
-
-          <div class="form-group">
-            <label>Phone <span class="required">*</span></label>
-            <input type="tel" name="phone" required>
-            <div class="helper-text">Please include area code</div>
-          </div>
-
-          <div class="form-group">
-            <label>Address</label>
-            <input type="text" name="address" placeholder="Street address">
-          </div>
-
-          <div class="form-group">
-            <label>City</label>
-            <input type="text" name="city" placeholder="City">
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h2>Additional Information</h2>
-          
-          <div class="form-group">
-            <label>Special Requests or Notes</label>
-            <textarea name="specialRequests" rows="4" placeholder="Please share any additional details that would help us plan your perfect event"></textarea>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <button type="submit">Submit Inquiry</button>
-        </div>
+        
+        <button type="submit" class="submit-btn">Submit Inquiry</button>
       </form>
     `;
+  }
+
+  attachEventListeners() {
+    const form = this.querySelector('#eventInquiryForm');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+      
+      try {
+        const response = await fetch('/.netlify/functions/inquiries', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        
+        const result = await response.json();
+        console.log('Form submitted successfully:', result);
+        
+        // Show success message
+        form.innerHTML = `
+          <div class="success-message">
+            <h3>Thank you for your inquiry!</h3>
+            <p>We'll be in touch with you shortly to discuss your event.</p>
+          </div>
+        `;
+        
+        // Close modal after delay
+        setTimeout(() => {
+          const modal = this.closest('.modal');
+          if (modal) {
+            modal.style.display = 'none';
+            // Reset form after modal is closed
+            this.render();
+            this.attachEventListeners();
+          }
+        }, 3000);
+        
+      } catch (error) {
+        console.error('Error submitting form:', error);
+        alert('There was an error submitting your inquiry. Please try again.');
+      }
+    });
   }
 }
 
