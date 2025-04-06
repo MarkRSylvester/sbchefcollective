@@ -130,16 +130,18 @@ body {
   text-transform: uppercase;
   letter-spacing: 1px;
   white-space: nowrap;
+  border-width: 2px;  /* Make all button borders the same width */
 }
 
 .cta-btn.primary {
   background-color: #E5B45B;
   color: #2C3E50;
-  border: none;
+  border: 2px solid #E5B45B;
 }
 
 .cta-btn.primary:hover {
   background-color: #D4A44A;
+  border-color: #D4A44A;
 }
 
 .cta-btn.secondary {
@@ -155,7 +157,7 @@ body {
 .cta-btn.tertiary {
   background-color: transparent;
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.5);
 }
 
 .cta-btn.tertiary:hover {
