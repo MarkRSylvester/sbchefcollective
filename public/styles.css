@@ -86,29 +86,22 @@ body {
 }
 
 .hero-content {
-  max-width: 1200px;
+  max-width: 800px;
   padding: 2rem;
 }
 
 .hero-content h2 {
   font-family: 'Playfair Display', serif;
-  font-size: 2.5rem;  /* Increased from 1.25rem (200% larger) */
-  margin-bottom: 1.5rem;
-  color: white;
-  line-height: 1.2;
-  max-width: 900px;
-  margin-left: auto;
-  margin-right: auto;
+  font-size: 2.5rem;
+  margin: 0 0 0.5rem;
+  line-height: 1.1;
 }
 
 .hero-content p {
-  font-size: 1rem;
-  margin-bottom: 2rem;
-  color: white;
-  max-width: 700px;
-  margin-left: auto;
-  margin-right: auto;
-  line-height: 1.4;
+  font-size: 1.2rem;
+  margin: 0;
+  line-height: 1.2;
+  opacity: 0.9;
 }
 
 /* CTA Buttons per spec */
