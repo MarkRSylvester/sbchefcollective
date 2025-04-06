@@ -6,7 +6,7 @@ const base = new Airtable({
   apiKey: process.env.AIRTABLE_API_KEY
 }).base(process.env.AIRTABLE_BASE_ID);
 
-const TABLE_NAME = 'Inquiries';
+const TABLE_NAME = 'Inquiries (Full)';
 
 exports.handler = async (event, context) => {
   // Only allow POST
@@ -59,16 +59,18 @@ exports.handler = async (event, context) => {
 
     // Create Airtable record
     const airtableRecord = await base(TABLE_NAME).create({
-      'Event Name': data.eventName,
-      'Event Date': data.eventDate,
-      'Event Time': data.eventTime,
-      'Guest Count': parseInt(data.guestCount),
-      'Budget per Person': data.budgetPerPerson,
-      'Event Type': data.eventType,
-      'Cuisine Preferences': data.cuisinePreferences,
-      'Contact Name': data.name,
+      'Record ID': `REC${Date.now()}`,
+      'Inquiry Type': data.eventType,
+      'First Name': data.name.split(' ')[0],
+      'Last Name': data.name.split(' ').slice(1).join(' '),
       'Email': data.email,
       'Phone': data.phone,
+      'Event Type': data.eventType,
+      'Event Date': data.eventDate,
+      'Guest Count': parseInt(data.guestCount),
+      'Event Address': data.eventAddress || '',
+      'Budget per Person': data.budgetPerPerson,
+      'Cuisine Preferences': data.cuisinePreferences,
       'Status': 'New Inquiry',
       'Created At': new Date().toISOString()
     }).catch(error => {
