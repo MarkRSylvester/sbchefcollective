@@ -6,6 +6,10 @@
   functions = "netlify/functions"
   publish = "public"
   port = 8888
+  framework = "#static"
+
+[functions]
+  node_bundler = "esbuild"
 
 [[headers]]
   for = "/*.js"
@@ -33,3 +37,7 @@
   status = 200
   force = true
   conditions = {Path = {match = "^(?!.*\\.(js|css|png|jpg|svg|webmanifest)$)"}}
+
+[context.development.environment]
+  AIRTABLE_API_KEY = "pat99NhmHmsfe5AJN.4aa9d5bf62d05e2e601cfa8a7083089011a75bb76497d120643bb5ef83c7df70"
+  AIRTABLE_BASE_ID = "appRRZL8Uf4178qkc"
