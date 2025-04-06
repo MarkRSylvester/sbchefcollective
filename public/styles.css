@@ -261,10 +261,9 @@ footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0.5rem 2rem;
+  height: 1in;
+  background-color: #E6DFD3;
 }
 
 .footer-section {
@@ -279,37 +278,42 @@ footer {
 }
 
 .footer-info {
-  line-height: 1.2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .footer-info h3 {
   font-family: 'Playfair Display', serif;
   font-size: 0.9rem;
+  font-weight: 500;
   margin: 0;
   color: #2C3E50;
-  font-weight: 500;
 }
 
 .footer-info p {
   font-size: 0.8rem;
-  margin: 0.25rem 0 0;
+  margin: 0;
   color: #2C3E50;
 }
 
 .footer-links {
   display: flex;
-  gap: 2rem;
+  gap: 1.5rem;
+  align-items: center;
+  font-size: 0.8rem;
+  font-family: 'Inter', sans-serif;
 }
 
 .footer-links a {
-  font-size: 0.8rem;
   color: #2C3E50;
   text-decoration: none;
   transition: color 0.3s ease;
+  white-space: nowrap;
 }
 
 .footer-links a:hover {
-  color: #E5B45B;
+  color: var(--primary-color);
 }
 
 .social-icons {
@@ -321,7 +325,12 @@ footer {
 .social-icon {
   width: 20px;
   height: 20px;
-  color: var(--text-color);
+  color: #2C3E50;
+  transition: color 0.3s ease;
+}
+
+.social-icon:hover {
+  color: var(--primary-color);
 }
 
 /* Responsive Design */
