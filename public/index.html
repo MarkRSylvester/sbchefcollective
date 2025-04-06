@@ -107,28 +107,59 @@
   </header>
 
   <main>
-    <section class="hero" style="background-image: url('/assets/images/S021.jpg')">
+    <section class="hero">
       <div class="hero-content">
-        <h1>Welcome to Santa Barbara Chef Collective</h1>
-        <h2>Where culinary artistry meets personalized hospitality.</h2>
-        
-        <p class="hero-text">
-          We believe every meal is an experience—whether it's an intimate dinner, an unforgettable event, or a weekly infusion of fresh, locally-sourced meals delivered right to your door. At SBCC, we connect you with the finest local chefs who craft customized menus to match your unique tastes, dietary needs, and personal style. Whether you're planning a special celebration or simply want to elevate your everyday meals, we're here to turn your culinary dreams into reality. Let's create something unforgettable together.
-        </p>
-
+        <h2>Experience Culinary Excellence</h2>
+        <p>Connect with Santa Barbara's finest private chefs for unforgettable dining experiences</p>
         <div class="cta-buttons">
-          <button class="cta-btn" data-action="explore-chefs">
-            Explore Our Chefs
-          </button>
-          <button class="cta-btn" data-action="browse-menus">
-            Browse Curated Menus
-          </button>
-          <button class="cta-btn" data-action="learn-more">
-            Learn How It Works
-          </button>
+          <button class="cta-btn" data-action="explore-chefs">Explore Chefs</button>
+          <button class="cta-btn" data-action="browse-menus">Browse Menus</button>
+          <button class="cta-btn" data-action="learn-more">Learn More</button>
         </div>
       </div>
     </section>
+
+    <!-- Simple Inquiry Form Modal -->
+    <div id="inquiryModal" class="modal">
+      <div class="modal-content">
+        <button class="modal-close">&times;</button>
+        <h2>Tell Us About Your Event</h2>
+        <form id="inquiryForm" class="inquiry-form">
+          <div class="form-group">
+            <label for="name">Your Name</label>
+            <input type="text" id="name" name="name" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone</label>
+            <input type="tel" id="phone" name="phone" required>
+          </div>
+          <div class="form-group">
+            <label for="eventType">Event Type</label>
+            <select id="eventType" name="eventType" required>
+              <option value="">Select Event Type</option>
+              <option value="Private Dinner">Private Dinner</option>
+              <option value="Wedding">Wedding</option>
+              <option value="Corporate">Corporate Event</option>
+              <option value="Special Occasion">Special Occasion</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="guestCount">Number of Guests</label>
+            <input type="number" id="guestCount" name="guestCount" min="1" required>
+          </div>
+          <div class="form-group">
+            <label for="eventDate">Preferred Date</label>
+            <input type="date" id="eventDate" name="eventDate" required>
+          </div>
+          <button type="submit" class="submit-btn">Submit Inquiry</button>
+        </form>
+      </div>
+    </div>
   </main>
 
   <!-- Event Planning Form Modal -->
