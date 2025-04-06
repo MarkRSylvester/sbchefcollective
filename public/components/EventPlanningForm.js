@@ -1,3 +1,6 @@
+/* @ts-check */
+/* Content-Type: text/javascript */
+
 /**
  * EventPlanningForm.js
  * Custom element for handling event planning form functionality
