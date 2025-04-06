@@ -1459,3 +1459,122 @@ footer {
     grid-template-columns: 1fr;
   }
 }
+
+/* How It Works Modal */
+.steps-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  padding: 2rem 0;
+}
+
+.step {
+  background: var(--sand-dollar);
+  padding: 2rem;
+  border-radius: var(--border-radius);
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.step:hover {
+  transform: translateY(-5px);
+}
+
+.step h3 {
+  color: var(--ocean-blue);
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  font-family: var(--heading-font);
+}
+
+.step p {
+  color: var(--text-color);
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 2000;
+  overflow-y: auto;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.modal.active {
+  display: block;
+  opacity: 1;
+}
+
+.modal-content {
+  background: white;
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: var(--border-radius);
+  position: relative;
+  transform: translateY(20px);
+  transition: transform 0.3s ease;
+}
+
+.modal.active .modal-content {
+  transform: translateY(0);
+}
+
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.modal-close:hover {
+  color: var(--ocean-blue);
+}
+
+.modal h2 {
+  color: var(--ocean-blue);
+  font-size: 2.5rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  font-family: var(--heading-font);
+}
+
+@media (max-width: 768px) {
+  .steps-container {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .modal-content {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+
+  .modal h2 {
+    font-size: 2rem;
+  }
+
+  .step {
+    padding: 1.5rem;
+  }
+
+  .step h3 {
+    font-size: 1.3rem;
+  }
+
+  .step p {
+    font-size: 1rem;
+  }
+}
