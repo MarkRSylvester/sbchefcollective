@@ -1,6 +1,3 @@
-/* @ts-check */
-/* Content-Type: text/javascript */
-
 /**
  * EventPlanningForm.js
  * Custom element for handling event planning form functionality
@@ -11,7 +8,7 @@ class EventPlanningForm extends HTMLElement {
 
   constructor() {
     super();
-    this.shadowRoot = this.attachShadow({ mode: 'open' });
+    this.attachShadow({ mode: 'open' });
   }
 
   connectedCallback() {
