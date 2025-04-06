@@ -1,14 +1,11 @@
 // Fetch chefs from the API
 async function fetchChefs() {
   try {
-    const response = await fetch('/.netlify/functions/api', {
+    const response = await fetch('/.netlify/functions/api?action=getChefs', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        action: 'getChefs'
-      })
+      }
     });
 
     if (!response.ok) {
@@ -25,14 +22,11 @@ async function fetchChefs() {
 // Fetch menus from the API
 async function fetchMenus() {
   try {
-    const response = await fetch('/.netlify/functions/api', {
+    const response = await fetch('/.netlify/functions/api?action=getMenus', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        action: 'getMenus'
-      })
+      }
     });
 
     if (!response.ok) {
@@ -49,15 +43,11 @@ async function fetchMenus() {
 // Fetch dishes for a specific menu
 async function fetchDishes(menuId) {
   try {
-    const response = await fetch('/.netlify/functions/api', {
+    const response = await fetch(`/.netlify/functions/api?action=getDishes&menuId=${encodeURIComponent(menuId)}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        action: 'getDishes',
-        menuId
-      })
+      }
     });
 
     if (!response.ok) {
