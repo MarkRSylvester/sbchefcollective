@@ -472,55 +472,44 @@
     </div>
   </main>
 
-  <!-- Event Planning Form Modal -->
+  <!-- Modal for Event Planning Form -->
   <div id="eventPlanningModal" class="modal">
     <button class="modal-close">&times;</button>
     <event-planning-form></event-planning-form>
   </div>
 
-  <!-- JavaScript Files -->
+  <!-- Load Data and App Logic -->
   <script src="data.js"></script>
-  <script src="app.js"></script>
-
+  <script src="assets/js/app.js"></script>
   <script>
-    // Initialize form modal
+    // Handle CTA buttons
     document.querySelectorAll('.cta-button').forEach(button => {
       button.addEventListener('click', () => {
-        document.getElementById('eventPlanningModal').classList.add('active');
+        const modal = document.getElementById('eventPlanningModal');
+        modal.classList.add('active');
       });
     });
 
-    // Close modal
+    // Handle modal close
     document.querySelector('.modal-close').addEventListener('click', () => {
-      document.getElementById('eventPlanningModal').classList.remove('active');
+      const modal = document.getElementById('eventPlanningModal');
+      modal.classList.remove('active');
     });
 
-    // Handle form submission
-    document.querySelector('event-planning-form').addEventListener('formSubmitted', (e) => {
-      const modal = document.getElementById('eventPlanningModal');
-      modal.innerHTML = `
-        <div class="success-message">
-          <h3>Thank You!</h3>
-          <p>Your inquiry has been submitted successfully. Our team will review your request and get back to you within 24-48 hours.</p>
-          <p>In the meantime, feel free to explore our <a href="#" onclick="document.getElementById('menusButton').click(); return false;">menus</a> or learn more about our <a href="#" onclick="document.getElementById('servicesButton').click(); return false;">services</a>.</p>
-        </div>
-      `;
+    // Close modal when clicking outside
+    document.getElementById('eventPlanningModal').addEventListener('click', (e) => {
+      if (e.target.id === 'eventPlanningModal') {
+        e.target.classList.remove('active');
+      }
+    });
 
-      // Close modal after 5 seconds
+    // Handle form submission success
+    document.querySelector('event-planning-form').addEventListener('formSubmitted', (e) => {
+      console.log('Form submitted successfully:', e.detail.data);
+      // Close the modal after a short delay
       setTimeout(() => {
-        modal.classList.remove('active');
-        // Reset modal content after animation
-        setTimeout(() => {
-          modal.innerHTML = `
-            <button class="modal-close">&times;</button>
-            <event-planning-form></event-planning-form>
-          `;
-          // Reinitialize close button
-          modal.querySelector('.modal-close').addEventListener('click', () => {
-            modal.classList.remove('active');
-          });
-        }, 300);
-      }, 5000);
+        document.getElementById('eventPlanningModal').classList.remove('active');
+      }, 3000);
     });
   </script>
 </body>
