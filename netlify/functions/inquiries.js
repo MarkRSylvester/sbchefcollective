@@ -1,4 +1,12 @@
+const Airtable = require('airtable');
 const DubsadoMock = require('./dubsado-mock');
+
+// Initialize Airtable
+const base = new Airtable({
+  apiKey: process.env.AIRTABLE_API_KEY
+}).base(process.env.AIRTABLE_BASE_ID);
+
+const TABLE_NAME = 'Inquiries';
 
 exports.handler = async (event, context) => {
   // Only allow POST
@@ -6,6 +14,18 @@ exports.handler = async (event, context) => {
     return {
       statusCode: 405,
       body: JSON.stringify({ error: 'Method not allowed' })
+    };
+  }
+
+  // Validate environment variables
+  if (!process.env.AIRTABLE_API_KEY || !process.env.AIRTABLE_BASE_ID) {
+    console.error('Missing required environment variables');
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        error: 'Server configuration error',
+        details: 'Missing required environment variables'
+      })
     };
   }
 
@@ -37,40 +57,70 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Mock Airtable record creation
-    const mockAirtableRecord = {
-      id: 'rec' + Math.random().toString(36).substr(2, 9),
-      fields: {
-        'Event Name': data.eventName,
-        'Event Date': data.eventDate,
-        'Event Time': data.eventTime,
-        'Guest Count': parseInt(data.guestCount),
-        'Budget per Person': data.budgetPerPerson,
-        'Event Type': data.eventType,
-        'Cuisine Preferences': data.cuisinePreferences,
-        'Contact Name': data.name,
-        'Email': data.email,
-        'Phone': data.phone,
-        'Status': 'New Inquiry',
-        'Created At': new Date().toISOString()
-      }
-    };
+    // Create Airtable record
+    const airtableRecord = await base(TABLE_NAME).create({
+      'Event Name': data.eventName,
+      'Event Date': data.eventDate,
+      'Event Time': data.eventTime,
+      'Guest Count': parseInt(data.guestCount),
+      'Budget per Person': data.budgetPerPerson,
+      'Event Type': data.eventType,
+      'Cuisine Preferences': data.cuisinePreferences,
+      'Contact Name': data.name,
+      'Email': data.email,
+      'Phone': data.phone,
+      'Status': 'New Inquiry',
+      'Created At': new Date().toISOString()
+    }).catch(error => {
+      console.error('Airtable error:', error);
+      throw new Error(`Airtable error: ${error.message}`);
+    });
 
     // Create project in mock Dubsado
     const dubsadoResponse = await DubsadoMock.createProject(data);
+
+    // Update Airtable record with Dubsado ID
+    await base(TABLE_NAME).update(airtableRecord.id, {
+      'Dubsado Project ID': dubsadoResponse.projectId
+    }).catch(error => {
+      console.error('Error updating Airtable with Dubsado ID:', error);
+      // Don't throw here, as the main record was created successfully
+    });
 
     return {
       statusCode: 200,
       body: JSON.stringify({
         message: 'Inquiry submitted successfully',
-        airtableId: mockAirtableRecord.id,
+        airtableId: airtableRecord.id,
         dubsadoProjectId: dubsadoResponse.projectId,
-        data: mockAirtableRecord.fields
+        data: airtableRecord.fields
       })
     };
 
   } catch (error) {
     console.error('Error processing inquiry:', error);
+    
+    // Handle specific error types
+    if (error.message.includes('AUTHENTICATION_REQUIRED')) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({
+          error: 'Airtable authentication failed',
+          details: 'Invalid API key'
+        })
+      };
+    }
+    
+    if (error.message.includes('NOT_FOUND')) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({
+          error: 'Airtable configuration error',
+          details: 'Base or table not found'
+        })
+      };
+    }
+
     return {
       statusCode: 500,
       body: JSON.stringify({
