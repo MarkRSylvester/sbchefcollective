@@ -3,6 +3,25 @@
 
 // Fallback data in case the Airtable API connection fails
 
+// Color palette for menu backgrounds
+const MENU_COLORS = {
+    "Surf & Turf Soirée": "#ffd7b3",
+    "Pizza Night": "#ffe199",
+    "Farm to Table": "#aee0a1",
+    "Pasta & Salads": "#b6d89f",
+    "Brunch in Bloom": "#fff4dc",
+    "Thanksgiving": "#f5c6a0",
+    "Sushi (Wasabi)": "#caf2e6",
+    "Mexican Mesa": "#f8caa5",
+    "Greek (Santorini)": "#a8caff",
+    "Mediterranean": "#efe2bd",
+    "Christmas": "#e7b8c1",
+    "Cocktail Party": "#b7d6f2",
+    "Asian Fusion": "#f9b9b7",
+    "Fresh Catch": "#a9e5dc",
+    "Paella Picnic": "#d2f1a3"
+};
+
 /**
  * @typedef {Object} Chef
  * @property {string} id
@@ -263,23 +282,4 @@ const FALLBACK_DISHES = {
       category: "Sides"
     }
   ]
-};
-
-// Menu color palette
-const MENU_COLORS = {
-    "Brunch in Bloom": "#fff4dc",
-    "Surf & Turf Soirée": "#ffd7b3",
-    "Mexican Mesa": "#f8caa5",
-    "Paella Picnic": "#d2f1a3",
-    "Farm to Table": "#aee0a1",
-    "Pasta & Salads": "#b6d89f",
-    "Sushi": "#caf2e6",
-    "Fresh Catch": "#a9e5dc",
-    "Cocktail Party": "#b7d6f2",
-    "Greek": "#a8caff",
-    "Mediterranean": "#efe2bd",
-    "Pizza Night": "#ffe199",
-    "Asian Fusion": "#f9b9b7",
-    "Thanksgiving": "#f5c6a0",
-    "Christmas": "#e7b8c1"
 };
