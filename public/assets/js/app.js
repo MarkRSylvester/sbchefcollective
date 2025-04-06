@@ -1374,5 +1374,81 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
+// Modal handling functions
+function openInquiryModal(type) {
+  const modal = document.getElementById('inquiryModal');
+  const eventTypeSelect = document.getElementById('eventType');
+  
+  if (type === 'weekly') {
+    eventTypeSelect.value = 'Weekly Meal Service';
+  }
+  
+  modal.classList.add('active');
+}
+
+function openHowItWorksModal() {
+  const modal = document.getElementById('howItWorksModal');
+  modal.classList.add('active');
+}
+
+function openContactModal() {
+  const modal = document.getElementById('inquiryModal');
+  modal.classList.add('active');
+}
+
+function openSiteMap() {
+  // Temporary alert until sitemap is implemented
+  alert('Site Map coming soon!');
+}
+
+// Close modals when clicking outside or on close button
+document.addEventListener('DOMContentLoaded', function() {
+  const modals = document.querySelectorAll('.modal');
+  const closeButtons = document.querySelectorAll('.modal-close');
+
+  closeButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      button.closest('.modal').classList.remove('active');
+    });
+  });
+
+  modals.forEach(modal => {
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        modal.classList.remove('active');
+      }
+    });
+  });
+});
+
+// Handle form submission
+document.getElementById('inquiryForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const formData = new FormData(this);
+  const data = Object.fromEntries(formData.entries());
+  
+  try {
+    const response = await fetch('/.netlify/functions/inquiries', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data)
+    });
+    
+    if (response.ok) {
+      alert('Thank you for your inquiry! We will contact you shortly.');
+      this.reset();
+      this.closest('.modal').classList.remove('active');
+    } else {
+      throw new Error('Failed to submit inquiry');
+    }
+  } catch (error) {
+    alert('Sorry, there was an error submitting your inquiry. Please try again later.');
+    console.error('Error:', error);
+  }
+});
+
 
 
