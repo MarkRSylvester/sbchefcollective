@@ -1,6 +1,8 @@
 'use client';
 
 import { Playfair_Display } from 'next/font/google';
+import Image from 'next/image';
+import Link from 'next/link';
 import EventInquiryForm from './components/EventInquiryForm';
 
 const playfair = Playfair_Display({ subsets: ['latin'] });
@@ -11,7 +13,7 @@ export default function Home() {
       {/* Hero Section */}
       <section 
         className="relative h-screen bg-cover bg-center"
-        style={{ backgroundImage: 'url(/images/S021.jpg)' }}
+        style={{ backgroundImage: 'url(/assets/images/S021.jpg)' }}
       >
         <div className="absolute inset-0 bg-black bg-opacity-40" />
         <div className="relative z-10 container mx-auto px-6 h-full flex flex-col justify-center text-white">
@@ -29,24 +31,35 @@ export default function Home() {
             elevate your everyday meals, we're here to turn your culinary dreams into reality. Let's create 
             something unforgettable together.
           </p>
-          <div className="flex space-x-4">
-            <button className="px-6 py-3 bg-white text-gray-900 rounded-lg hover:bg-gray-100 transform hover:scale-105 transition-all">
+          <div className="flex flex-col md:flex-row gap-4 md:space-x-4">
+            <Link 
+              href="/chefs"
+              className="btn btn-primary text-center"
+            >
               Explore Our Chefs
-            </button>
-            <button className="px-6 py-3 bg-transparent border-2 border-white text-white rounded-lg hover:bg-white hover:text-gray-900 transform hover:scale-105 transition-all">
+            </Link>
+            <Link 
+              href="/menus"
+              className="btn btn-outline text-center"
+            >
               Browse Curated Menus
-            </button>
-            <button className="px-6 py-3 bg-transparent border-2 border-white text-white rounded-lg hover:bg-white hover:text-gray-900 transform hover:scale-105 transition-all">
+            </Link>
+            <Link 
+              href="/how-it-works"
+              className="btn btn-outline text-center"
+            >
               Learn How It Works
-            </button>
+            </Link>
           </div>
         </div>
       </section>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      {/* Event Planning Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-12">
-          <h1 className="font-playfair text-4xl md:text-5xl text-gray-900 mb-4">
+          <h2 className={`${playfair.className} text-4xl md:text-5xl text-gray-900 mb-4`}>
             Plan Your Event
-          </h1>
+          </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Tell us about your vision, and we'll connect you with the perfect chef to create an unforgettable culinary experience.
           </p>
