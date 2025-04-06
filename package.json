@@ -7,6 +7,9 @@
     "deploy": "netlify deploy --prod",
     "build": "echo 'No build step needed'"
   },
+  "dependencies": {
+    "airtable": "^0.12.2"
+  },
   "devDependencies": {
     "netlify-cli": "^17.38.1"
   }
