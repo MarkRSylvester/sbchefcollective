@@ -3,18 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Santa Barbara Chef Collective</title>
+  <title>Santa Barbara Chef Collective | Extraordinary Private Culinary Experiences</title>
 
   <!-- Favicons -->
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-  <link rel="manifest" href="site.webmanifest" type="application/manifest+json">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
 
-  <!-- Load CSS and Fonts -->
-  <link rel="stylesheet" href="styles.css" type="text/css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet" type="text/css">
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   
+  <!-- Styles -->
+  <link rel="stylesheet" href="/styles.css">
+
   <!-- Load Components -->
   <script src="/components/EventPlanningForm.js" type="text/javascript"></script>
   <script src="/components/WeeklyMealForm.js" type="text/javascript"></script>
@@ -94,31 +96,40 @@
   </style>
 </head>
 <body>
-  <div class="hero">
-    <div class="hero-content">
-      <img class="logo" src="/assets/images/SBCHEFCOLLECTIVElogo.png" alt="Santa Barbara Chef Collective Logo">
-      <h1>Santa Barbara Chef Collective</h1>
-      <p>Extraordinary Private Culinary Experiences</p>
-      
-      <div class="journey-selection">
-        <h2>How can we serve you?</h2>
-        <div class="journey-buttons">
-          <button class="journey-btn" data-journey="event">
-            <h3>Plan an Event</h3>
-            <p>Dinner parties, celebrations & special occasions</p>
+  <header class="site-header">
+    <div class="container">
+      <img src="/assets/images/SBCHEFCOLLECTIVElogo.png" alt="SBCC Logo" class="header-logo">
+      <div class="header-text">
+        <h1>Santa Barbara Chef Collective</h1>
+        <p>Extraordinary Culinary Experiences</p>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" style="background-image: url('/assets/images/S021.jpg')">
+      <div class="hero-content">
+        <h1>Welcome to Santa Barbara Chef Collective</h1>
+        <h2>Where culinary artistry meets personalized hospitality.</h2>
+        
+        <p class="hero-text">
+          We believe every meal is an experience—whether it's an intimate dinner, an unforgettable event, or a weekly infusion of fresh, locally-sourced meals delivered right to your door. At SBCC, we connect you with the finest local chefs who craft customized menus to match your unique tastes, dietary needs, and personal style. Whether you're planning a special celebration or simply want to elevate your everyday meals, we're here to turn your culinary dreams into reality. Let's create something unforgettable together.
+        </p>
+
+        <div class="cta-buttons">
+          <button class="cta-btn" data-action="explore-chefs">
+            Explore Our Chefs
           </button>
-          <button class="journey-btn" data-journey="weekly">
-            <h3>Weekly Meals</h3>
-            <p>Personal chef services & meal preparation</p>
+          <button class="cta-btn" data-action="browse-menus">
+            Browse Curated Menus
           </button>
-          <button class="journey-btn" data-journey="discover">
-            <h3>Discover Our Chefs</h3>
-            <p>Meet our curated collective of culinary talent</p>
+          <button class="cta-btn" data-action="learn-more">
+            Learn How It Works
           </button>
         </div>
       </div>
-    </div>
-  </div>
+    </section>
+  </main>
 
   <!-- Event Planning Form Modal -->
   <div id="eventPlanningModal" class="modal">
@@ -149,22 +160,16 @@
   <footer>
     <div class="container">
       <div class="footer-content">
-        <div class="footer-logo">
-          <img src="/assets/images/SBCHEFCOLLECTIVElogo.png" alt="Santa Barbara Chef Collective Logo">
-        </div>
+        <img src="/assets/images/SBCHEFCOLLECTIVElogo.png" alt="SBCC Logo" class="footer-logo">
         <div class="footer-info">
-          <p>Santa Barbara Chef Collective</p>
-          <p>Connecting discerning clients with extraordinary culinary talent</p>
-        </div>
-        <div class="footer-contact">
-          <p>Contact us</p>
+          <h3>Santa Barbara Chef Collective</h3>
           <a href="mailto:info@sbchefcollective.com">info@sbchefcollective.com</a>
         </div>
       </div>
     </div>
   </footer>
 
-  <!-- Load Data and App Logic -->
+  <!-- Scripts -->
   <script>
     // Handle CTA buttons
     document.querySelectorAll('.cta-button').forEach(button => {
