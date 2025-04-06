@@ -164,6 +164,53 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Initializing SBCC application...');
     initializeJourneyButtons();
     initializeContactAccordion();
+
+    // Handle CTA button clicks
+    document.querySelectorAll('.cta-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const action = e.target.dataset.action;
+            
+            switch(action) {
+                case 'explore-chefs':
+                    window.location.href = '/chefs';
+                    break;
+                case 'browse-menus':
+                    window.location.href = '/menus';
+                    break;
+                case 'learn-more':
+                    // Show "How It Works" modal
+                    showHowItWorksModal();
+                    break;
+            }
+        });
+    });
+
+    // Add smooth scrolling for all anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+
+    // Add parallax effect to hero section
+    window.addEventListener('scroll', () => {
+        const hero = document.querySelector('.hero');
+        const scrolled = window.pageYOffset;
+        hero.style.backgroundPositionY = `${scrolled * 0.5}px`;
+    });
+
+    // Add header transparency effect on scroll
+    window.addEventListener('scroll', () => {
+        const header = document.querySelector('.site-header');
+        if (window.scrollY > 100) {
+            header.style.background = 'rgba(28, 61, 44, 0.95)';
+        } else {
+            header.style.background = 'rgba(28, 61, 44, 0.9)';
+        }
+    });
 });
 
 // Initialize journey buttons
@@ -931,6 +978,52 @@ function createChefCard(chef) {
   `;
   
   return card;
+}
+
+function showHowItWorksModal() {
+  // Create modal HTML
+  const modal = document.createElement('div');
+  modal.className = 'modal how-it-works-modal';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <button class="modal-close">&times;</button>
+      <h2>How It Works</h2>
+      <div class="process-steps">
+        <div class="step">
+          <h3>1. Initial Consultation</h3>
+          <p>Share your vision, preferences, and requirements with us.</p>
+        </div>
+        <div class="step">
+          <h3>2. Chef Selection</h3>
+          <p>We'll match you with the perfect chef based on your needs.</p>
+        </div>
+        <div class="step">
+          <h3>3. Menu Creation</h3>
+          <p>Your chef will craft a personalized menu just for you.</p>
+        </div>
+        <div class="step">
+          <h3>4. Experience</h3>
+          <p>Enjoy an extraordinary culinary experience in your home.</p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Add modal to page
+  document.body.appendChild(modal);
+
+  // Add close functionality
+  const closeBtn = modal.querySelector('.modal-close');
+  closeBtn.addEventListener('click', () => {
+    modal.remove();
+  });
+
+  // Close on outside click
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.remove();
+    }
+  });
 }
 
 
