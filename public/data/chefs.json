@@ -1,0 +1,38 @@
+[
+  {
+    "name": "Chef Isabella Martinez",
+    "specialty": "Mediterranean & California Fusion",
+    "bio": "With over 15 years of experience in Michelin-starred restaurants, Chef Isabella brings a unique blend of Mediterranean and California cuisine to your table.",
+    "image": "/assets/images/chef-isabella.jpg"
+  },
+  {
+    "name": "Chef James Chen",
+    "specialty": "Pan-Asian & Pacific Rim",
+    "bio": "A master of Asian fusion cuisine, Chef James combines traditional techniques with modern California ingredients to create unforgettable dining experiences.",
+    "image": "/assets/images/chef-james.jpg"
+  },
+  {
+    "name": "Chef Sarah Thompson",
+    "specialty": "Farm-to-Table & Modern American",
+    "bio": "Passionate about local ingredients, Chef Sarah creates seasonal menus that showcase the best of Santa Barbara's produce and seafood.",
+    "image": "/assets/images/chef-sarah.jpg"
+  },
+  {
+    "name": "Chef Marco Rossi",
+    "specialty": "Italian & European",
+    "bio": "Born and trained in Italy, Chef Marco brings authentic Italian cuisine with a modern twist to your private dining experience.",
+    "image": "/assets/images/chef-marco.jpg"
+  },
+  {
+    "name": "Chef Maya Patel",
+    "specialty": "Global Vegetarian & Vegan",
+    "bio": "Specializing in plant-based cuisine, Chef Maya creates innovative dishes that prove healthy eating can be both delicious and exciting.",
+    "image": "/assets/images/chef-maya.jpg"
+  },
+  {
+    "name": "Chef David Williams",
+    "specialty": "French & New American",
+    "bio": "Combining classical French training with contemporary American influences, Chef David creates elegant dishes perfect for special occasions.",
+    "image": "/assets/images/chef-david.jpg"
+  }
+] 
