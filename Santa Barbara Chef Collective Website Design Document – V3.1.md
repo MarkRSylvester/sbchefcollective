@@ -1,0 +1,627 @@
+**Santa Barbara Chef Collective Website Design Document – V3.1 (Full Technical Handoff)**
+
+---
+
+## **OVERVIEW: WHO, WHAT, WHERE, WHY**
+
+The **Santa Barbara Chef Collective (SBCC)** represents a new model for delivering extraordinary private culinary experiences. We connect discerning clients with handpicked local chefs, backed by a robust tech-powered platform that scales personalization, hospitality, and operational flow. Whether clients are planning milestone events or seeking weekly nourishment, we tailor every touchpoint—from inquiry to curated menu to chef assignment—to elevate the experience.
+
+### **What Sets SBCC Apart:**
+
+* A **client-first journey**: Guests are guided into the right flow—event planning, weekly meals, or chef discovery—right from the start.
+
+* **Smart form logic** connects users to just 3–4 ideal menus, not an overwhelming archive.
+
+* **Elegant design** meets flexible, Airtable-powered content management.
+
+* **Chef bios and menus** are deeply integrated and dynamic.
+
+* **Automated Dubsado logging** (simulated for now) prepares for CRM integration and invoicing.
+
+This system is not only powerful—it’s replicable. Once tested and refined in Santa Barbara, it can scale to serve other high-net-worth communities (e.g., Napa, Aspen, Hamptons, Maui) using the same architecture, brand framework, and local chef partnerships.
+
+The following document outlines the full experience, design, and technical requirements in a fully comprehensive format, including all field names, user flow logic, and integration structure. Ready for CURSOR implementation.
+
+---
+
+## **🔧 Intake Form – Field Mapping & Logic (SBCC Mega-Complex Dev Spec)**
+
+### **✨ Form Delivery Platform**
+
+* **Frontend:** Cursor or custom embedded form
+
+* **Backend storage:** Airtable table `Inquiries`
+
+* **Submission flow:** Cursor ➝ API ➝ Airtable
+
+* **Live sync not required**, but fields must map exactly.
+
+---
+
+### **📋 Form Fields to Show to Client**
+
+| Field Name (Airtable) | Label on Form | Type | Required? | Notes / Behavior |
+| ----- | ----- | ----- | ----- | ----- |
+| `Event Name` | Event Name | Text | ✅ | Title of the event or dinner |
+| `Event Date` | Event Date | Date \+ Time | ✅ | Enable time selection |
+| `Estimated Guest Count` | Number of Guests | Number | ✅ | Allow ranges or fixed input |
+| `Budget per Person` | Budget per Person | Single select | ✅ | Ranges: Under $75 → $300+ |
+| `Event Type` | Type of Event | Single select | ✅ | e.g., Dinner Party, Brunch, Holiday |
+| `Cuisine Preference` | Cuisine Preference | Multi-select | ✅ | Uses cleaned, menu-true list |
+| `Dietary Needs` | Dietary Needs | Multi-select | Optional | Includes "None" \+ "Other" field |
+| `Dietary Notes` | Notes or Other Dietary Needs | Long text | Optional | For allergies, ingredient needs |
+| `Event Vibe` | Event Vibe | Multi-select | Optional | Elegant, Romantic, Fun, etc. |
+| `Vibe Description` | Describe the Vibe | Long text | Optional | For explaining tone/setting |
+| `Selected Menu(s)` | Select a Menu | Linked record | Optional | Links to Menus table (filter: House menus only) |
+| `Custom Requests / Notes` | Anything Else We Should Know | Long text | Optional | Catch-all description field |
+| `Client Name` | Your Name | Text | ✅ |  |
+| `Client Email` | Email | Email | ✅ |  |
+| `Client Phone` | Phone Number | Phone | Optional |  |
+
+---
+
+### **🔒 Internal-Only Fields (Not Exposed to Client)**
+
+* `Status` – See workflow stages below
+
+* `Assigned Chef`
+
+* `Dubsado Project Link`
+
+* `Follow-Up Date`
+
+* `Record ID`
+
+* `Created Time`
+
+---
+
+### **🧠 Status Workflow (for Internal Tracking Only)**
+
+| Status Name | Purpose |
+| ----- | ----- |
+| New Inquiry | Default upon submission |
+| Initial Review | Coco or SBCC team reviewing |
+| Awaiting Chef Assignment | Client confirmed interest, pending chef |
+| Chef Confirmed | Chef locked in |
+| Menu Sent to Client | Menu proposal delivered |
+| Client Confirmed | Verbal or email yes |
+| Invoiced | Invoice sent (via Dubsado) |
+| Scheduled / In Progress | Confirmed and scheduled |
+| Completed | Event fulfilled |
+| Archived / No Response | Did not proceed or cold lead |
+
+🔁 **To Do**: Align these with Dubsado stages—pending Coco’s review of live workflow setup.
+
+---
+
+### **🍽️ Cuisine Preference Options (Cleaned for Client Intake)**
+
+* California / Farm-to-Table
+
+* Mediterranean
+
+* Mexican
+
+* Paella
+
+* Pasta & Salads
+
+* Sushi
+
+* Seafood
+
+* Greek
+
+* Asian-Inspired
+
+* Pizza
+
+* BBQ
+
+* Brunch
+
+* Holiday (Thanksgiving or Christmas)
+
+* Cocktail Party
+
+* Vegetarian / Plant-Based
+
+* No Preference
+
+**Helper text:** *"Have something specific in mind? Tell us about favorite dishes, regional styles (like Baja, Thai, or Tuscan), or anything you'd love to include or avoid."*
+
+---
+
+### **🍃 Dietary Needs (Multi-select Options)**
+
+* Vegetarian
+
+* Vegan
+
+* Gluten-Free
+
+* Dairy-Free
+
+* Nut-Free
+
+* Shellfish-Free
+
+* No Special Needs
+
+**Helper text:** *"Please tell us about any allergies, ingredient restrictions, or preferences not listed above (e.g. Kosher-style, no garlic/onion, individual guest needs).”*
+
+---
+
+### **✨ Event Vibe (Multi-select Options)**
+
+* Elegant
+
+* Casual
+
+* Romantic
+
+* Family-Friendly
+
+* Cozy & Intimate
+
+* Luxurious
+
+* Seasonal / Farm-Fresh
+
+* Coastal / Beachy
+
+* Creative & Bold
+
+* Wellness-Focused
+
+* Rustic
+
+* Festive & Fun
+
+* Sophisticated
+
+* Minimalist
+
+* No Preference
+
+**Helper text:** *"Tell us more about the atmosphere or feeling you want to create—whether it’s candlelit and romantic or barefoot on the beach with friends."*
+
+---
+
+## **USER JOURNEY 1 – EVENT PLANNING (FULL SPEC)**
+
+This journey supports users planning one-time culinary experiences (e.g. dinner parties, weddings, retreats, bachelorettes).
+
+### **STEP 1: Event Inquiry Form**
+
+**Form Fields (Airtable: Inquiries Table)**
+
+| Field Label | Field Name (Airtable) | Type | Required | Notes |
+| ----- | ----- | ----- | ----- | ----- |
+| First Name | First Name | Single line | ✅ | Text input |
+| Last Name | Last Name | Single line | ✅ | Text input |
+| Email | Email | Email | ✅ | Validation required |
+| Phone Number | Phone | Phone | ✅ | US format |
+| Event Type | Event Type | Single select | ✅ | Options stored in Airtable: Dinner Party, Boutique Wedding, Retreat, etc. |
+| Event Date | Event Date | Date | ✅ | Calendar picker |
+| Event Start Time | Event Time | Time | ✅ | e.g. 5:30 PM |
+| Number of Guests | Guest Count | Number | ✅ | Integer |
+| Event Address | Event Address | Long text | ✅ | Includes city, zip |
+| Budget Range | Budget | Single select | Optional | Predefined ranges (e.g. $100–150/pp) |
+| Dietary Needs | Dietary Needs | Long text | Optional | Allergies or restrictions |
+| Preferred Cuisines | Cuisine Preference | Multiple select | Optional | Linked to tags |
+| Mood or Vibe Words | Vibe Words | Multiple select | Optional | e.g., Coastal, Romantic |
+| Must-Have Ingredients | Must Haves | Long text | Optional | e.g., lobster, chocolate |
+| Optional Add-Ons | Optional Services | Multiple select | Optional | Pulled from Services tab (Enhancement type) |
+| Notes or Requests | Notes | Long text | Optional | Catch-all |
+
+**Form Behavior:**
+
+* Form data is written to Airtable `Inquiries` table
+
+* Type \= `Event`
+
+* Triggers a simulated entry in `Dubsado Sync Log`
+
+* On submit, user is routed to Menu Suggestions view
+
+### **STEP 2: Menu Curation Logic**
+
+* Show 3–4 menus using match logic:
+
+  * Event Type match (required)
+
+  * Cuisine Tags match (at least 1\)
+
+  * Must-Have match (exact text, if found)
+
+  * Mood/Vibe match (soft match, not required)
+
+* Each menu displays:
+
+  * Menu Name, Description
+
+  * Hero Image (linked via menu)
+
+  * CTA Button: “Build This Menu”
+
+### **STEP 3: Dish Selection Page**
+
+* Load categories: Appetizers, Mains, Sides, Desserts
+
+* All dishes are pulled from Airtable `Dishes` where Menu ID matches selected Menu
+
+**Logic:**
+
+* Minimum required: 1 dish per category (validation at submission)
+
+* Premium items flagged via field `Is Premium?` (Boolean)
+
+* Dishes grouped by category with checkboxes
+
+* Checkbox color \= left border color from menu color tag
+
+### **STEP 4: Pricing Recap Page**
+
+* Pull Menu Tier from selected Menu (e.g., Casual, Gourmet, Chef’s Table)
+
+* Use `Guest Count` from form submission
+
+* Base pricing range shown based on:
+
+  * Menu Tier
+
+  * Guest Count Tier (e.g., 4–7, 8–12, 12+)
+
+* Premium Items: Callout shown but pricing not calculated yet (future update)
+
+### **STEP 5: Management Review**
+
+* In Airtable:
+
+  * Record status set to `Awaiting Chef`
+
+  * Chef is selected manually by staff using availability calendar
+
+  * `Assigned Chef` field is updated
+
+### **STEP 6: Client Confirmation**
+
+* PDF Menu is auto-generated using:
+
+  * Selected menu name
+
+  * Chosen dishes by category
+
+  * Assigned Chef's Name, Bio, and Image
+
+* Simulated Dubsado entry:
+
+  * Operation: `Send Invoice`
+
+  * Payload includes PDF link and menu summary
+
+* Client receives:
+
+  * Confirmation email
+
+  * Styled PDF of menu \+ image of assigned chef
+
+---
+
+## **USER JOURNEY 2 – WEEKLY MEAL SERVICE (FULL SPEC)**
+
+This journey supports clients looking for recurring, chef-prepared meals delivered to their home or cooked on-site. It’s ideal for busy professionals, families, and seasonal residents.
+
+### **Inquiry Form Fields (Airtable: Inquiries Table — Type \= Weekly)**
+
+| Field Label | Field Name (Airtable) | Type | Required | Notes |
+| ----- | ----- | ----- | ----- | ----- |
+| First Name | First Name | Single line text | ✅ | Same as UJ1 |
+| Last Name | Last Name | Single line text | ✅ |  |
+| Email | Email | Email | ✅ |  |
+| Phone Number | Phone | Phone Number | ✅ |  |
+| Service Address | Address | Long text | ✅ |  |
+| Adults & Children | Household Count | Number | ✅ | e.g., 2 adults, 2 kids |
+| Meals per Week | Meals per Week | Single select | ✅ | e.g., 3, 5, 7 |
+| Days of the Week | Days of Week | Multiple select | ✅ | Mon–Sun |
+| Meal Types | Meal Types | Multiple select | ✅ | Breakfast, Lunch, Dinner, Snacks |
+| Service Type | Service Type | Single select | ✅ | Options: In-Home Cooking, Delivery – Glass, Delivery – Disposable |
+| Serving Style | Serving Style | Single select | ✅ | Options: Individual, Family Style |
+| Dietary Preferences | Dietary Needs | Long text | Optional |  |
+| Notes or Requests | Notes | Long text | Optional |  |
+
+### **Behavior & Sync**
+
+* On form submit:
+
+  * Data sent to `Inquiries (Full)` with Inquiry Type \= `Weekly`
+
+  * Status \= `New`
+
+* `Status` field options (chronological workflow):
+
+  * New Inquiry – (Just submitted, needs review)
+
+  * Initial Review – (Being looked at by Coco or SBCC team)
+
+  * Awaiting Chef Assignment – (Confirmed interest, but no chef yet)
+
+  * Chef Confirmed – (Chef is assigned and available)
+
+  * Menu Sent to Client – (Client has received the proposed menu)
+
+  * Client Confirmed – (Client says yes—ready to invoice)
+
+  * Invoiced – (Invoice sent or paid via Dubsado)
+
+  * Scheduled / In Progress – (Event is booked and scheduled)
+
+  * Completed – (Event happened—can archive or move to follow-up)
+
+  * Archived / No Response – (Did not move forward or went cold)
+
+  * Triggers a simulated Dubsado log entry
+
+* Optional follow-up can include chef profile suggestions
+
+### **Weekly Pricing (for reference only)**
+
+* Hourly rate: $65–120/hour
+
+* Groceries billed separately
+
+* Tiered scheduling and commitment-based discounting may be added later
+
+## **USER JOURNEY 3 – JUST EXPLORING (FULL SPEC)**
+
+This journey is designed for first-time visitors or curious users who do not yet have a defined need (event or weekly service). It provides a gentle, visually engaging way to discover SBCC’s offerings without friction.
+
+### **Behavior & Flow**
+
+* On homepage load, user is presented with three clear options:
+
+  1. **I'm Planning an Event**
+
+  2. **I Need Weekly Meals**
+
+  3. **Just Browsing** ← this initiates UJ3
+
+### **Step 1: Discovery Landing Page**
+
+* Hero image (e.g., S021 from Images DB)
+
+* Short inspirational copy: *“Discover the chefs, menus, and artistry of SBCC. Whether you’re planning ahead or just gathering ideas, there’s plenty to explore.”*
+
+* Action tiles:
+
+  * View Chefs → Scrollable chef profiles
+
+  * View Menus → Accordion-style menu previews (3–5 House Menus only)
+
+  * Learn How It Works → Routes to Services page
+
+### **Step 2: Persistent Contact Prompt**
+
+* A floating or persistent CTA element:
+
+  * Text: *“Ready to talk food? Send us a quick note.”*
+
+  * Opens **Quick Inquiry Modal** with fields:
+
+    * Name (Text)
+
+    * Email (Email)
+
+    * Interest Type (Dropdown: Event, Weekly, Other)
+
+    * Message (Long Text)
+
+* On submit:
+
+  * Stores entry in `Inquiries (Full)` with Type \= `Exploring`
+
+  * Status \= `New`
+
+  * Triggers Dubsado Sync (Simulated)
+
+### **Optional Add-On for Dev:**
+
+* Track viewed chefs and menus using local session storage for personalization on return visit.
+
+---
+
+## **INQUIRIES (OPS SUMMARY) – TABLE SPEC**
+
+This table is designed to hold **essential, lightweight data** from each client inquiry, for use by the SBCC operations team after syncing to Dubsado. It excludes sensitive data and includes only fields needed for:
+
+* Chef assignment
+
+* Menu tracking
+
+* Internal workflow
+
+### **Recommended Fields:**
+
+| Field Name | Type | Notes |
+| ----- | ----- | ----- |
+| Record ID | Auto Number | Internal unique reference |
+| Client Name | Single line text | From original form |
+| Event Type | Single select | Dinner Party, Retreat, etc. |
+| Inquiry Type | Single select | Event, Weekly, Exploring |
+| Event Date | Date | Optional for Weekly |
+| Guest Count | Number | Integer |
+| Selected Menu | Linked record | Linked to `Menus` table |
+| Status | Single select | Follows status workflow |
+| Assigned Chef | Linked record | From `Chefs` table |
+| Dubsado Link | URL | Project link for invoice \+ comms |
+| Follow-Up Date | Date | Optional — for reminders |
+| Notes | Long text | For internal notes and context |
+| Created Time | Created time | Auto-generated |
+| Last Modified | Last modified time | Auto-generated |
+
+This table will persist even after full Dubsado sync is live, for internal use and lightweight dashboards.
+
+---
+
+## **PRICING LOGIC – STRUCTURE & RULES**
+
+Used during the dev and staging phase to simulate Dubsado API interaction without affecting the live system. Allows safe logging of all form submissions, project sync attempts, and invoice triggers.
+
+Pricing at SBCC is designed to be flexible, menu-driven, and scalable. The pricing logic must account for base tiers, guest count, premium upgrades, and optional enhancements.
+
+### **1\. Menu Tiers (Defined in `Menus` Table)**
+
+* **Intimate Gathering (4–7 guests)**
+
+  * Casual: $130–$165 per person
+
+  * Gourmet: $170–$200 per person
+
+  * Chef’s Table: $210+ per person
+
+* **Group (8+ guests)**
+
+  * Casual: $130–$165 per person
+
+  * Gourmet: $170–$200 per person
+
+  * Chef’s Table: $210+ per person
+
+Each `Menu` record contains a `Tier` field which determines this range.
+
+### **2\. Guest Count-Based Logic**
+
+* `Guest Count` from form determines which pricing band to apply.
+
+* Special pricing note: Groups over 12 may require a custom quote.
+
+### **3\. Premium Item Logic (Future Phase)**
+
+* Each `Dish` has a `Is Premium?` checkbox field.
+
+* Premium items may:
+
+  * Add $X per person
+
+  * Or trigger an upcharge alert (e.g., lobster, caviar, extra desserts)
+
+* For now, show alert/flag without calculation. Future version may apply pricing formula.
+
+### **4\. Optional Enhancements (From `Services` Table)**
+
+* Each service marked `Enhancement = Yes` may include a `Base Cost`, `Per Guest Cost`, or `Custom Quote` flag.
+
+* Enhancements are optional and may be added to pricing recap in UJ1 flow.
+
+### **5\. Weekly Meal Pricing (Simplified)**
+
+* Hourly rate: $65–$120 per hour
+
+* Groceries charged separately
+
+* No per-dish pricing logic needed for UJ2
+
+### **6\. Display Recap Format**
+
+* Show base range (e.g., “$130–165 per guest”)
+
+* Alert for premium items: “This menu includes premium ingredients. Final quote will reflect this.”
+
+* Optional Enhancements: listed separately, not priced inline
+
+---
+
+## **DESIGN SYSTEM – TYPOGRAPHY, COLORS & COMPONENTS**
+
+### **✒️ Typography**
+
+* **Primary Font:** `Playfair Display`
+
+  * Used for: Headings, Chef Names, Menu Names, Vibe Words
+
+* **Secondary Font:** System sans-serif (e.g. Inter, Helvetica, Arial)
+
+  * Used for: Body text, form inputs, buttons
+
+### **🎨 Colors**
+
+* Defined in Airtable → `Colors` table
+
+* Fields: Name, Hex Code, Hue Tag, Usage (Hero, Accent, Border, Background)
+
+* Accordions and menu checkboxes use **Accent Border Colors** from this palette
+
+### **🧩 UI Components**
+
+* **Accordion**: One open at a time, larger left border, drop shadow when expanded
+
+* **Buttons**: Interactive hover/focus states, styled per color palette
+
+* **Menu Selection UI**: Checkbox left of dish name, color-matched to menu border
+
+* **Modal Forms**: Used in UJ3 for “Just Browsing” quick contact
+
+* **PDF Confirmation**: Styled with Playfair Display and chef image
+
+---
+
+## **AIRTABLE SCHEMA OVERVIEW**
+
+Below is the full structure of key Airtable tables used in the SBCC Chef Platform. Each table supports one core module of the system.
+
+### **📂 `Chefs`**
+
+* Stores all chef profiles
+
+* Key fields: Name, Bio, Vibe, Image URL, Assigned Menus, Availability, Location, Active (Yes/No)
+
+### **📂 `Menus`**
+
+* One record per curated menu
+
+* Key fields: Menu Name, Description, Menu Tier, Associated Dishes, Chef(s), Hero Image, Tags, Active
+
+### **📂 `Dishes`**
+
+* One record per dish, linked to a menu
+
+* Key fields: Dish Name, Category, Description, Is Premium?, Menu ID, Sort Order
+
+### **📂 `Services`**
+
+* Contains all SBCC offerings (core \+ enhancements)
+
+* Key fields: Service Name, Type (Core/Enhancement), Description, Requires Vendor, Usage (Event/Weekly), Cost Logic, Notes
+
+### **📂 `Inquiries (Full)`**
+
+* Main form submission table
+
+* Key fields: All client fields for UJ1/UJ2/UJ3, Status, Assigned Chef, Menu ID, Selected Dishes, Dubsado Synced?
+
+### **📂 `Inquiries (Ops Summary)`**
+
+* Lightweight ops tracking table
+
+* Key fields: Inquiry Type, Status, Menu, Chef, Follow-Up, Notes
+
+### **📂 `Dubsado Sync Log`**
+
+* Internal-only log of simulated API calls
+
+* Key fields: Inquiry ID, Timestamp, Operation, Payload Summary, Response, Sync Status
+
+### **📂 `Images`**
+
+* All aesthetic photos used site-wide
+
+* Key fields: URL, Filename, Mood Tags, Use Case, Palette Tag
+
+### **📂 `Colors`**
+
+* SBCC brand color palette
+
+* Key fields: Name, Hue, Usage (Hero, Accent, Border, Background)
+
