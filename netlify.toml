@@ -3,8 +3,8 @@
   publish = "public"
 
 [build.environment]
-  AIRTABLE_API_KEY = pat99NhmHmsfe5AJN.4aa9d5bf62d05e2e601cfa8a7083089011a75bb76497d120643bb5ef83c7df70
-  AIRTABLE_BASE_ID = appRRZL8Uf4178qkc
+  AIRTABLE_API_KEY = "pat99NhmHmsfe5AJN.4aa9d5bf62d05e2e601cfa8a7083089011a75bb76497d120643bb5ef83c7df70"
+  AIRTABLE_BASE_ID = "appRRZL8Uf4178qkc"
 
 [dev]
   functions = "netlify/functions"
@@ -13,8 +13,8 @@
   framework = "#static"
 
 [dev.environment]
-  AIRTABLE_API_KEY = pat99NhmHmsfe5AJN.4aa9d5bf62d05e2e601cfa8a7083089011a75bb76497d120643bb5ef83c7df70
-  AIRTABLE_BASE_ID = appRRZL8Uf4178qkc
+  AIRTABLE_API_KEY = "pat99NhmHmsfe5AJN.4aa9d5bf62d05e2e601cfa8a7083089011a75bb76497d120643bb5ef83c7df70"
+  AIRTABLE_BASE_ID = "appRRZL8Uf4178qkc"
 
 [functions]
   node_bundler = "esbuild"
@@ -47,5 +47,5 @@
   conditions = {Path = {match = "^(?!.*\\.(js|css|png|jpg|svg|webmanifest)$)"}}
 
 [context.production.environment]
-  AIRTABLE_API_KEY = pat99NhmHmsfe5AJN.4aa9d5bf62d05e2e601cfa8a7083089011a75bb76497d120643bb5ef83c7df70
-  AIRTABLE_BASE_ID = appRRZL8Uf4178qkc
+  AIRTABLE_API_KEY = "pat99NhmHmsfe5AJN.4aa9d5bf62d05e2e601cfa8a7083089011a75bb76497d120643bb5ef83c7df70"
+  AIRTABLE_BASE_ID = "appRRZL8Uf4178qkc"
