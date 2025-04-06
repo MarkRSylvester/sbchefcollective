@@ -10,16 +10,11 @@ exports.handler = async (event, context) => {
     };
   }
 
-  // Validate and log environment variables
-  console.log('Environment check:', {
-    hasApiKey: !!process.env.AIRTABLE_API_KEY,
-    apiKeyLength: process.env.AIRTABLE_API_KEY?.length,
-    hasBaseId: !!process.env.AIRTABLE_BASE_ID,
-    baseIdLength: process.env.AIRTABLE_BASE_ID?.length
-  });
-
   if (!process.env.AIRTABLE_API_KEY || !process.env.AIRTABLE_BASE_ID) {
-    console.error('Missing required environment variables');
+    console.error('Missing environment variables:', {
+      hasApiKey: !!process.env.AIRTABLE_API_KEY,
+      hasBaseId: !!process.env.AIRTABLE_BASE_ID
+    });
     return {
       statusCode: 500,
       body: JSON.stringify({
@@ -66,7 +61,7 @@ exports.handler = async (event, context) => {
 
     // Create Airtable record
     console.log('Creating Airtable record...');
-    const airtableRecord = await base('Inquiries (Full)').create({
+    const record = await base('Inquiries (Full)').create({
       'First Name': data.name.split(' ')[0],
       'Last Name': data.name.split(' ').slice(1).join(' '),
       'Email': data.email,
@@ -81,13 +76,13 @@ exports.handler = async (event, context) => {
       'Created At': new Date().toISOString()
     });
 
-    console.log('Airtable record created:', airtableRecord.id);
+    console.log('Airtable record created:', record.id);
 
     // Create project in mock Dubsado
     const dubsadoResponse = await DubsadoMock.createProject(data);
 
     // Update Airtable record with Dubsado ID
-    await base('Inquiries (Full)').update(airtableRecord.id, {
+    await base('Inquiries (Full)').update(record.id, {
       'Dubsado Project ID': dubsadoResponse.projectId
     }).catch(error => {
       console.error('Error updating Airtable with Dubsado ID:', error);
@@ -98,35 +93,35 @@ exports.handler = async (event, context) => {
       statusCode: 200,
       body: JSON.stringify({
         message: 'Inquiry submitted successfully',
-        airtableId: airtableRecord.id,
+        airtableId: record.id,
         dubsadoProjectId: dubsadoResponse.projectId,
-        data: airtableRecord.fields
+        data: record.fields
       })
     };
 
   } catch (error) {
-    console.error('Detailed error:', {
+    console.error('Error details:', {
+      name: error.name,
       message: error.message,
-      stack: error.stack,
-      name: error.name
+      stack: error.stack
     });
-    
+
     if (error.message?.includes('AUTHENTICATION_REQUIRED')) {
       return {
         statusCode: 401,
         body: JSON.stringify({
-          error: 'Airtable authentication failed',
-          details: 'Invalid API key'
+          error: 'Authentication failed',
+          details: 'Invalid Airtable API key'
         })
       };
     }
-    
+
     if (error.message?.includes('NOT_FOUND')) {
       return {
         statusCode: 404,
         body: JSON.stringify({
-          error: 'Airtable configuration error',
-          details: 'Base or table not found'
+          error: 'Resource not found',
+          details: 'Airtable base or table not found'
         })
       };
     }
