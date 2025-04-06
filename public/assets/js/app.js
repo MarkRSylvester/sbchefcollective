@@ -28,12 +28,10 @@ let currentOpenAccordion = null;
 
 // Default placeholder image
 const DEFAULT_CHEF_IMAGE = '/assets/images/default-chef.jpg';
-
-// Default images for menus and services
 const DEFAULT_MENU_IMAGE = '/assets/images/default-menu.jpg';
 
 // Initialize approved images object
-const approvedImages = {
+let approvedImages = {
     HERO: [],
     BG: [],
     MENU: [],
@@ -44,24 +42,33 @@ const approvedImages = {
 // Load approved images from Airtable
 async function loadApprovedImages() {
     try {
+        console.log('Fetching approved images from Airtable...');
         const response = await fetch('/.netlify/functions/api?action=getImages');
         if (!response.ok) throw new Error('Failed to fetch images');
         
         const images = await response.json();
+        console.log('Received images:', images);
+        
+        // Reset the approvedImages object
+        approvedImages = {
+            HERO: [],
+            BG: [],
+            MENU: [],
+            CHEF: [],
+            SERVICE: []
+        };
         
         // Organize images by use case
         images.forEach(image => {
             const useCase = image.useCase?.toUpperCase();
             if (useCase && approvedImages.hasOwnProperty(useCase)) {
                 approvedImages[useCase].push(image);
+                console.log(`Added ${image.filename} to ${useCase} category`);
             }
         });
 
-        // Update service images in the UI
-        document.querySelectorAll('.service-image').forEach(img => {
-            const serviceName = img.dataset.service;
-            img.src = getServiceImage(serviceName);
-        });
+        // Update images in the UI
+        updateUIImages();
 
         console.log('Approved images loaded:', approvedImages);
     } catch (error) {
@@ -69,8 +76,50 @@ async function loadApprovedImages() {
     }
 }
 
+// Update all images in the UI
+function updateUIImages() {
+    // Update hero section background
+    const hero = document.querySelector('.hero');
+    if (hero && approvedImages.HERO.length > 0) {
+        const heroImage = getRandomImage(approvedImages.HERO);
+        hero.style.backgroundImage = `linear-gradient(rgba(79, 93, 108, 0.85), rgba(79, 93, 108, 0.85)), url('${heroImage.url}')`;
+    }
+
+    // Update header background
+    const header = document.querySelector('.header-bg');
+    if (header && approvedImages.BG.length > 0) {
+        const bgImage = getRandomImage(approvedImages.BG);
+        header.style.backgroundImage = `linear-gradient(rgba(44, 62, 80, 0.7), rgba(44, 62, 80, 0.9)), url('${bgImage.url}')`;
+    }
+
+    // Update service images
+    document.querySelectorAll('.service-image').forEach(img => {
+        const serviceName = img.dataset.service;
+        img.src = getServiceImage(serviceName);
+    });
+
+    // Update chef images
+    document.querySelectorAll('.chef-photo img').forEach(img => {
+        const chefName = img.alt;
+        img.src = getChefImage(chefName);
+    });
+
+    // Update menu images
+    document.querySelectorAll('.menu-image img').forEach(img => {
+        const menuName = img.alt;
+        img.src = getMenuImage(menuName);
+    });
+}
+
+// Helper function to get a random image from an array
+function getRandomImage(images) {
+    return images[Math.floor(Math.random() * images.length)];
+}
+
 // Get service image from approved images or fallback to default
 function getServiceImage(serviceName) {
+    if (!serviceName) return DEFAULT_MENU_IMAGE;
+    
     if (approvedImages.SERVICE.length > 0) {
         // Try to find a specific image for this service
         const serviceImage = approvedImages.SERVICE.find(img => 
@@ -78,9 +127,41 @@ function getServiceImage(serviceName) {
         if (serviceImage) return serviceImage.url;
         
         // If no specific image, use a random approved service image
-        return approvedImages.SERVICE[Math.floor(Math.random() * approvedImages.SERVICE.length)].url;
+        return getRandomImage(approvedImages.SERVICE).url;
     }
-    return `/assets/images/services/default-service.jpg`;
+    return DEFAULT_MENU_IMAGE;
+}
+
+// Get chef image from approved images or fallback to default
+function getChefImage(chefName) {
+    if (!chefName) return DEFAULT_CHEF_IMAGE;
+    
+    if (approvedImages.CHEF.length > 0) {
+        // Try to find a specific image for this chef
+        const chefImage = approvedImages.CHEF.find(img => 
+            img.filename.toLowerCase().includes(chefName.toLowerCase()));
+        if (chefImage) return chefImage.url;
+        
+        // If no specific image, use a random approved chef image
+        return getRandomImage(approvedImages.CHEF).url;
+    }
+    return DEFAULT_CHEF_IMAGE;
+}
+
+// Get menu image from approved images or fallback to default
+function getMenuImage(menuName) {
+    if (!menuName) return DEFAULT_MENU_IMAGE;
+    
+    if (approvedImages.MENU.length > 0) {
+        // Try to find a specific image for this menu
+        const menuImage = approvedImages.MENU.find(img => 
+            img.filename.toLowerCase().includes(menuName.toLowerCase()));
+        if (menuImage) return menuImage.url;
+        
+        // If no specific image, use a random approved menu image
+        return getRandomImage(approvedImages.MENU).url;
+    }
+    return DEFAULT_MENU_IMAGE;
 }
 
 function getColor(index) {
@@ -1051,92 +1132,6 @@ function showHowItWorksModal() {
       modal.remove();
     }
   });
-}
-
-// Image management
-let approvedImages = {
-    HERO: [],
-    BG: [],
-    MENU: [],
-    CHEF: [],
-    SERVICE: []
-};
-
-// Fetch approved images from Airtable
-async function loadApprovedImages() {
-    try {
-        const response = await fetch('/.netlify/functions/api?action=getImages');
-        if (!response.ok) throw new Error('Failed to fetch images');
-        
-        const images = await response.json();
-        
-        // Organize images by use case
-        images.forEach(image => {
-            const useCase = image.useCase?.toUpperCase();
-            if (useCase && approvedImages.hasOwnProperty(useCase)) {
-                approvedImages[useCase].push(image);
-            }
-        });
-
-        // Update hero image if available
-        const heroImages = approvedImages.HERO;
-        if (heroImages.length > 0) {
-            const randomHero = heroImages[Math.floor(Math.random() * heroImages.length)];
-            document.querySelector('.hero').style.backgroundImage = `url('${randomHero.url}')`;
-        }
-
-        // Update header background if available
-        const bgImages = approvedImages.BG;
-        if (bgImages.length > 0) {
-            const randomBg = bgImages[Math.floor(Math.random() * bgImages.length)];
-            document.querySelector('.header-bg').style.backgroundImage = `url('${randomBg.url}')`;
-        }
-
-        console.log('Approved images loaded:', approvedImages);
-    } catch (error) {
-        console.error('Error loading approved images:', error);
-    }
-}
-
-// Update getChefImage function to use approved images
-function getChefImage(chefId) {
-    if (approvedImages.CHEF.length > 0) {
-        // Try to find a specific image for this chef
-        const chefImage = approvedImages.CHEF.find(img => img.filename.includes(chefId));
-        if (chefImage) return chefImage.url;
-        
-        // If no specific image, use a random approved chef image
-        return approvedImages.CHEF[Math.floor(Math.random() * approvedImages.CHEF.length)].url;
-    }
-    return DEFAULT_CHEF_IMAGE;
-}
-
-// Update getMenuImage function to use approved images
-function getMenuImage(menuName) {
-    if (approvedImages.MENU.length > 0) {
-        // Try to find a specific image for this menu
-        const menuImage = approvedImages.MENU.find(img => 
-            img.filename.toLowerCase().includes(menuName.toLowerCase()));
-        if (menuImage) return menuImage.url;
-        
-        // If no specific image, use a random approved menu image
-        return approvedImages.MENU[Math.floor(Math.random() * approvedImages.MENU.length)].url;
-    }
-    return DEFAULT_MENU_IMAGE;
-}
-
-// Update getServiceImage function to use approved images
-function getServiceImage(serviceName) {
-    if (approvedImages.SERVICE.length > 0) {
-        // Try to find a specific image for this service
-        const serviceImage = approvedImages.SERVICE.find(img => 
-            img.filename.toLowerCase().includes(serviceName.toLowerCase()));
-        if (serviceImage) return serviceImage.url;
-        
-        // If no specific image, use a random approved service image
-        return approvedImages.SERVICE[Math.floor(Math.random() * approvedImages.SERVICE.length)].url;
-    }
-    return DEFAULT_SERVICE_IMAGES[serviceName] || DEFAULT_SERVICE_IMAGES['Private Chef Services'];
 }
 
 
