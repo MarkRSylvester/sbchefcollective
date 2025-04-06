@@ -197,17 +197,9 @@ function showEventJourney() {
             </div>
             <form id="eventForm" class="event-form">
                 <div class="form-group">
-                    <label for="eventDate">Event Date*</label>
-                    <input type="date" id="eventDate" name="eventDate" required>
-                </div>
-                <div class="form-group">
-                    <label for="guestCount">Number of Guests*</label>
-                    <input type="number" id="guestCount" name="guestCount" min="1" required>
-                </div>
-                <div class="form-group">
                     <label for="eventType">Event Type*</label>
                     <select id="eventType" name="eventType" required>
-                        <option value="">Select an event type</option>
+                        <option value="">Select Event Type</option>
                         <option value="dinner">Dinner Party</option>
                         <option value="cocktail">Cocktail Party</option>
                         <option value="wedding">Wedding</option>
@@ -216,7 +208,23 @@ function showEventJourney() {
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Cuisine Preferences</label>
+                    <label for="guestCount">Number of Guests*</label>
+                    <input type="number" id="guestCount" name="guestCount" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="location">Event Location*</label>
+                    <input type="text" id="location" name="location" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventDate">Event Date*</label>
+                    <input type="date" id="eventDate" name="eventDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventTime">Event Time*</label>
+                    <input type="time" id="eventTime" name="eventTime" required>
+                </div>
+                <div class="form-group">
+                    <label>Cuisine Preferences*</label>
                     <div id="cuisinePreferences" class="checkbox-group"></div>
                 </div>
                 <div class="form-group">
@@ -224,14 +232,10 @@ function showEventJourney() {
                     <div id="vibeWords" class="checkbox-group"></div>
                 </div>
                 <div class="form-group">
-                    <label for="dietaryNeeds">Dietary Restrictions/Preferences</label>
-                    <textarea id="dietaryNeeds" name="dietaryNeeds" rows="3"></textarea>
+                    <label for="specialRequests">Special Requests or Notes</label>
+                    <textarea id="specialRequests" name="specialRequests" rows="4"></textarea>
                 </div>
-                <div class="form-group">
-                    <label for="additionalNotes">Additional Notes</label>
-                    <textarea id="additionalNotes" name="additionalNotes" rows="3"></textarea>
-                </div>
-                <button type="submit" class="submit-btn">Submit Inquiry</button>
+                <button type="submit" class="submit-btn">Submit Request</button>
             </form>
         `;
         container.dataset.initialized = 'true';
@@ -251,32 +255,37 @@ function showWeeklyJourney() {
             </div>
             <form id="weeklyForm" class="weekly-form">
                 <div class="form-group">
-                    <label for="weeklyMealCount">Meals per Week*</label>
-                    <select id="weeklyMealCount" name="weeklyMealCount" required>
-                        <option value="">Select number of meals</option>
-                        <option value="3">3 meals per week</option>
-                        <option value="4">4 meals per week</option>
-                        <option value="5">5 meals per week</option>
-                        <option value="7">7 meals per week</option>
+                    <label for="serviceType">Service Type*</label>
+                    <select id="serviceType" name="serviceType" required>
+                        <option value="">Select Service Type</option>
+                        <option value="meal-prep">Meal Prep</option>
+                        <option value="daily-cooking">Daily Cooking</option>
+                        <option value="hybrid">Hybrid Service</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="servingsPerMeal">Servings per Meal*</label>
-                    <input type="number" id="servingsPerMeal" name="servingsPerMeal" min="1" required>
+                    <label for="householdSize">Household Size*</label>
+                    <input type="number" id="householdSize" name="householdSize" min="1" required>
                 </div>
                 <div class="form-group">
-                    <label>Cuisine Preferences</label>
-                    <div id="weeklyCuisinePrefs" class="checkbox-group"></div>
+                    <label for="mealsPerWeek">Meals Per Week*</label>
+                    <select id="mealsPerWeek" name="mealsPerWeek" required>
+                        <option value="">Select Number of Meals</option>
+                        <option value="3">3 Meals</option>
+                        <option value="5">5 Meals</option>
+                        <option value="7">7 Meals</option>
+                        <option value="custom">Custom Plan</option>
+                    </select>
                 </div>
                 <div class="form-group">
-                    <label for="weeklyDietaryNeeds">Dietary Restrictions/Preferences</label>
-                    <textarea id="weeklyDietaryNeeds" name="weeklyDietaryNeeds" rows="3"></textarea>
+                    <label for="dietaryRestrictions">Dietary Restrictions</label>
+                    <textarea id="dietaryRestrictions" name="dietaryRestrictions" rows="4"></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="weeklyNotes">Additional Notes</label>
-                    <textarea id="weeklyNotes" name="weeklyNotes" rows="3"></textarea>
+                    <label for="kitchenAccess">Kitchen Access Details*</label>
+                    <textarea id="kitchenAccess" name="kitchenAccess" rows="4" required></textarea>
                 </div>
-                <button type="submit" class="submit-btn">Submit Inquiry</button>
+                <button type="submit" class="submit-btn">Submit Request</button>
             </form>
         `;
         container.dataset.initialized = 'true';
@@ -295,36 +304,30 @@ function showExploringJourney() {
                 <button class="back-btn" onclick="returnToHome()">← Back to Home</button>
             </div>
             <div class="exploring-content">
-                <div class="section-group">
+                <div class="explore-section">
                     <h3>Our Chefs</h3>
-                    <div id="chefsList" class="chefs-grid"></div>
+                    <div id="chefsGallery" class="gallery-grid"></div>
                 </div>
-                <div class="section-group">
+                <div class="explore-section">
                     <h3>Sample Menus</h3>
-                    <div id="menusList" class="menus-grid"></div>
+                    <div id="menusGallery" class="gallery-grid"></div>
                 </div>
-                <div class="section-group">
+                <div class="explore-section">
                     <h3>Get Updates</h3>
-                    <form id="exploringForm" class="exploring-form">
+                    <form id="updatesForm" class="updates-form">
                         <div class="form-group">
-                            <label for="exploringEmail">Email Address</label>
-                            <input type="email" id="exploringEmail" name="exploringEmail" required>
+                            <label for="updateEmail">Email Address*</label>
+                            <input type="email" id="updateEmail" name="updateEmail" required>
                         </div>
                         <div class="form-group">
-                            <label>I'm interested in:</label>
+                            <label>Interests</label>
                             <div class="checkbox-group">
-                                <label class="checkbox-label">
-                                    <input type="checkbox" name="interests" value="events"> Special Events
-                                </label>
-                                <label class="checkbox-label">
-                                    <input type="checkbox" name="interests" value="weekly"> Weekly Service
-                                </label>
-                                <label class="checkbox-label">
-                                    <input type="checkbox" name="interests" value="updates"> Chef Updates
-                                </label>
+                                <label><input type="checkbox" name="interests" value="events"> Special Events</label>
+                                <label><input type="checkbox" name="interests" value="weekly"> Weekly Service</label>
+                                <label><input type="checkbox" name="interests" value="classes"> Cooking Classes</label>
                             </div>
                         </div>
-                        <button type="submit" class="submit-btn">Stay Connected</button>
+                        <button type="submit" class="submit-btn">Subscribe</button>
                     </form>
                 </div>
             </div>
@@ -402,213 +405,185 @@ function setMinDate() {
 
 // Initialize event form
 function initializeEventForm() {
-    console.log('Initializing event form...');
-    setMinDate();
-    
-    // Load cuisine preferences
-    loadCuisinePreferences();
-    
-    // Load vibe words
-    loadVibeWords();
-    
-    // Form validation
     const form = document.getElementById('eventForm');
     if (!form) return;
-    
-    const requiredFields = form.querySelectorAll('[required]');
-    const submitBtn = form.querySelector('.submit-btn');
 
-    // Add validation to required fields
-    requiredFields.forEach(field => {
+    // Set minimum date to tomorrow
+    setMinDate();
+
+    // Load cuisine preferences
+    loadCuisinePreferences();
+
+    // Load vibe words
+    loadVibeWords();
+
+    // Add validation for required fields
+    form.querySelectorAll('input[required], select[required], textarea[required]').forEach(field => {
         field.addEventListener('blur', () => validateField(field));
         field.addEventListener('input', () => validateField(field));
     });
 
-    // Form submission
+    // Handle form submission
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        let isValid = true;
-
+        
         // Validate all required fields
-        requiredFields.forEach(field => {
+        let isValid = true;
+        form.querySelectorAll('input[required], select[required], textarea[required]').forEach(field => {
             if (!validateField(field)) {
                 isValid = false;
             }
         });
 
         // Check if at least one cuisine preference is selected
-        const cuisineChecked = form.querySelector('input[name="Cuisine Preference"]:checked');
+        const cuisineChecked = document.querySelectorAll('#cuisinePreferences input[type="checkbox"]:checked').length > 0;
         if (!cuisineChecked) {
             isValid = false;
             showErrorMessage('Please select at least one cuisine preference');
-            return;
         }
 
-        if (!isValid) {
-            const firstInvalid = form.querySelector('.invalid');
-            if (firstInvalid) {
-                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-            return;
-        }
-    
-        // Show loading state
-        submitBtn.classList.add('loading');
+        if (!isValid) return;
+
+        const submitBtn = form.querySelector('.submit-btn');
         submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
 
         try {
             await submitForm(form);
             showSuccessMessage();
             form.reset();
         } catch (error) {
-            showErrorMessage(error.message);
+            showErrorMessage('There was an error submitting your request. Please try again.');
         } finally {
-            submitBtn.classList.remove('loading');
             submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Request';
         }
     });
 }
 
 // Initialize weekly form
 function initializeWeeklyForm() {
-    console.log('Initializing weekly form...');
-    
     const form = document.getElementById('weeklyForm');
     if (!form) return;
-    
-    // Load cuisine preferences for weekly service
-    const cuisinePrefs = document.getElementById('weeklyCuisinePrefs');
-    if (cuisinePrefs) {
-        loadCuisinePreferences(cuisinePrefs);
-    }
-    
-    const requiredFields = form.querySelectorAll('[required]');
-    const submitBtn = form.querySelector('.submit-btn');
 
-    // Add validation to required fields
-    requiredFields.forEach(field => {
+    // Add validation for required fields
+    form.querySelectorAll('input[required], select[required], textarea[required]').forEach(field => {
         field.addEventListener('blur', () => validateField(field));
         field.addEventListener('input', () => validateField(field));
     });
 
-    // Form submission
+    // Handle form submission
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        let isValid = true;
-
+        
         // Validate all required fields
-        requiredFields.forEach(field => {
+        let isValid = true;
+        form.querySelectorAll('input[required], select[required], textarea[required]').forEach(field => {
             if (!validateField(field)) {
                 isValid = false;
             }
         });
 
-        if (!isValid) {
-            const firstInvalid = form.querySelector('.invalid');
-            if (firstInvalid) {
-                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-            return;
-        }
-    
-        // Show loading state
-        submitBtn.classList.add('loading');
+        if (!isValid) return;
+
+        const submitBtn = form.querySelector('.submit-btn');
         submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
 
         try {
             await submitForm(form);
             showSuccessMessage();
             form.reset();
         } catch (error) {
-            showErrorMessage(error.message);
+            showErrorMessage('There was an error submitting your request. Please try again.');
         } finally {
-            submitBtn.classList.remove('loading');
             submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Request';
         }
     });
 }
 
 // Initialize exploring journey
 function initializeExploringJourney() {
-    console.log('Initializing exploring journey...');
-    
-    // Load chefs
-    const chefsGrid = document.getElementById('chefsList');
-    if (chefsGrid) {
-        loadChefs(chefsGrid);
-    }
-    
-    // Load menus
-    const menusGrid = document.getElementById('menusList');
-    if (menusGrid) {
-        loadMenus(menusGrid);
-    }
-    
-    // Initialize the exploring form
-    const form = document.getElementById('exploringForm');
-    if (!form) return;
-    
-    const requiredFields = form.querySelectorAll('[required]');
-    const submitBtn = form.querySelector('.submit-btn');
-
-    // Add validation to required fields
-    requiredFields.forEach(field => {
-        field.addEventListener('blur', () => validateField(field));
-        field.addEventListener('input', () => validateField(field));
+    // Load chefs gallery
+    loadChefs().then(chefs => {
+        const gallery = document.getElementById('chefsGallery');
+        if (gallery) {
+            gallery.innerHTML = chefs.map(chef => `
+                <div class="gallery-item">
+                    <img src="${chef.image || DEFAULT_CHEF_IMAGE}" alt="${chef.name}">
+                    <h4>${chef.name}</h4>
+                    <p>${chef.specialty}</p>
+                </div>
+            `).join('');
+        }
     });
 
-    // Form submission
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        let isValid = true;
+    // Load menus gallery
+    loadMenus().then(menus => {
+        const gallery = document.getElementById('menusGallery');
+        if (gallery) {
+            gallery.innerHTML = menus.map(menu => `
+                <div class="gallery-item">
+                    <img src="${menu.image || DEFAULT_MENU_IMAGE}" alt="${menu.name}">
+                    <h4>${menu.name}</h4>
+                    <p>${menu.description}</p>
+                </div>
+            `).join('');
+        }
+    });
 
-        // Validate all required fields
-        requiredFields.forEach(field => {
-            if (!validateField(field)) {
-                isValid = false;
+    // Initialize updates form
+    const form = document.getElementById('updatesForm');
+    if (form) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = form.querySelector('.submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Subscribing...';
+
+            try {
+                await submitForm(form);
+                showSuccessMessage('Thank you for subscribing! We\'ll keep you updated.');
+                form.reset();
+            } catch (error) {
+                showErrorMessage('There was an error subscribing. Please try again.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Subscribe';
             }
         });
-
-        if (!isValid) {
-            const firstInvalid = form.querySelector('.invalid');
-            if (firstInvalid) {
-                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-            return;
-        }
-    
-        // Show loading state
-        submitBtn.classList.add('loading');
-        submitBtn.disabled = true;
-
-        try {
-            await submitForm(form);
-            showSuccessMessage();
-            form.reset();
-        } catch (error) {
-            showErrorMessage(error.message);
-        } finally {
-            submitBtn.classList.remove('loading');
-            submitBtn.disabled = false;
-        }
-    });
+    }
 }
 
-// Field validation
+// Helper function to set minimum date to tomorrow
+function setMinDate() {
+    const eventDateInput = document.getElementById('eventDate');
+    if (eventDateInput) {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        eventDateInput.min = tomorrow.toISOString().split('T')[0];
+    }
+}
+
+// Helper function to validate a field
 function validateField(field) {
     const isValid = field.checkValidity();
     field.classList.toggle('invalid', !isValid);
     
     // Show validation message
-    let messageElement = field.nextElementSibling;
-    if (!messageElement || !messageElement.classList.contains('validation-message')) {
-        messageElement = document.createElement('div');
-        messageElement.className = 'validation-message';
-        field.parentNode.insertBefore(messageElement, field.nextSibling);
+    let errorContainer = field.parentElement.querySelector('.error-message');
+    if (!isValid) {
+        if (!errorContainer) {
+            errorContainer = document.createElement('div');
+            errorContainer.className = 'error-message';
+            field.parentElement.appendChild(errorContainer);
+        }
+        errorContainer.textContent = field.validationMessage;
+    } else if (errorContainer) {
+        errorContainer.remove();
     }
-    
-    messageElement.textContent = isValid ? '' : field.validationMessage;
-    messageElement.style.display = isValid ? 'none' : 'block';
     
     return isValid;
 }
