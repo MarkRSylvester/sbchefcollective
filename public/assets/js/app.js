@@ -40,25 +40,6 @@ const DEFAULT_SERVICE_IMAGES = {
   'Kitchen Organization': 'https://placehold.co/300x200/3e5c76/ffffff?text=Kitchen+Org'
 };
 
-// Color palette for menu backgrounds
-const MENU_COLORS = {
-    "Surf & Turf Soirée": "#ffd7b3",
-    "Pizza Night": "#ffe199",
-    "Farm to Table": "#aee0a1",
-    "Pasta & Salads": "#b6d89f",
-    "Brunch in Bloom": "#fff4dc",
-    "Thanksgiving": "#f5c6a0",
-    "Sushi (Wasabi)": "#caf2e6",
-    "Mexican Mesa": "#f8caa5",
-    "Greek (Santorini)": "#a8caff",
-    "Mediterranean": "#efe2bd",
-    "Christmas": "#e7b8c1",
-    "Cocktail Party": "#b7d6f2",
-    "Asian Fusion": "#f9b9b7",
-    "Fresh Catch": "#a9e5dc",
-    "Paella Picnic": "#d2f1a3"
-};
-
 function getColor(index) {
     return defaultColors[index % defaultColors.length] || '#f9f9f9';
 }
