@@ -1,10 +1,11 @@
 :root {
   --primary-color: #2C3E50;
-  --accent-color: #3F7D1A; /* Fresh Basil */
+  --accent-color: #aee0a1; /* Fresh Basil - corrected */
   --text-color: #333333;
   --light-bg: #a8caff; /* Santorini Blue */
   --border-color: #dee2e6;
   --footer-bg: #E6DFD3; /* Sandstone */
+  --container-bg: #FDF8F3; /* Warm Sand - for container backgrounds */
 }
 
 * {
@@ -27,8 +28,8 @@ body {
 
 /* Header Styles */
 .site-header {
-  background: white;
-  padding: 2rem 0; /* Increased to 2" */
+  background: var(--container-bg);
+  padding: 2rem 0;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
@@ -55,7 +56,7 @@ body {
 
 /* Hero Section */
 .hero {
-  background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('/assets/images/hero-bg.jpg');
+  background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/assets/images/ocean-bg.jpg');
   background-size: cover;
   background-position: center;
   height: 80vh;
@@ -107,7 +108,7 @@ body {
 
 /* Modal Styles */
 .modal-content {
-  background: white;
+  background: var(--container-bg);
   padding: 2rem;
   border-radius: 8px;
   max-width: 600px;
@@ -163,7 +164,7 @@ body {
 /* Chef Discovery Section */
 .chef-discovery {
   padding: 4rem 0;
-  background: var(--light-bg);
+  background: var(--container-bg);
 }
 
 .chef-discovery.hidden {
