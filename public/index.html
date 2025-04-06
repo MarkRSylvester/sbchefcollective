@@ -19,8 +19,6 @@
 
     <!-- Load Components -->
     <script src="/data.js" type="text/javascript"></script>
-    <script src="/components/EventPlanningForm.js" type="text/javascript"></script>
-    <script src="/components/WeeklyMealForm.js" type="text/javascript"></script>
     <script src="/assets/js/app.js" type="text/javascript"></script>
 
     <style type="text/css">
@@ -162,22 +160,6 @@
       </div>
     </main>
 
-    <!-- Event Planning Form Modal -->
-    <div id="eventPlanningModal" class="modal">
-      <div class="modal-content">
-        <button class="modal-close">&times;</button>
-        <event-planning-form></event-planning-form>
-      </div>
-    </div>
-
-    <!-- Weekly Meal Planning Form Modal -->
-    <div id="weeklyMealModal" class="modal">
-      <div class="modal-content">
-        <button class="modal-close">&times;</button>
-        <weekly-meal-form></weekly-meal-form>
-      </div>
-    </div>
-
     <!-- How It Works Modal -->
     <div id="howItWorksModal" class="modal">
       <div class="modal-content">
@@ -198,21 +180,11 @@
           </div>
           <div class="step">
             <h3>4. Enjoy & Share</h3>
-            <p>Savor an unforgettable culinary journey and share your experience with friends and family.</p>
+            <p>Create lasting memories with exceptional food and service, and share your experience with friends and family.</p>
           </div>
         </div>
       </div>
     </div>
-
-    <!-- Chef Discovery Section -->
-    <section id="chefDiscovery" class="chef-discovery hidden">
-      <div class="container">
-        <h2>Our Curated Collective</h2>
-        <div class="chef-grid" id="chefGrid">
-          <!-- Chef cards will be loaded dynamically -->
-        </div>
-      </div>
-    </section>
 
     <footer>
       <div class="container">
@@ -224,92 +196,24 @@
               <p>Extraordinary Culinary Experiences</p>
             </div>
           </div>
-          
           <div class="footer-section">
-            <h4>Contact Us</h4>
+            <h3>Contact</h3>
             <div class="contact-info">
-              <p><i class="fas fa-envelope"></i> <a href="mailto:info@sbchefcollective.com">info@sbchefcollective.com</a></p>
-              <p><i class="fas fa-phone"></i> <a href="tel:+18055551234">(805) 555-1234</a></p>
-              <p><i class="fas fa-map-marker-alt"></i> Santa Barbara, CA</p>
-            </div>
-            <div class="social-links">
-              <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-              <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-              <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+              <p>Email: <a href="mailto:info@sbchefcollective.com">info@sbchefcollective.com</a></p>
+              <p>Phone: <a href="tel:+18055550123">(805) 555-0123</a></p>
             </div>
           </div>
-          
           <div class="footer-section">
-            <h4>Quick Contact</h4>
-            <form id="contactForm" class="contact-form">
-              <div class="form-group">
-                <input type="text" id="name" name="name" placeholder="Your Name" required>
-              </div>
-              <div class="form-group">
-                <input type="email" id="email" name="email" placeholder="Your Email" required>
-              </div>
-              <div class="form-group">
-                <textarea id="message" name="message" placeholder="Your Message" required></textarea>
-              </div>
-              <button type="submit" class="submit-btn">Send Message</button>
-            </form>
+            <h3>Follow Us</h3>
+            <div class="social-links">
+              <a href="#" target="_blank" rel="noopener">Instagram</a>
+              <a href="#" target="_blank" rel="noopener">Facebook</a>
+              <a href="#" target="_blank" rel="noopener">LinkedIn</a>
+            </div>
           </div>
-        </div>
-        
-        <div class="footer-bottom">
-          <p>&copy; 2025 Santa Barbara Chef Collective. All rights reserved.</p>
         </div>
       </div>
     </footer>
-
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
-    <!-- Scripts -->
-    <script>
-      // Handle CTA buttons
-      document.querySelectorAll('.cta-btn').forEach(button => {
-        button.addEventListener('click', () => {
-          const action = button.getAttribute('data-action');
-          switch(action) {
-            case 'explore-chefs':
-              document.getElementById('chefDiscovery').classList.remove('hidden');
-              break;
-            case 'browse-menus':
-              document.getElementById('eventPlanningModal').classList.add('active');
-              break;
-            case 'learn-more':
-              document.getElementById('howItWorksModal').classList.add('active');
-              break;
-          }
-        });
-      });
-
-      // Handle modal close buttons
-      document.querySelectorAll('.modal-close').forEach(button => {
-        button.addEventListener('click', () => {
-          const modal = button.closest('.modal');
-          modal.classList.remove('active');
-        });
-      });
-
-      // Close modals when clicking outside
-      document.querySelectorAll('.modal').forEach(modal => {
-        modal.addEventListener('click', (e) => {
-          if (e.target === modal) {
-            modal.classList.remove('active');
-          }
-        });
-      });
-
-      // Handle form submission success
-      document.querySelector('event-planning-form')?.addEventListener('formSubmitted', (e) => {
-        console.log('Form submitted successfully:', e.detail.data);
-        // Close the modal after a short delay
-        setTimeout(() => {
-          document.getElementById('eventPlanningModal').classList.remove('active');
-        }, 3000);
-      });
-    </script>
 </body>
+</html> 
 </html> 
