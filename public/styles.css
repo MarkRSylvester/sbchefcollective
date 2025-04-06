@@ -84,7 +84,7 @@ body {
 
 .hero-content h2 {
   font-family: 'Playfair Display', serif;
-  font-size: 1.25rem;
+  font-size: 1.25rem;  /* 50% of original 2.5rem */
   margin-bottom: 1rem;
   color: white;
   line-height: 1.2;
@@ -314,14 +314,6 @@ footer {
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .hero-content h2 {
-    font-size: 2.5rem;
-  }
-  
-  .hero-content p {
-    font-size: 1.2rem;
-  }
-  
   .cta-buttons {
     flex-direction: column;
     align-items: center;
