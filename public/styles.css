@@ -353,4 +353,39 @@ footer {
 
 .mt-1 { margin-top: 1rem; }
 .mt-2 { margin-top: 2rem; }
-.mt-3 { margin-top: 3rem; } 
+.mt-3 { margin-top: 3rem; }
+
+/* Site Map Styles */
+.sitemap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.sitemap-section h3 {
+  font-family: 'Playfair Display', serif;
+  color: #2C3E50;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.sitemap-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sitemap-section li {
+  margin-bottom: 0.5rem;
+}
+
+.sitemap-section a {
+  color: #2C3E50;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.sitemap-section a:hover {
+  color: #E5B45B;
+} 
