@@ -1,4 +1,9 @@
-// app.js - UI interaction and rendering with Airtable
+/* @ts-check */
+/* Content-Type: text/javascript */
+
+/**
+ * app.js - Main application logic for Santa Barbara Chef Collective
+ */
 
 const chefsContainer = document.getElementById('chefsContainer');
 const menusContainer = document.getElementById('menusContainer');
