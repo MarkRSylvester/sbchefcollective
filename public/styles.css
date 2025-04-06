@@ -43,7 +43,8 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Inter', sans-serif;
-  background-color: var(--secondary-color);
+  background: url('assets/images/ocean-bg.jpg') no-repeat center center fixed;
+  background-size: cover;
   color: var(--text-color);
   line-height: 1.6;
 }
