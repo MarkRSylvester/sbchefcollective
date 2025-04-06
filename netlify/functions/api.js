@@ -4,8 +4,8 @@ const fetch = require('node-fetch');
 let AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY || '';
 AIRTABLE_API_KEY = AIRTABLE_API_KEY.trim().replace(/^["']|["']$/g, '');
 
-// Specify the exact Airtable base ID
-const AIRTABLE_BASE_ID = 'appOWFyYIGbLoKalt';
+// Get base ID from environment variable
+const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID || '';
 
 // Define table names for each data type
 const TABLES = {
@@ -24,10 +24,9 @@ const TABLES = {
 // Log configuration for debugging
 console.log('API Function Configuration:', {
     baseId: AIRTABLE_BASE_ID,
-    apiKey: `${AIRTABLE_API_KEY.substring(0, 10)}...`,
     apiKeyLength: AIRTABLE_API_KEY.length,
-    availableEndpoints: Object.keys(TABLES),
-    environment: process.env,
+    apiKeyPrefix: AIRTABLE_API_KEY.substring(0, 10),
+    environment: process.env.NODE_ENV,
     tables: TABLES
 });
 
