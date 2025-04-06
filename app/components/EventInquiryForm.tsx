@@ -104,13 +104,29 @@ export default function EventInquiryForm() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...data,
+          eventName: `${data.firstName} ${data.lastName}'s Event`,
+          eventDate: data.eventDate,
+          eventTime: data.eventTime,
+          guestCount: data.guestCount,
+          budgetPerPerson: data.budget.replace(/[^0-9]/g, ''),
+          eventType: data.eventType,
+          cuisinePreferences: data.cuisinePreference.join(', '),
+          name: `${data.firstName} ${data.lastName}`,
+          email: data.email,
+          phone: data.phone,
+          eventAddress: data.eventAddress,
+          dietaryNeeds: data.dietaryNeeds,
+          vibeWords: data.vibeWords.join(', '),
+          mustHaves: data.mustHaves,
+          optionalServices: data.optionalServices.join(', '),
+          notes: data.notes,
           type: 'Event',
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to submit inquiry');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to submit inquiry');
       }
 
       setSubmitSuccess(true);
