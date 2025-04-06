@@ -30,26 +30,30 @@ body {
 .site-header {
   background-color: #F5EFE6;  /* Sandstone color */
   padding: 1rem 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  height: 1in;  /* Match footer height */
+  display: flex;
+  align-items: center;
 }
 
 .site-header .container {
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin: 0;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
   padding: 0 2rem;
 }
 
 .header-logo {
-  height: 60px;
+  height: 40px;  /* Match footer logo size */
   width: auto;
 }
 
 .header-text {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  line-height: 1.2;  /* Match footer line height */
 }
 
 .header-text h1 {
@@ -242,9 +246,9 @@ body {
 
 /* Footer Styles */
 footer {
-  background-color: #F5EFE6;  /* Match header sandstone color */
+  background-color: #F5EFE6;
   padding: 1rem 0;
-  height: 1in;  /* Exactly 1 inch tall */
+  height: 1in;
   display: flex;
   align-items: center;
 }
