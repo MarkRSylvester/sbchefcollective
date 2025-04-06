@@ -1,9 +1,36 @@
 // @ts-check
 // Content-Type: text/javascript
 
+/**
+ * @typedef {Object} Chef
+ * @property {string} id
+ * @property {string} chef_id
+ * @property {string} name
+ * @property {string} imageUrl
+ * @property {string} vibe
+ * @property {string} bio
+ */
+
+/**
+ * @typedef {Object} Menu
+ * @property {string} id
+ * @property {string} name
+ * @property {string} description
+ * @property {string} type
+ */
+
+/**
+ * @typedef {Object} Dish
+ * @property {string} dishId
+ * @property {string} dishName
+ * @property {string} description
+ * @property {string} category
+ */
+
 // data.js - Fallback data in case the Airtable API connection fails
 
 // Fallback chef data
+/** @type {Chef[]} */
 const FALLBACK_CHEFS = [
   {
     id: "chef1",
@@ -32,6 +59,7 @@ const FALLBACK_CHEFS = [
 ];
 
 // Fallback menu data
+/** @type {Menu[]} */
 const FALLBACK_MENUS = [
   {
     id: "menu1",
@@ -60,6 +88,7 @@ const FALLBACK_MENUS = [
 ];
 
 // Fallback dish data
+/** @type {Record<string, Dish[]>} */
 const FALLBACK_DISHES = {
   "menu1": [
     {
@@ -240,6 +269,7 @@ const FALLBACK_DISHES = {
 };
 
 // Menu color palette
+/** @type {Record<string, string>} */
 const MENU_COLORS = {
     "Brunch in Bloom": "#fff4dc",
     "Surf & Turf Soirée": "#ffd7b3",
