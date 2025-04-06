@@ -28,9 +28,17 @@ body {
 
 /* Header Styles */
 .site-header {
-  background: var(--container-bg);
-  padding: 2rem 0;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 1rem 0;
+  margin: 0;
+  width: 100%;
+}
+
+.site-header .container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0;
+  padding: 0 2rem;
 }
 
 .header-logo {
@@ -39,19 +47,25 @@ body {
 }
 
 .header-text {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .header-text h1 {
   font-family: 'Playfair Display', serif;
-  font-size: 2.5rem;
-  color: var(--primary-color);
-  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+  margin: 0;
+  line-height: 1.2;
+  color: var(--text-color);
 }
 
 .header-text p {
-  font-size: 1.2rem;
-  color: var(--accent-color); /* Updated to Fresh Basil */
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  margin: 0;
+  line-height: 1;
+  color: var(--text-color);
 }
 
 /* Hero Section */
@@ -83,27 +97,41 @@ body {
   margin-bottom: 2rem;
 }
 
-/* Button Styles */
+/* CTA Buttons from Design Spec */
 .cta-buttons {
   display: flex;
   gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
+  margin-top: 2rem;
 }
 
 .cta-btn {
-  background: var(--accent-color); /* Updated to Fresh Basil */
-  color: white;
-  padding: 1rem 2rem;
-  border: none;
+  padding: 0.75rem 1.5rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
   border-radius: 4px;
-  font-size: 1.1rem;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.cta-btn:hover {
-  background: #2F5E13; /* Darker shade of Fresh Basil */
+.cta-btn[data-action="explore-chefs"] {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+}
+
+.cta-btn[data-action="browse-menus"] {
+  background-color: transparent;
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+}
+
+.cta-btn[data-action="learn-more"] {
+  background-color: transparent;
+  color: var(--text-color);
+  border: 2px solid var(--text-color);
 }
 
 /* Modal Styles */
@@ -180,52 +208,55 @@ body {
 
 /* Footer Styles */
 footer {
-  background: var(--footer-bg); /* Updated to Sandstone */
-  color: var(--primary-color); /* Updated text color for better contrast */
-  padding: 4rem 0 2rem;
+  height: 1in;
+  padding: 0;
+  background-color: var(--footer-bg);
+  color: var(--text-color);
 }
 
 .footer-content {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
-  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  padding: 0 2rem;
+}
+
+.footer-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .footer-logo {
-  height: 50px;
+  height: 40px;
   width: auto;
-  margin-bottom: 1rem;
+}
+
+.footer-info {
+  line-height: 1.2;
 }
 
 .footer-info h3 {
-  font-family: 'Playfair Display', serif;
-  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  margin: 0;
 }
 
-.contact-info p {
-  margin-bottom: 0.5rem;
+.footer-info p {
+  font-size: 0.8rem;
+  margin: 0;
 }
 
-.contact-info a {
-  color: var(--primary-color); /* Updated for better contrast */
-  text-decoration: none;
+.social-icons {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
 }
 
-.social-links {
-  margin-top: 1rem;
-}
-
-.social-links a {
-  color: var(--primary-color); /* Updated for better contrast */
-  font-size: 1.5rem;
-  margin-right: 1rem;
-}
-
-.footer-bottom {
-  text-align: center;
-  padding-top: 2rem;
-  border-top: 1px solid rgba(255,255,255,0.1);
+.social-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--text-color);
 }
 
 /* Responsive Design */
