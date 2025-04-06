@@ -96,7 +96,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(255, 255, 255, 0.15);  /* 15% white overlay */
+  background-color: rgba(255, 255, 255, 0.3);  /* Increased from 0.15 to 0.3 */
   z-index: 1;
 }
 
@@ -110,13 +110,13 @@ body {
   align-items: center;
   height: 100%;
   justify-content: center;
-  padding-bottom: 2rem;  /* Add some padding at bottom to offset buttons */
+  padding-top: 4rem;  /* Push content down to center headline */
 }
 
 .hero-content h2 {
   font-family: 'Playfair Display', serif;
   font-size: 2rem;
-  margin: 0 0 0.5rem;
+  margin: 0 0 1.5rem;  /* Increased margin below headline */
   line-height: 1.1;
   color: #2C3E50;
 }
