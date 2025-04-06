@@ -12,5 +12,17 @@
   },
   "devDependencies": {
     "netlify-cli": "^17.38.1"
-  }
+  },
+  "main": "menus.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MarkRSylvester/sbchefcollective.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MarkRSylvester/sbchefcollective/issues"
+  },
+  "homepage": "https://github.com/MarkRSylvester/sbchefcollective#readme"
 }

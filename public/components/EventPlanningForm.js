@@ -16,6 +16,119 @@ class EventPlanningForm extends HTMLElement {
     this.setupListeners();
   }
 
+  showMessage(message, isError = false) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${isError ? 'error' : 'success'}`;
+    messageDiv.innerHTML = `
+      <div class="message-content">
+        <h3>${isError ? 'Error' : 'Success!'}</h3>
+        <p>${message}</p>
+        ${!isError ? '<p>We will be in touch with you shortly to discuss your event in detail.</p>' : ''}
+        <button class="close-message">Close</button>
+      </div>
+    `;
+    
+    messageDiv.querySelector('.close-message').addEventListener('click', () => {
+      messageDiv.remove();
+      if (!isError) {
+        // Reset form on success
+        this.shadowRoot.querySelector('form').reset();
+      }
+    });
+
+    this.shadowRoot.appendChild(messageDiv);
+  }
+
+  async submitForm(formData) {
+    try {
+      const response = await fetch('/.netlify/functions/inquiries', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(Object.fromEntries(formData))
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to submit inquiry');
+      }
+
+      this.showMessage('Your inquiry has been submitted successfully!');
+      return true;
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      this.showMessage(error.message || 'An error occurred while submitting your inquiry. Please try again.', true);
+      return false;
+    }
+  }
+
+  setupListeners() {
+    if (!this.shadowRoot) return;
+
+    // Handle multi-select items
+    this.shadowRoot.querySelectorAll('.multi-select').forEach(container => {
+      container.addEventListener('click', (e) => {
+        const target = e.target;
+        if (!(target instanceof HTMLElement)) return;
+        
+        if (target.classList.contains('multi-select-item')) {
+          target.classList.toggle('selected');
+          
+          // Update hidden input with selected values
+          const selectedItems = container.querySelectorAll('.selected');
+          const values = Array.from(selectedItems).map(item => {
+            if (!(item instanceof HTMLElement)) return '';
+            return item.dataset.value || '';
+          }).filter(Boolean);
+          
+          const hiddenInput = container.parentElement?.querySelector('input[type="hidden"]');
+          if (hiddenInput instanceof HTMLInputElement) {
+            hiddenInput.value = values.join(',');
+          }
+        }
+      });
+    });
+
+    // Handle form submission
+    const form = this.shadowRoot.querySelector('form');
+    if (!form) return;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      // Validate form
+      const requiredFields = form.querySelectorAll('[required]');
+      let isValid = true;
+
+      requiredFields.forEach(field => {
+        if (!field.value) {
+          isValid = false;
+          field.classList.add('error');
+        } else {
+          field.classList.remove('error');
+        }
+      });
+
+      if (!isValid) {
+        this.showMessage('Please fill in all required fields.', true);
+        return;
+      }
+
+      // Submit form
+      const formData = new FormData(form);
+      const success = await this.submitForm(formData);
+
+      if (success) {
+        // Optionally trigger any post-submission actions
+        this.dispatchEvent(new CustomEvent('formSubmitted', {
+          detail: { data: Object.fromEntries(formData) }
+        }));
+      }
+    });
+  }
+
   render() {
     if (!this.shadowRoot) return;
     this.shadowRoot.innerHTML = `
@@ -106,6 +219,54 @@ class EventPlanningForm extends HTMLElement {
           background: var(--primary-color);
           color: white;
           border-color: var(--primary-color);
+        }
+
+        .message {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+        }
+
+        .message-content {
+          background: white;
+          padding: 2rem;
+          border-radius: 12px;
+          max-width: 500px;
+          text-align: center;
+        }
+
+        .message.error .message-content {
+          border-left: 4px solid #e74c3c;
+        }
+
+        .message.success .message-content {
+          border-left: 4px solid #2ecc71;
+        }
+
+        .close-message {
+          margin-top: 1rem;
+          padding: 0.5rem 1rem;
+          background: #f8f9fa;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+
+        .error {
+          border-color: #e74c3c !important;
+        }
+
+        .error-message {
+          color: #e74c3c;
+          font-size: 0.875rem;
+          margin-top: 0.25rem;
         }
       </style>
 
@@ -225,93 +386,46 @@ class EventPlanningForm extends HTMLElement {
           <h2>Contact Information</h2>
           
           <div class="form-group">
-            <label>Your Name <span class="required">*</span></label>
-            <input type="text" name="clientName" required>
+            <label>Full Name <span class="required">*</span></label>
+            <input type="text" name="name" required>
           </div>
 
           <div class="form-group">
             <label>Email <span class="required">*</span></label>
-            <input type="email" name="clientEmail" required>
+            <input type="email" name="email" required>
           </div>
 
           <div class="form-group">
-            <label>Phone Number</label>
-            <input type="tel" name="clientPhone" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}">
-            <div class="helper-text">Format: 123-456-7890</div>
+            <label>Phone <span class="required">*</span></label>
+            <input type="tel" name="phone" required>
+            <div class="helper-text">Please include area code</div>
+          </div>
+
+          <div class="form-group">
+            <label>Address</label>
+            <input type="text" name="address" placeholder="Street address">
+          </div>
+
+          <div class="form-group">
+            <label>City</label>
+            <input type="text" name="city" placeholder="City">
           </div>
         </div>
 
-        <button type="submit">Submit Inquiry</button>
+        <div class="form-section">
+          <h2>Additional Information</h2>
+          
+          <div class="form-group">
+            <label>Special Requests or Notes</label>
+            <textarea name="specialRequests" rows="4" placeholder="Please share any additional details that would help us plan your perfect event"></textarea>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <button type="submit">Submit Inquiry</button>
+        </div>
       </form>
     `;
-  }
-
-  setupListeners() {
-    if (!this.shadowRoot) return;
-
-    // Handle multi-select items
-    this.shadowRoot.querySelectorAll('.multi-select').forEach(container => {
-      container.addEventListener('click', (e) => {
-        const target = e.target;
-        if (!(target instanceof HTMLElement)) return;
-        
-        if (target.classList.contains('multi-select-item')) {
-          target.classList.toggle('selected');
-          
-          // Update hidden input with selected values
-          const selectedItems = container.querySelectorAll('.selected');
-          const values = Array.from(selectedItems).map(item => {
-            if (!(item instanceof HTMLElement)) return '';
-            return item.dataset.value || '';
-          }).filter(Boolean);
-          
-          const hiddenInput = container.parentElement?.querySelector('input[type="hidden"]');
-          if (hiddenInput instanceof HTMLInputElement) {
-            hiddenInput.value = values.join(',');
-          }
-        }
-      });
-    });
-
-    // Handle form submission
-    const form = this.shadowRoot.querySelector('form');
-    if (!form) return;
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      if (!(e.target instanceof HTMLFormElement)) return;
-      const formData = new FormData(e.target);
-      const data = Object.fromEntries(formData.entries());
-      
-      try {
-        // TODO: Replace with actual API endpoint
-        const response = await fetch('/api/inquiries', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            ...data,
-            type: 'Event',
-            status: 'New Inquiry',
-            createdTime: new Date().toISOString()
-          })
-        });
-
-        if (response.ok) {
-          // Show success message and redirect to menu suggestions
-          this.dispatchEvent(new CustomEvent('formSubmitted', {
-            detail: { data }
-          }));
-        } else {
-          throw new Error('Failed to submit inquiry');
-        }
-      } catch (error) {
-        console.error('Error submitting form:', error);
-        // TODO: Show error message to user
-      }
-    });
   }
 }
 
