@@ -4,8 +4,8 @@
   "description": "Netlify functions for Santa Barbara Chef Collective",
   "dependencies": {
     "airtable": "^0.12.2",
-    "express": "^4.18.3",
-    "node-fetch": "^2.6.1",
+    "express": "^4.21.2",
+    "node-fetch": "^2.7.0",
     "serverless-http": "^3.2.0"
   },
   "main": "airtable-config.js",
