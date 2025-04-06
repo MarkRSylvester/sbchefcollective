@@ -372,6 +372,121 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Load approved images
     loadApprovedImages();
+
+    // Initialize chef discovery section
+    window.sbccData.initChefDiscovery();
+
+    // Handle contact form submission
+    const contactForm = document.getElementById('contactForm');
+    if (contactForm) {
+        contactForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(contactForm);
+            const data = Object.fromEntries(formData.entries());
+            
+            try {
+                const response = await fetch('/.netlify/functions/api', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'submitContact',
+                        ...data
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                // Show success message
+                contactForm.innerHTML = `
+                    <div class="success-message">
+                        <h3>Thank You!</h3>
+                        <p>Your message has been sent. We'll get back to you soon.</p>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error:', error);
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error';
+                errorDiv.textContent = 'There was an error sending your message. Please try again.';
+                contactForm.prepend(errorDiv);
+            }
+        });
+    }
+
+    // Handle simple inquiry form submission
+    const inquiryForm = document.getElementById('inquiryForm');
+    if (inquiryForm) {
+        inquiryForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(inquiryForm);
+            const data = Object.fromEntries(formData.entries());
+            
+            try {
+                const response = await fetch('/.netlify/functions/api', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'submitInquiry',
+                        ...data
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                // Show success message
+                inquiryForm.innerHTML = `
+                    <div class="success-message">
+                        <h3>Thank You!</h3>
+                        <p>Your inquiry has been submitted successfully. We'll be in touch with you shortly.</p>
+                    </div>
+                `;
+
+                // Close the modal after a delay
+                setTimeout(() => {
+                    document.getElementById('inquiryModal').classList.remove('active');
+                }, 3000);
+            } catch (error) {
+                console.error('Error:', error);
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error';
+                errorDiv.textContent = 'There was an error submitting your inquiry. Please try again.';
+                inquiryForm.prepend(errorDiv);
+            }
+        });
+    }
+
+    // Initialize date inputs with min date of today
+    document.querySelectorAll('input[type="date"]').forEach(input => {
+        const today = new Date().toISOString().split('T')[0];
+        input.min = today;
+    });
+
+    // Handle phone number formatting
+    document.querySelectorAll('input[type="tel"]').forEach(input => {
+        input.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 0) {
+                if (value.length <= 3) {
+                    value = value;
+                } else if (value.length <= 6) {
+                    value = value.slice(0, 3) + '-' + value.slice(3);
+                } else {
+                    value = value.slice(0, 3) + '-' + value.slice(3, 6) + '-' + value.slice(6, 10);
+                }
+                e.target.value = value;
+            }
+        });
+    });
 });
 
 // Initialize journey buttons
