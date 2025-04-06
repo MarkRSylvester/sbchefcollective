@@ -81,12 +81,23 @@ body {
   background-image: url('/assets/images/hero-bg.jpg');
   background-size: cover;
   background-position: center;
-  height: 600px;  /* Increased by 20% from 500px */
+  height: 600px;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   position: relative;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.15);  /* 15% white overlay */
+  z-index: 1;
 }
 
 .hero-content {
@@ -99,13 +110,15 @@ body {
   align-items: center;
   height: 100%;
   justify-content: center;
+  padding-bottom: 2rem;  /* Add some padding at bottom to offset buttons */
 }
 
 .hero-content h2 {
   font-family: 'Playfair Display', serif;
-  font-size: 2rem;  /* Reduced by 20% from 2.5rem */
+  font-size: 2rem;
   margin: 0 0 0.5rem;
   line-height: 1.1;
+  color: #2C3E50;
 }
 
 .hero-content p {
@@ -113,13 +126,13 @@ body {
   font-size: 1.1rem;
   line-height: 1.2;
   color: #2C3E50;
-  margin-bottom: 3rem;  /* Add space before buttons */
+  margin-bottom: 3rem;
 }
 
 /* CTA Buttons per spec */
 .cta-buttons {
   margin-top: auto;
-  margin-bottom: 4rem;  /* Add space from bottom */
+  margin-bottom: 4rem;
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
