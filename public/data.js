@@ -1,5 +1,9 @@
-// @ts-check
-// Content-Type: text/javascript
+/* @ts-check */
+/* Content-Type: text/javascript */
+
+/**
+ * data.js - Fallback data in case the Airtable API connection fails
+ */
 
 /**
  * @typedef {Object} Chef
@@ -27,9 +31,7 @@
  * @property {string} category
  */
 
-// data.js - Fallback data in case the Airtable API connection fails
-
-// Fallback chef data
+/* Fallback chef data */
 /** @type {Chef[]} */
 const FALLBACK_CHEFS = [
   {
@@ -58,7 +60,7 @@ const FALLBACK_CHEFS = [
   }
 ];
 
-// Fallback menu data
+/* Fallback menu data */
 /** @type {Menu[]} */
 const FALLBACK_MENUS = [
   {
@@ -87,7 +89,7 @@ const FALLBACK_MENUS = [
   }
 ];
 
-// Fallback dish data
+/* Fallback dish data */
 /** @type {Record<string, Dish[]>} */
 const FALLBACK_DISHES = {
   "menu1": [
@@ -268,7 +270,7 @@ const FALLBACK_DISHES = {
   ]
 };
 
-// Menu color palette
+/* Menu color palette */
 /** @type {Record<string, string>} */
 const MENU_COLORS = {
     "Brunch in Bloom": "#fff4dc",
