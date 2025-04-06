@@ -2,15 +2,23 @@ const { base } = require('./airtable-config');
 const DubsadoMock = require('./dubsado-mock');
 
 exports.handler = async (event, context) => {
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Content-Type': 'application/json'
+  };
+
   // Only allow POST
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
+      headers,
       body: JSON.stringify({ error: 'Method not allowed' })
     };
   }
 
   try {
+    console.log('Processing inquiry request...');
     const data = JSON.parse(event.body);
     console.log('Received data:', data);
     
@@ -30,8 +38,10 @@ exports.handler = async (event, context) => {
 
     const missingFields = requiredFields.filter(field => !data[field]);
     if (missingFields.length > 0) {
+      console.log('Missing required fields:', missingFields);
       return {
         statusCode: 400,
+        headers,
         body: JSON.stringify({
           error: 'Missing required fields',
           fields: missingFields
@@ -70,6 +80,7 @@ exports.handler = async (event, context) => {
 
     return {
       statusCode: 200,
+      headers,
       body: JSON.stringify({
         message: 'Inquiry submitted successfully',
         airtableId: record.id,
@@ -79,15 +90,21 @@ exports.handler = async (event, context) => {
     };
 
   } catch (error) {
-    console.error('Error details:', {
+    console.error('Error processing inquiry:', {
       name: error.name,
       message: error.message,
-      stack: error.stack
+      stack: error.stack,
+      env: {
+        hasApiKey: !!process.env.AIRTABLE_API_KEY,
+        apiKeyLength: process.env.AIRTABLE_API_KEY?.length,
+        hasBaseId: !!process.env.AIRTABLE_BASE_ID
+      }
     });
 
     if (error.message?.includes('AUTHENTICATION_REQUIRED')) {
       return {
         statusCode: 401,
+        headers,
         body: JSON.stringify({
           error: 'Authentication failed',
           details: 'Invalid Airtable API key'
@@ -98,6 +115,7 @@ exports.handler = async (event, context) => {
     if (error.message?.includes('NOT_FOUND')) {
       return {
         statusCode: 404,
+        headers,
         body: JSON.stringify({
           error: 'Resource not found',
           details: 'Airtable base or table not found'
@@ -107,6 +125,7 @@ exports.handler = async (event, context) => {
 
     return {
       statusCode: 500,
+      headers,
       body: JSON.stringify({
         error: 'Internal server error',
         details: error.message
