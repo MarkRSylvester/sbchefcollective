@@ -1,3 +1,6 @@
+// @ts-check
+// Content-Type: text/javascript
+
 // data.js - Fallback data in case the Airtable API connection fails
 
 // Fallback chef data
