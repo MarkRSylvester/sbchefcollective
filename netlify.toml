@@ -2,32 +2,10 @@
   functions = "netlify/functions"
   publish = "public"
 
-[build.processing]
-  skip_processing = false
-  
-[build.processing.css]
-  bundle = true
-  minify = true
-
-[build.processing.js]
-  bundle = true
-  minify = true
-
-[build.processing.html]
-  pretty_urls = true
-
-[build.processing.images]
-  compress = true
-
 [dev]
   functions = "netlify/functions"
   publish = "public"
   port = 8888
-
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
 
 [[headers]]
   for = "/*.js"
@@ -44,75 +22,14 @@
   [headers.values]
     Content-Type = "application/manifest+json"
 
-[[headers]]
-  for = "/components/*.js"
-  [headers.values]
-    Content-Type = "text/javascript"
-
-[[headers]]
-  for = "/assets/js/*.js"
-  [headers.values]
-    Content-Type = "text/javascript"
-
-# Handle static files first - NO redirects for these, let them be served directly
 [[redirects]]
-  from = "/*.js"
-  to = "/:splat"
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
   status = 200
-  force = false
 
-[[redirects]]
-  from = "/*.css"
-  to = "/:splat"
-  status = 200
-  force = false
-
-[[redirects]]
-  from = "/*.webmanifest"
-  to = "/:splat"
-  status = 200
-  force = false
-
-[[redirects]]
-  from = "/assets/*"
-  to = "/assets/:splat"
-  status = 200
-  force = false
-
-[[redirects]]
-  from = "/components/*"
-  to = "/components/:splat"
-  status = 200
-  force = false
-
-# Finally, catch-all for SPA routing
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
   force = true
   conditions = {Path = {match = "^(?!.*\\.(js|css|png|jpg|svg|webmanifest)$)"}}
-
-[[headers]]
-  for = "*.css"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000"
-
-[[headers]]
-  for = "*.js"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000"
-
-[[headers]]
-  for = "*.webmanifest"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000"
-
-[[headers]]
-  for = "*.html"
-  [headers.values]
-    Content-Type = "text/html; charset=utf-8"
-    Cache-Control = "public, max-age=0, must-revalidate"
-
-[functions]
-  node_bundler = "esbuild"
