@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SBCC Color Palette</title>
+    <title>SBCC Color Demo</title>
     <style>
         * {
             margin: 0;
@@ -13,112 +13,173 @@
         }
 
         body {
+            background: #a8caff; /* Santorini Blue as main background */
+            min-height: 100vh;
             padding: 2rem;
-            background: #f5f5f5;
         }
 
-        h1 {
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header Demo */
+        .header-demo {
+            background: white;
+            padding: 2rem;
             margin-bottom: 2rem;
-            color: #2C3E50;
-        }
-
-        .color-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-        }
-
-        .color-swatch {
-            padding: 2rem;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            background: white;
         }
 
-        .color-box {
-            height: 150px;
-            border-radius: 4px;
-            margin-bottom: 1rem;
-        }
-
-        .color-info {
-            font-size: 1.1rem;
-            line-height: 1.6;
-        }
-
-        .color-name {
-            font-weight: bold;
+        .header-demo h1 {
+            color: #2C3E50; /* Primary Color */
             margin-bottom: 0.5rem;
         }
 
-        .color-hex {
-            font-family: monospace;
-            color: #666;
+        .header-demo p {
+            color: #3F7D1A; /* Fresh Basil for tagline */
+            font-size: 1.2rem;
         }
 
-        .color-usage {
-            margin-top: 0.5rem;
-            font-size: 0.9rem;
-            color: #666;
+        /* Content Demo */
+        .content-demo {
+            background: white;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .content-demo h2 {
+            color: #2C3E50; /* Primary Color */
+            margin-bottom: 1rem;
+        }
+
+        .content-demo p {
+            color: #333333; /* Text Color */
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        /* Button Demo */
+        .button-demo {
+            background: white;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .cta-btn {
+            background: #3F7D1A; /* Fresh Basil */
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-right: 1rem;
+        }
+
+        .cta-btn:hover {
+            background: #2F5E13; /* Darker Fresh Basil */
+        }
+
+        /* Form Demo */
+        .form-demo {
+            background: white;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            color: #2C3E50; /* Primary Color */
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #dee2e6; /* Border Color */
+            border-radius: 4px;
+        }
+
+        /* Footer Demo */
+        .footer-demo {
+            background: #E6DFD3; /* Sandstone */
+            padding: 2rem;
+            border-radius: 8px;
+            color: #2C3E50; /* Primary Color */
+        }
+
+        .footer-demo h3 {
+            margin-bottom: 1rem;
+        }
+
+        .footer-demo p {
+            margin-bottom: 1rem;
+        }
+
+        .footer-demo a {
+            color: #3F7D1A; /* Fresh Basil */
+            text-decoration: none;
+        }
+
+        .footer-demo a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <h1>Santa Barbara Chef Collective - Color Palette</h1>
-    
-    <div class="color-grid">
-        <div class="color-swatch">
-            <div class="color-box" style="background: #2C3E50;"></div>
-            <div class="color-info">
-                <div class="color-name">Primary Color</div>
-                <div class="color-hex">#2C3E50</div>
-                <div class="color-usage">Used for main text and headings</div>
+    <div class="container">
+        <!-- Header Example -->
+        <div class="header-demo">
+            <h1>Santa Barbara Chef Collective</h1>
+            <p>Extraordinary Culinary Experiences</p>
+        </div>
+
+        <!-- Content Example -->
+        <div class="content-demo">
+            <h2>Welcome to SBCC</h2>
+            <p>Experience the finest culinary creations from Santa Barbara's most talented chefs. Our collective brings together passionate culinary artists dedicated to creating unforgettable dining experiences.</p>
+        </div>
+
+        <!-- Button Example -->
+        <div class="button-demo">
+            <h2>Button Styles</h2>
+            <p style="margin-bottom: 1rem;">Primary action buttons use Fresh Basil color:</p>
+            <button class="cta-btn">Book a Chef</button>
+            <button class="cta-btn">Contact Us</button>
+        </div>
+
+        <!-- Form Example -->
+        <div class="form-demo">
+            <h2>Form Elements</h2>
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" placeholder="Enter your name">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" placeholder="Enter your email">
             </div>
         </div>
 
-        <div class="color-swatch">
-            <div class="color-box" style="background: #3F7D1A;"></div>
-            <div class="color-info">
-                <div class="color-name">Fresh Basil (Accent)</div>
-                <div class="color-hex">#3F7D1A</div>
-                <div class="color-usage">Used for buttons and tagline</div>
-            </div>
-        </div>
-
-        <div class="color-swatch">
-            <div class="color-box" style="background: #a8caff;"></div>
-            <div class="color-info">
-                <div class="color-name">Santorini Blue</div>
-                <div class="color-hex">#a8caff</div>
-                <div class="color-usage">Used for background color</div>
-            </div>
-        </div>
-
-        <div class="color-swatch">
-            <div class="color-box" style="background: #E6DFD3;"></div>
-            <div class="color-info">
-                <div class="color-name">Sandstone</div>
-                <div class="color-hex">#E6DFD3</div>
-                <div class="color-usage">Used for footer background</div>
-            </div>
-        </div>
-
-        <div class="color-swatch">
-            <div class="color-box" style="background: #333333;"></div>
-            <div class="color-info">
-                <div class="color-name">Text Color</div>
-                <div class="color-hex">#333333</div>
-                <div class="color-usage">Used for general text content</div>
-            </div>
-        </div>
-
-        <div class="color-swatch">
-            <div class="color-box" style="background: #dee2e6;"></div>
-            <div class="color-info">
-                <div class="color-name">Border Color</div>
-                <div class="color-hex">#dee2e6</div>
-                <div class="color-usage">Used for borders and dividers</div>
-            </div>
+        <!-- Footer Example -->
+        <div class="footer-demo">
+            <h3>Contact Us</h3>
+            <p>Santa Barbara Chef Collective</p>
+            <p><a href="#">info@sbchefcollective.com</a></p>
+            <p><a href="#">(805) 555-0123</a></p>
         </div>
     </div>
 </body>
