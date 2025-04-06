@@ -1,9 +1,10 @@
 :root {
   --primary-color: #2C3E50;
-  --accent-color: #E67E22;
+  --accent-color: #3F7D1A; /* Fresh Basil */
   --text-color: #333333;
-  --light-bg: #f8f9fa;
+  --light-bg: #a8caff; /* Santorini Blue */
   --border-color: #dee2e6;
+  --footer-bg: #E6DFD3; /* Sandstone */
 }
 
 * {
@@ -27,7 +28,7 @@ body {
 /* Header Styles */
 .site-header {
   background: white;
-  padding: 1rem 0;
+  padding: 2rem 0; /* Increased to 2" */
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
@@ -49,7 +50,7 @@ body {
 
 .header-text p {
   font-size: 1.2rem;
-  color: var(--accent-color);
+  color: var(--accent-color); /* Updated to Fresh Basil */
 }
 
 /* Hero Section */
@@ -90,7 +91,7 @@ body {
 }
 
 .cta-btn {
-  background: var(--accent-color);
+  background: var(--accent-color); /* Updated to Fresh Basil */
   color: white;
   padding: 1rem 2rem;
   border: none;
@@ -101,7 +102,7 @@ body {
 }
 
 .cta-btn:hover {
-  background: #d35400;
+  background: #2F5E13; /* Darker shade of Fresh Basil */
 }
 
 /* Modal Styles */
@@ -178,8 +179,8 @@ body {
 
 /* Footer Styles */
 footer {
-  background: var(--primary-color);
-  color: white;
+  background: var(--footer-bg); /* Updated to Sandstone */
+  color: var(--primary-color); /* Updated text color for better contrast */
   padding: 4rem 0 2rem;
 }
 
@@ -206,7 +207,7 @@ footer {
 }
 
 .contact-info a {
-  color: white;
+  color: var(--primary-color); /* Updated for better contrast */
   text-decoration: none;
 }
 
@@ -215,7 +216,7 @@ footer {
 }
 
 .social-links a {
-  color: white;
+  color: var(--primary-color); /* Updated for better contrast */
   font-size: 1.5rem;
   margin-right: 1rem;
 }
