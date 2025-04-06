@@ -283,6 +283,17 @@ exports.handler = async (event) => {
                     type: getField(record, 'Type')
                 }));
                 break;
+
+            case 'getImages':
+                processedRecords = data.records.map(record => ({
+                    id: record.id,
+                    url: getPhotoUrl(record, 'URL'),
+                    filename: getField(record, 'Filename'),
+                    moodTags: getField(record, 'Mood Tags'),
+                    useCase: getField(record, 'Use Case'),
+                    paletteTag: getField(record, 'Palette Tag')
+                }));
+                break;
         }
 
         return {
