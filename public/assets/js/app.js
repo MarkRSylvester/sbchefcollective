@@ -38,39 +38,134 @@ let approvedImages = {
     SERVICE: []
 };
 
+// Main event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    initializeEventListeners();
+    loadApprovedImages();
+});
+
+function initializeEventListeners() {
+    // CTA Buttons
+    document.querySelectorAll('.cta-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const action = e.target.dataset.action;
+            handleCTAClick(action);
+        });
+    });
+
+    // Modal Close Buttons
+    document.querySelectorAll('.modal-close').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const modal = e.target.closest('.modal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        });
+    });
+
+    // Modal Outside Click
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+    });
+
+    // Inquiry Form
+    const inquiryForm = document.getElementById('inquiryForm');
+    if (inquiryForm) {
+        inquiryForm.addEventListener('submit', handleInquirySubmit);
+    }
+}
+
+async function handleInquirySubmit(e) {
+    e.preventDefault();
+    
+    const form = e.target;
+    const submitBtn = form.querySelector('.submit-btn');
+    const originalBtnText = submitBtn.textContent;
+    
+    try {
+        // Show loading state
+        submitBtn.textContent = 'Sending...';
+        submitBtn.disabled = true;
+
+        // Gather form data
+        const formData = {
+            name: form.name.value,
+            email: form.email.value,
+            phone: form.phone.value,
+            eventType: form.eventType.value,
+            guestCount: form.guestCount.value,
+            eventDate: form.eventDate.value,
+            eventTime: '12:00', // Default time
+            budgetPerPerson: '100', // Default budget
+            cuisinePreferences: 'To be discussed' // Default preferences
+        };
+
+        // Submit to API
+        const response = await fetch('/.netlify/functions/inquiries', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to submit inquiry');
+        }
+
+        // Show success message
+        form.innerHTML = `
+            <div class="success-message">
+                <h3>Thank You!</h3>
+                <p>We've received your inquiry and will be in touch soon.</p>
+            </div>
+        `;
+
+    } catch (error) {
+        console.error('Error submitting inquiry:', error);
+        
+        // Show error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.textContent = 'There was an error submitting your inquiry. Please try again.';
+        form.insertBefore(errorDiv, submitBtn);
+        
+        // Reset button
+        submitBtn.textContent = originalBtnText;
+        submitBtn.disabled = false;
+    }
+}
+
+function handleCTAClick(action) {
+    switch (action) {
+        case 'explore-chefs':
+            window.location.href = '#chefDiscovery';
+            break;
+        case 'browse-menus':
+            window.location.href = '#menuSection';
+            break;
+        case 'learn-more':
+            document.getElementById('howItWorksModal').classList.add('active');
+            break;
+        default:
+            console.log('Unknown action:', action);
+    }
+}
+
 // Load approved images from Airtable
 async function loadApprovedImages() {
     try {
-        console.log('Fetching approved images from Airtable...');
-        const response = await fetch('/.netlify/functions/api?action=getImages');
-        if (!response.ok) throw new Error('Failed to fetch images');
-        
+        const response = await fetch('/.netlify/functions/api-v2?action=getImages');
+        if (!response.ok) {
+            throw new Error('Failed to fetch images');
+        }
         const images = await response.json();
-        console.log('Received images:', images);
-        
-        // Reset the approvedImages object
-        approvedImages = {
-            HERO: [],
-            BG: [],
-            MENU: [],
-            SERVICE: []
-        };
-        
-        // Organize images by use case
-        images.forEach(image => {
-            const useCase = image.useCase?.toUpperCase();
-            if (useCase && approvedImages.hasOwnProperty(useCase)) {
-                approvedImages[useCase].push(image);
-                console.log(`Added ${image.filename} to ${useCase} category`);
-            }
-        });
-
-        // Update images in the UI
-        updateUIImages();
-
-        console.log('Approved images loaded:', approvedImages);
+        console.log('Loaded approved images:', images);
+        // TODO: Apply images to appropriate sections
     } catch (error) {
-        console.error('Error loading approved images:', error);
+        console.error('Error loading images:', error);
     }
 }
 
@@ -1100,26 +1195,6 @@ function handleHeaderScroll() {
     } else {
         header.style.background = 'transparent';
         header.style.backdropFilter = 'none';
-    }
-}
-
-// Handle CTA button clicks
-function handleCTAClick(action) {
-    switch(action) {
-        case 'explore-chefs':
-            document.getElementById('chefDiscovery').classList.remove('hidden');
-            document.getElementById('chefDiscovery').scrollIntoView({ behavior: 'smooth' });
-            break;
-        case 'browse-menus':
-            // Show menus section or open menu modal
-            const menuModal = document.getElementById('menuModal');
-            if (menuModal) {
-                menuModal.classList.add('active');
-            }
-            break;
-        case 'learn-more':
-            showHowItWorks();
-            break;
     }
 }
 
