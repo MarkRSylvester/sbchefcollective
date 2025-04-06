@@ -43,8 +43,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Inter', sans-serif;
-  background: url('assets/images/ocean-bg.jpg') no-repeat center center fixed;
-  background-size: cover;
+  background-color: var(--secondary-color);  /* Fallback color */
   color: var(--text-color);
   line-height: 1.6;
 }
@@ -53,12 +52,30 @@ body {
   padding: 4rem 2rem;
   text-align: center;
   background: var(--main-overlay);
+  background-image: url('/assets/images/ocean-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
   margin-bottom: 2rem;
+  position: relative;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--main-overlay);
+  z-index: 1;
 }
 
 .hero-content {
   max-width: 800px;
   margin: 0 auto;
+  position: relative;
+  z-index: 2;
 }
 
 .logo {
