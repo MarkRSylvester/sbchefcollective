@@ -400,48 +400,88 @@ function setMinDate() {
     document.getElementById('eventDate').setAttribute('min', minDate);
 }
 
-// Initialize form
+// Initialize event form
 function initializeEventForm() {
     console.log('Initializing event form...');
     setMinDate();
     
-    // Ensure event type is loaded first
-    const eventTypeSelect = document.getElementById('eventType');
-    console.log('Event type select element:', eventTypeSelect);
-    
-    if (eventTypeSelect) {
-        const eventTypes = [
-            'Dinner Party',
-            'Boutique Wedding',
-            'Retreat',
-            'Birthday Celebration',
-            'Anniversary',
-            'Holiday Gathering',
-            'Corporate Event',
-            'Cooking Class',
-            'Wine Pairing',
-            'Other'
-        ];
-        
-        console.log('Loading event types:', eventTypes);
-        eventTypeSelect.innerHTML = '<option value="">Select Event Type</option>';
-        eventTypes.forEach(type => {
-            const option = document.createElement('option');
-            option.value = type;
-            option.textContent = type;
-            eventTypeSelect.appendChild(option);
-        });
-        console.log('Event types loaded');
-    } else {
-        console.error('Event type select element not found');
-    }
-    
-    // Load other form elements
+    // Load cuisine preferences
     loadCuisinePreferences();
+    
+    // Load vibe words
     loadVibeWords();
     
     // Form validation
     const form = document.getElementById('eventForm');
+    if (!form) return;
+    
+    const requiredFields = form.querySelectorAll('[required]');
+    const submitBtn = form.querySelector('.submit-btn');
+
+    // Add validation to required fields
+    requiredFields.forEach(field => {
+        field.addEventListener('blur', () => validateField(field));
+        field.addEventListener('input', () => validateField(field));
+    });
+
+    // Form submission
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        let isValid = true;
+
+        // Validate all required fields
+        requiredFields.forEach(field => {
+            if (!validateField(field)) {
+                isValid = false;
+            }
+        });
+
+        // Check if at least one cuisine preference is selected
+        const cuisineChecked = form.querySelector('input[name="Cuisine Preference"]:checked');
+        if (!cuisineChecked) {
+            isValid = false;
+            showErrorMessage('Please select at least one cuisine preference');
+            return;
+        }
+
+        if (!isValid) {
+            const firstInvalid = form.querySelector('.invalid');
+            if (firstInvalid) {
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            return;
+        }
+    
+        // Show loading state
+        submitBtn.classList.add('loading');
+        submitBtn.disabled = true;
+
+        try {
+            await submitForm(form);
+            showSuccessMessage();
+            form.reset();
+        } catch (error) {
+            showErrorMessage(error.message);
+        } finally {
+            submitBtn.classList.remove('loading');
+            submitBtn.disabled = false;
+        }
+    });
+}
+
+// Initialize weekly form
+function initializeWeeklyForm() {
+    console.log('Initializing weekly form...');
+    
+    const form = document.getElementById('weeklyForm');
+    if (!form) return;
+    
+    // Load cuisine preferences for weekly service
+    const cuisinePrefs = document.getElementById('weeklyCuisinePrefs');
+    if (cuisinePrefs) {
+        loadCuisinePreferences(cuisinePrefs);
+    }
+    
     const requiredFields = form.querySelectorAll('[required]');
     const submitBtn = form.querySelector('.submit-btn');
 
@@ -464,26 +504,88 @@ function initializeEventForm() {
         });
 
         if (!isValid) {
-            // Find first invalid field and scroll to it
             const firstInvalid = form.querySelector('.invalid');
             if (firstInvalid) {
                 firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
-      return;
-    }
+            return;
+        }
     
         // Show loading state
         submitBtn.classList.add('loading');
         submitBtn.disabled = true;
 
         try {
-            // Your form submission logic here
             await submitForm(form);
-            
-            // Show success message
             showSuccessMessage();
             form.reset();
-    } catch (error) {
+        } catch (error) {
+            showErrorMessage(error.message);
+        } finally {
+            submitBtn.classList.remove('loading');
+            submitBtn.disabled = false;
+        }
+    });
+}
+
+// Initialize exploring journey
+function initializeExploringJourney() {
+    console.log('Initializing exploring journey...');
+    
+    // Load chefs
+    const chefsGrid = document.getElementById('chefsList');
+    if (chefsGrid) {
+        loadChefs(chefsGrid);
+    }
+    
+    // Load menus
+    const menusGrid = document.getElementById('menusList');
+    if (menusGrid) {
+        loadMenus(menusGrid);
+    }
+    
+    // Initialize the exploring form
+    const form = document.getElementById('exploringForm');
+    if (!form) return;
+    
+    const requiredFields = form.querySelectorAll('[required]');
+    const submitBtn = form.querySelector('.submit-btn');
+
+    // Add validation to required fields
+    requiredFields.forEach(field => {
+        field.addEventListener('blur', () => validateField(field));
+        field.addEventListener('input', () => validateField(field));
+    });
+
+    // Form submission
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        let isValid = true;
+
+        // Validate all required fields
+        requiredFields.forEach(field => {
+            if (!validateField(field)) {
+                isValid = false;
+            }
+        });
+
+        if (!isValid) {
+            const firstInvalid = form.querySelector('.invalid');
+            if (firstInvalid) {
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            return;
+        }
+    
+        // Show loading state
+        submitBtn.classList.add('loading');
+        submitBtn.disabled = true;
+
+        try {
+            await submitForm(form);
+            showSuccessMessage();
+            form.reset();
+        } catch (error) {
             showErrorMessage(error.message);
         } finally {
             submitBtn.classList.remove('loading');
@@ -574,353 +676,6 @@ async function submitForm(form) {
     }
 
     return await response.json();
-}
-
-// Weekly form submission
-function initializeWeeklyForm() {
-    const weeklyForm = document.getElementById('weeklyForm');
-    
-    // Initialize meal types dropdown
-    loadMealTypes();
-    
-    // Initialize days of the week
-    loadDaysOfWeek();
-    
-    weeklyForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const submitBtn = weeklyForm.querySelector('.submit-btn');
-        submitBtn.classList.add('loading');
-        submitBtn.disabled = true;
-        
-        try {
-            // Collect form data
-            const formData = new FormData(weeklyForm);
-            const data = {
-                'Type': 'Weekly',
-                'Status': 'New'
-            };
-            
-            // Process form data
-            formData.forEach((value, key) => {
-                // Handle checkbox groups
-                if (key === 'Days of Week' || key === 'Meal Types') {
-                    if (!data[key]) {
-                        data[key] = [];
-                    }
-                    data[key].push(value);
-                } else {
-                    data[key] = value;
-                }
-            });
-            
-            console.log('Submitting weekly form data:', data);
-            
-            const response = await fetch(`${API_ENDPOINT}?action=submitInquiry`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-            
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-            }
-            
-            const result = await response.json();
-            showWeeklySuccessMessage(weeklyForm);
-            weeklyForm.reset();
-            
-        } catch (error) {
-            console.error('Error submitting form:', error);
-            showWeeklyErrorMessage(error.message || 'Sorry, there was an error submitting your inquiry. Please try again.', weeklyForm);
-        } finally {
-            submitBtn.remove('loading');
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = 'Submit Inquiry';
-        }
-    });
-}
-
-function showWeeklySuccessMessage(form) {
-    // Remove any existing messages
-    const existingMessages = document.querySelectorAll('.success-message, .error-message');
-    existingMessages.forEach(msg => msg.remove());
-    
-    const successMessage = document.createElement('div');
-    successMessage.className = 'success-message fade-in';
-    successMessage.innerHTML = `
-        <h3>Thank You!</h3>
-        <p>Your weekly meal service inquiry has been submitted successfully. We'll be in touch within 24 hours.</p>
-    `;
-    
-    form.parentNode.insertBefore(successMessage, form);
-    form.style.display = 'none';
-    
-    // Scroll to success message
-    successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
-
-function showWeeklyErrorMessage(message, form) {
-    // Remove any existing messages
-    const existingMessages = document.querySelectorAll('.success-message, .error-message');
-    existingMessages.forEach(msg => msg.remove());
-    
-    const errorMessage = document.createElement('div');
-    errorMessage.className = 'error-message fade-in';
-    errorMessage.textContent = message || 'Something went wrong. Please try again.';
-    
-    const submitBtn = form.querySelector('.submit-btn');
-    form.insertBefore(errorMessage, submitBtn);
-    
-    // Scroll to error message
-    errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    
-    // Remove error message after 5 seconds
-    setTimeout(() => {
-        errorMessage.classList.add('fade-out');
-        setTimeout(() => errorMessage.remove(), 300);
-    }, 5000);
-}
-
-function loadMealTypes() {
-    const mealTypesContainer = document.getElementById('mealTypes');
-    if (!mealTypesContainer) return;
-    
-    const mealTypes = [
-        'Breakfast',
-        'Lunch',
-        'Dinner',
-        'Snacks',
-        'Desserts'
-    ];
-    
-    mealTypesContainer.innerHTML = '';
-    mealTypes.forEach(type => {
-        const label = document.createElement('label');
-        label.className = 'checkbox-label';
-        label.innerHTML = `
-            <input type="checkbox" name="Meal Types" value="${type}">
-            <span class="checkbox-text">${type}</span>
-        `;
-        mealTypesContainer.appendChild(label);
-    });
-}
-
-function loadDaysOfWeek() {
-    const daysContainer = document.getElementById('daysOfWeek');
-    if (!daysContainer) return;
-    
-    const days = [
-        'Monday',
-        'Tuesday',
-        'Wednesday',
-        'Thursday',
-        'Friday',
-        'Saturday',
-        'Sunday'
-    ];
-    
-    daysContainer.innerHTML = '';
-    days.forEach(day => {
-        const label = document.createElement('label');
-        label.className = 'checkbox-label';
-        label.innerHTML = `
-            <input type="checkbox" name="Days of Week" value="${day}">
-            <span class="checkbox-text">${day}</span>
-        `;
-        daysContainer.appendChild(label);
-    });
-}
-
-// Exploring Journey
-function initializeExploringJourney() {
-    const exploringContent = document.querySelector('.exploring-content');
-    const contentContainers = document.querySelectorAll('.content-container');
-    
-    document.querySelectorAll('.action-tile').forEach(tile => {
-        tile.addEventListener('click', () => {
-            const action = tile.dataset.action;
-            
-            // Hide exploring content and all content containers first
-            exploringContent.style.display = 'none';
-            contentContainers.forEach(container => {
-                container.style.display = 'none';
-            });
-            
-            switch(action) {
-                case 'viewChefs':
-                    const chefsContainer = document.getElementById('chefsContainer');
-                    chefsContainer.style.display = 'block';
-                    loadChefs();
-                    break;
-                case 'viewMenus':
-                    const menusContainer = document.getElementById('menusContainer');
-                    menusContainer.style.display = 'block';
-                    loadMenus();
-                    break;
-                case 'learnMore':
-                    const servicesContainer = document.getElementById('servicesContainer');
-                    servicesContainer.style.display = 'block';
-                    loadServices();
-                    break;
-            }
-            
-            // Add back button
-            if (!document.querySelector('.back-to-exploring')) {
-                const backButton = document.createElement('button');
-                backButton.className = 'back-to-exploring';
-                backButton.textContent = '← Back to Exploring';
-                backButton.addEventListener('click', () => {
-                    contentContainers.forEach(container => {
-                        container.style.display = 'none';
-                    });
-                    exploringContent.style.display = 'block';
-                    backButton.remove();
-                });
-                document.getElementById('exploringJourney').insertBefore(backButton, document.querySelector('.content-container'));
-            }
-        });
-    });
-    
-    const quickForm = document.getElementById('quickInquiryForm');
-    if (quickForm) {
-        quickForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const submitButton = quickForm.querySelector('.submit-btn');
-            submitButton.disabled = true;
-            submitButton.classList.add('loading');
-            submitButton.textContent = 'Sending...';
-            
-            const formData = new FormData(quickForm);
-            const data = {
-                'Type': 'Quick Inquiry',
-                'Status': 'New'
-            };
-            
-            formData.forEach((value, key) => {
-                data[key] = value;
-            });
-            
-            try {
-                const response = await fetch(`${API_ENDPOINT}?action=submitInquiry`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-                const result = await response.json();
-                showSuccessMessage('Thank you! We will contact you shortly.');
-                quickForm.reset();
-                
-            } catch (error) {
-                console.error('Error submitting form:', error);
-                showErrorMessage('Sorry, there was an error submitting your inquiry. Please try again.');
-            } finally {
-                submitButton.disabled = false;
-                submitButton.classList.remove('loading');
-                submitButton.textContent = 'Send Message';
-            }
-        });
-    }
-}
-
-async function loadCuisinePreferences() {
-    const container = document.getElementById('cuisinePreferences');
-    const cuisines = [
-        'California / Farm-to-Table',
-        'Mediterranean',
-        'Mexican',
-        'Paella',
-        'Pasta & Salads',
-        'Sushi',
-        'Seafood',
-        'Greek',
-        'Asian-Inspired',
-        'Pizza',
-        'BBQ',
-        'Brunch',
-        'Holiday',
-        'Cocktail Party',
-        'Vegetarian / Plant-Based'
-    ];
-    
-    container.innerHTML = `
-        <h4>Cuisine Preferences</h4>
-        <p class="helper-text">Select all cuisines that interest you for your event</p>
-        ${cuisines.map(cuisine => `
-            <label class="checkbox-label">
-                <input type="checkbox" name="Cuisine Preference" value="${cuisine}">
-                <span class="checkmark"></span>
-                ${cuisine}
-            </label>
-        `).join('')}
-    `;
-}
-
-async function loadVibeWords() {
-    const container = document.getElementById('vibeWords');
-    const vibes = [
-        'Elegant',
-        'Casual',
-        'Romantic',
-        'Family-Friendly',
-        'Cozy & Intimate',
-        'Luxurious',
-        'Seasonal / Farm-Fresh',
-        'Coastal / Beachy',
-        'Creative & Bold',
-        'Wellness-Focused',
-        'Rustic',
-        'Festive & Fun',
-        'Sophisticated',
-        'Minimalist'
-    ];
-    
-    container.innerHTML = `
-        <h4>Event Vibe</h4>
-        <p class="helper-text">Choose words that best describe your desired event atmosphere</p>
-        ${vibes.map(vibe => `
-            <label class="checkbox-label">
-                <input type="checkbox" name="Event Vibe" value="${vibe}">
-                <span class="checkmark"></span>
-                ${vibe}
-            </label>
-        `).join('')}
-    `;
-}
-
-async function loadOptionalServices() {
-    try {
-        const response = await fetch(`${API_ENDPOINT}?action=getServices`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        
-        const services = await response.json();
-        const container = document.getElementById('optionalServices');
-        
-        services
-            .filter(service => service.type === 'Enhancement')
-            .forEach(service => {
-                const label = document.createElement('label');
-                label.innerHTML = `
-                    <input type="checkbox" name="Optional Services" value="${service.name}">
-                    ${service.name}
-                `;
-                container.appendChild(label);
-            });
-            
-    } catch (error) {
-        console.error('Error loading services:', error);
-    }
 }
 
 // Load Content Functions
