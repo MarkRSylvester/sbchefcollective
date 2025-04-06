@@ -19,53 +19,16 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
+    Access-Control-Max-Age = "86400"
 
 [functions]
   node_bundler = "esbuild"
 
-[[headers]]
-  for = "/*"
-  [headers.values]
-    Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
-    Access-Control-Allow-Headers = "Content-Type, Authorization"
-    Access-Control-Max-Age = "86400"
-
-[[headers]]
-  for = "/.netlify/functions/*"
-  [headers.values]
-    Content-Type = "application/json"
-    Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
-    Access-Control-Allow-Headers = "Content-Type, Authorization"
-    Access-Control-Max-Age = "86400"
-
 [[redirects]]
   from = "/*"
-  to = "/index.html"
-  status = 200
-  force = false
-
-# Add a specific rule for the Airtable function
-[[redirects]]
-  from = "netlify/functions/airtable"
-  to = "netlify/functions/airtable"
+  to = "/final-index.html"
   status = 200
   force = true
-  conditions = {Path = ["netlify/functions/airtable"]}
-
-# Add a specific rule for the API function
-[[redirects]]
-  from = "netlify/functions/api"
-  to = "netlify/functions/api"
-  status = 200
-  force = true
-  conditions = {Path = ["netlify/functions/api"]}
-
-# Protect API endpoints
-[[headers]]
-  for = "/.netlify/functions/*"
-  [headers.values]
-    Access-Control-Allow-Origin = "https://sbchefcollective-march31.netlify.app"
-    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
-    Access-Control-Allow-Headers = "Content-Type"
