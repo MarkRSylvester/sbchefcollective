@@ -248,21 +248,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Handle CTA button clicks
     document.querySelectorAll('.cta-btn').forEach(button => {
-        button.addEventListener('click', (e) => {
-            const action = e.target.dataset.action;
-            
-            switch(action) {
-                case 'explore-chefs':
-                    window.location.href = '/chefs';
-                    break;
-                case 'browse-menus':
-                    window.location.href = '/menus';
-                    break;
-                case 'learn-more':
-                    // Show "How It Works" modal
-                    showHowItWorksModal();
-                    break;
-            }
+        button.addEventListener('click', () => {
+            const action = button.dataset.action;
+            handleCTAClick(action);
         });
     });
 
@@ -283,17 +271,11 @@ document.addEventListener('DOMContentLoaded', () => {
         hero.style.backgroundPositionY = `${scrolled * 0.5}px`;
     });
 
-    // Add header transparency effect on scroll
-    window.addEventListener('scroll', () => {
-        const header = document.querySelector('.site-header');
-        if (window.scrollY > 100) {
-            header.style.background = 'rgba(28, 61, 44, 0.95)';
-        } else {
-            header.style.background = 'rgba(28, 61, 44, 0.9)';
-        }
-    });
+    // Handle header transparency on scroll
+    window.addEventListener('scroll', handleHeaderScroll);
+    handleHeaderScroll(); // Initial call
 
-    // Initialize image loading
+    // Load approved images
     loadApprovedImages();
 });
 
@@ -1064,50 +1046,81 @@ function createChefCard(chef) {
   return card;
 }
 
-function showHowItWorksModal() {
-  // Create modal HTML
+function showHowItWorks() {
   const modal = document.createElement('div');
-  modal.className = 'modal how-it-works-modal';
+  modal.className = 'modal active';
   modal.innerHTML = `
     <div class="modal-content">
-      <button class="modal-close">&times;</button>
-      <h2>How It Works</h2>
-      <div class="process-steps">
-        <div class="step">
-          <h3>1. Initial Consultation</h3>
-          <p>Share your vision, preferences, and requirements with us.</p>
+        <button class="modal-close">&times;</button>
+        <h2>How It Works</h2>
+        <div class="steps-container">
+            <div class="step">
+                <h3>1. Choose Your Experience</h3>
+                <p>Select from private chef services, event catering, cooking classes, or weekly meal preparation.</p>
+            </div>
+            <div class="step">
+                <h3>2. Meet Your Chef</h3>
+                <p>Browse our curated selection of talented local chefs and find the perfect match for your culinary needs.</p>
+            </div>
+            <div class="step">
+                <h3>3. Customize Your Menu</h3>
+                <p>Work with your chef to create a personalized menu that matches your tastes and dietary preferences.</p>
+            </div>
+            <div class="step">
+                <h3>4. Enjoy the Experience</h3>
+                <p>Relax and savor the exceptional culinary experience crafted just for you.</p>
+            </div>
         </div>
-        <div class="step">
-          <h3>2. Chef Selection</h3>
-          <p>We'll match you with the perfect chef based on your needs.</p>
-        </div>
-        <div class="step">
-          <h3>3. Menu Creation</h3>
-          <p>Your chef will craft a personalized menu just for you.</p>
-        </div>
-        <div class="step">
-          <h3>4. Experience</h3>
-          <p>Enjoy an extraordinary culinary experience in your home.</p>
-        </div>
-      </div>
     </div>
   `;
-
-  // Add modal to page
   document.body.appendChild(modal);
 
-  // Add close functionality
+  // Close button functionality
   const closeBtn = modal.querySelector('.modal-close');
   closeBtn.addEventListener('click', () => {
-    modal.remove();
+      modal.remove();
   });
 
   // Close on outside click
   modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      modal.remove();
-    }
+      if (e.target === modal) {
+          modal.remove();
+      }
   });
+}
+
+// Handle header transparency on scroll
+function handleHeaderScroll() {
+    const header = document.querySelector('.site-header');
+    const scrollPosition = window.scrollY;
+    
+    if (scrollPosition > 50) {
+        header.style.background = 'rgba(74, 144, 167, 0.95)';
+        header.style.backdropFilter = 'blur(10px)';
+    } else {
+        header.style.background = 'transparent';
+        header.style.backdropFilter = 'none';
+    }
+}
+
+// Handle CTA button clicks
+function handleCTAClick(action) {
+    switch(action) {
+        case 'explore-chefs':
+            document.getElementById('chefDiscovery').classList.remove('hidden');
+            document.getElementById('chefDiscovery').scrollIntoView({ behavior: 'smooth' });
+            break;
+        case 'browse-menus':
+            // Show menus section or open menu modal
+            const menuModal = document.getElementById('menuModal');
+            if (menuModal) {
+                menuModal.classList.add('active');
+            }
+            break;
+        case 'learn-more':
+            showHowItWorks();
+            break;
+    }
 }
 
 
