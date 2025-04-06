@@ -18,6 +18,9 @@ AIRTABLE_BASE_ID="appRRZL8Uf4178qkc"
 
 [functions]
   node_bundler = "esbuild"
+  directory = "netlify/functions"
+  included_files = ["netlify/functions/**/*.js"]
+  external_node_modules = ["airtable"]
 
 [[headers]]
   for = "/*.js"
