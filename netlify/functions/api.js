@@ -1,19 +1,4 @@
-const Airtable = require('airtable');
-
-// Initialize Airtable with error handling
-const initAirtable = () => {
-  const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
-  const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
-
-  if (!AIRTABLE_API_KEY) {
-    throw new Error('Missing AIRTABLE_API_KEY environment variable');
-  }
-  if (!AIRTABLE_BASE_ID) {
-    throw new Error('Missing AIRTABLE_BASE_ID environment variable');
-  }
-
-  return new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
-};
+const { initAirtable } = require('./airtable-config');
 
 // Helper function to safely get field value
 const getField = (record, fieldName) => {
@@ -65,12 +50,13 @@ exports.handler = async (event, context) => {
   }
 
   try {
+    console.log('Initializing Airtable connection...');
     const base = initAirtable();
     const params = event.httpMethod === 'GET'
       ? event.queryStringParameters || {}
       : JSON.parse(event.body || '{}');
 
-    console.log('Request params:', params);
+    console.log('Received data:', params);
     const { action } = params;
 
     if (!action) {
@@ -117,6 +103,7 @@ exports.handler = async (event, context) => {
         };
       }
 
+      console.log('Creating Airtable record...');
       // Create inquiry record
       const record = await base('Inquiries (Full)').create({
         'Event Name': params.eventName,
@@ -224,7 +211,11 @@ exports.handler = async (event, context) => {
     };
 
   } catch (error) {
-    console.error('Function error:', error);
+    console.error('Error details:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack
+    });
 
     if (error.message?.includes('AUTHENTICATION_REQUIRED')) {
       return {
