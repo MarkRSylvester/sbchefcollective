@@ -1,7 +1,10 @@
-// @ts-check
-// Content-Type: text/javascript
+/* @ts-check */
+/* Content-Type: text/javascript */
 
-// EventPlanningForm.js
+/**
+ * EventPlanningForm.js
+ * Custom element for handling event planning form functionality
+ */
 class EventPlanningForm extends HTMLElement {
   /** @type {ShadowRoot} */
   shadowRoot;
