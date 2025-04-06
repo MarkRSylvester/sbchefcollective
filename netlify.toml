@@ -9,7 +9,7 @@ AIRTABLE_BASE_ID="appRRZL8Uf4178qkc"
 [dev]
   functions = "netlify/functions"
   publish = "public"
-  port = 8888
+  port = 3000
   framework = "#static"
 
 [dev.environment]
