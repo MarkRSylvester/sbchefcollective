@@ -29,6 +29,13 @@
   to = "/.netlify/functions/:splat"
   status = 200
 
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = true
+  conditions = {Path = {match = "^(?!.*\\.(js|css|png|jpg|json|svg|webmanifest)$)"}}
+
 [[headers]]
   for = "/*"
   [headers.values]
