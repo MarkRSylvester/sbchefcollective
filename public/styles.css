@@ -81,7 +81,7 @@ body {
   background-image: url('/assets/images/hero-bg.jpg');
   background-size: cover;
   background-position: center;
-  height: 600px;
+  height: 480px;  /* Reduced by 20% from 600px */
   display: flex;
   align-items: center;
   justify-content: center;
