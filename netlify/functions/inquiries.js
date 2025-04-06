@@ -1,4 +1,4 @@
-const Airtable = require('airtable');
+const { base } = require('./airtable-config');
 const DubsadoMock = require('./dubsado-mock');
 
 exports.handler = async (event, context) => {
@@ -10,27 +10,7 @@ exports.handler = async (event, context) => {
     };
   }
 
-  if (!process.env.AIRTABLE_API_KEY || !process.env.AIRTABLE_BASE_ID) {
-    console.error('Missing environment variables:', {
-      hasApiKey: !!process.env.AIRTABLE_API_KEY,
-      hasBaseId: !!process.env.AIRTABLE_BASE_ID
-    });
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        error: 'Server configuration error',
-        details: 'Missing required environment variables'
-      })
-    };
-  }
-
   try {
-    // Initialize Airtable with logging
-    console.log('Initializing Airtable connection...');
-    const base = new Airtable({
-      apiKey: process.env.AIRTABLE_API_KEY
-    }).base(process.env.AIRTABLE_BASE_ID);
-
     const data = JSON.parse(event.body);
     console.log('Received data:', data);
     
@@ -86,7 +66,6 @@ exports.handler = async (event, context) => {
       'Dubsado Project ID': dubsadoResponse.projectId
     }).catch(error => {
       console.error('Error updating Airtable with Dubsado ID:', error);
-      // Don't throw here, as the main record was created successfully
     });
 
     return {
