@@ -1,3 +1,6 @@
+/* @ts-check */
+/* Content-Type: text/javascript */
+
 // Fallback data in case the Airtable API connection fails
 
 /**
