@@ -60,7 +60,6 @@ exports.handler = async (event, context) => {
     // Create Airtable record
     const airtableRecord = await base(TABLE_NAME).create({
       'Record ID': `REC${Date.now()}`,
-      'Inquiry Type': data.eventType,
       'First Name': data.name.split(' ')[0],
       'Last Name': data.name.split(' ').slice(1).join(' '),
       'Email': data.email,
@@ -69,7 +68,7 @@ exports.handler = async (event, context) => {
       'Event Date': data.eventDate,
       'Guest Count': parseInt(data.guestCount),
       'Event Address': data.eventAddress || '',
-      'Budget per Person': data.budgetPerPerson,
+      'Budget per Person': parseFloat(data.budgetPerPerson),
       'Cuisine Preferences': data.cuisinePreferences,
       'Status': 'New Inquiry',
       'Created At': new Date().toISOString()
@@ -103,22 +102,22 @@ exports.handler = async (event, context) => {
     console.error('Error processing inquiry:', error);
     
     // Handle specific error types
-    if (error.message.includes('AUTHENTICATION_REQUIRED')) {
+    if (error.message?.includes('AUTHENTICATION_REQUIRED')) {
       return {
-        statusCode: 500,
+        statusCode: 401,
         body: JSON.stringify({
           error: 'Airtable authentication failed',
-          details: 'Invalid API key'
+          details: 'Please check your API key'
         })
       };
     }
     
-    if (error.message.includes('NOT_FOUND')) {
+    if (error.message?.includes('NOT_FOUND')) {
       return {
-        statusCode: 500,
+        statusCode: 404,
         body: JSON.stringify({
-          error: 'Airtable configuration error',
-          details: 'Base or table not found'
+          error: 'Table not found',
+          details: 'Please check your base ID and table name'
         })
       };
     }
