@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-// Form field types
+// Form field types based on design spec
 type EventInquiryFormData = {
   firstName: string;
   lastName: string;
@@ -23,7 +23,7 @@ type EventInquiryFormData = {
   notes: string;
 };
 
-// Form options
+// Form options from design spec
 const EVENT_TYPES = [
   'Dinner Party',
   'Boutique Wedding',
@@ -91,23 +91,62 @@ const OPTIONAL_SERVICES = [
 export default function EventInquiryForm() {
   const { register, handleSubmit, formState: { errors } } = useForm<EventInquiryFormData>();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const onSubmit = async (data: EventInquiryFormData) => {
     setIsSubmitting(true);
+    setSubmitError(null);
     try {
-      // TODO: Implement form submission to Airtable
-      console.log('Form data:', data);
-      // Reset form or show success message
+      const response = await fetch('/.netlify/functions/inquiries', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...data,
+          type: 'Event',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit inquiry');
+      }
+
+      setSubmitSuccess(true);
     } catch (error) {
       console.error('Error submitting form:', error);
-      // Show error message
+      setSubmitError('There was an error submitting your inquiry. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  if (submitSuccess) {
+    return (
+      <div className="max-w-2xl mx-auto p-6 text-center">
+        <h2 className="font-playfair text-2xl mb-4">Thank You!</h2>
+        <p className="text-gray-700 mb-4">
+          We've received your inquiry and will be in touch soon to discuss your event.
+        </p>
+        <button
+          onClick={() => setSubmitSuccess(false)}
+          className="text-indigo-600 hover:text-indigo-800"
+        >
+          Submit another inquiry
+        </button>
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="max-w-2xl mx-auto p-6 space-y-8">
+      {submitError && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <p>{submitError}</p>
+        </div>
+      )}
+
       <div className="space-y-6">
         {/* Personal Information */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -290,6 +329,7 @@ export default function EventInquiryForm() {
             {...register('eventAddress', { required: 'Event address is required' })}
             rows={3}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            placeholder="Please include city and zip code"
           />
           {errors.eventAddress && (
             <p className="mt-1 text-sm text-red-600">{errors.eventAddress.message}</p>
