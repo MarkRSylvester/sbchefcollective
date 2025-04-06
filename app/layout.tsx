@@ -36,7 +36,7 @@ export default function RootLayout({
         {/* Header */}
         <header className="flex items-center justify-between px-6 py-4 bg-white shadow-sm">
           <div className="flex items-center space-x-4">
-            <img src="/logo.png" alt="SBCC Logo" className="h-12" />
+            <img src="/assets/images/logo.png" alt="SBCC Logo" className="h-12" />
             <div>
               <h1 className={`${playfair.className} text-2xl text-gray-900`}>
                 Santa Barbara Chef Collective
