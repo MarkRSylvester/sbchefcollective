@@ -1123,5 +1123,66 @@ function handleCTAClick(action) {
     }
 }
 
+// Handle contact form submission
+document.addEventListener('DOMContentLoaded', function() {
+  const contactForm = document.getElementById('contactForm');
+  
+  if (contactForm) {
+    contactForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Get form data
+      const formData = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        message: document.getElementById('message').value,
+        type: 'Contact Form'
+      };
+      
+      // Show loading state
+      const submitBtn = contactForm.querySelector('.submit-btn');
+      const originalBtnText = submitBtn.textContent;
+      submitBtn.textContent = 'Sending...';
+      submitBtn.disabled = true;
+      
+      // Send data to the server
+      fetch('/.netlify/functions/inquiries', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        // Show success message
+        contactForm.innerHTML = `
+          <div class="success-message">
+            <h3>Thank You!</h3>
+            <p>Your message has been sent successfully. We'll get back to you soon.</p>
+          </div>
+        `;
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        // Show error message
+        const errorMessage = document.createElement('div');
+        errorMessage.className = 'error-message';
+        errorMessage.textContent = 'There was an error sending your message. Please try again.';
+        contactForm.insertBefore(errorMessage, submitBtn);
+        
+        // Reset button
+        submitBtn.textContent = originalBtnText;
+        submitBtn.disabled = false;
+      });
+    });
+  }
+});
+
 
 
