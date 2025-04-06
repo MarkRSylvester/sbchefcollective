@@ -31,14 +31,57 @@ const DEFAULT_CHEF_IMAGE = '/assets/images/default-chef.jpg';
 
 // Default images for menus and services
 const DEFAULT_MENU_IMAGE = '/assets/images/default-menu.jpg';
-const DEFAULT_SERVICE_IMAGES = {
-  'Private Chef Services': '/assets/images/services/private-chef.jpg',
-  'Event Catering': '/assets/images/services/event-catering.jpg',
-  'Cooking Classes': '/assets/images/services/cooking-classes.jpg',
-  'Meal Preparation': '/assets/images/services/meal-prep.jpg',
-  'Wine Pairing': '/assets/images/services/wine-pairing.jpg',
-  'Kitchen Organization': '/assets/images/services/kitchen-org.jpg'
+
+// Initialize approved images object
+const approvedImages = {
+    HERO: [],
+    BG: [],
+    MENU: [],
+    CHEF: [],
+    SERVICE: []
 };
+
+// Load approved images from Airtable
+async function loadApprovedImages() {
+    try {
+        const response = await fetch('/.netlify/functions/api?action=getImages');
+        if (!response.ok) throw new Error('Failed to fetch images');
+        
+        const images = await response.json();
+        
+        // Organize images by use case
+        images.forEach(image => {
+            const useCase = image.useCase?.toUpperCase();
+            if (useCase && approvedImages.hasOwnProperty(useCase)) {
+                approvedImages[useCase].push(image);
+            }
+        });
+
+        // Update service images in the UI
+        document.querySelectorAll('.service-image').forEach(img => {
+            const serviceName = img.dataset.service;
+            img.src = getServiceImage(serviceName);
+        });
+
+        console.log('Approved images loaded:', approvedImages);
+    } catch (error) {
+        console.error('Error loading approved images:', error);
+    }
+}
+
+// Get service image from approved images or fallback to default
+function getServiceImage(serviceName) {
+    if (approvedImages.SERVICE.length > 0) {
+        // Try to find a specific image for this service
+        const serviceImage = approvedImages.SERVICE.find(img => 
+            img.filename.toLowerCase().includes(serviceName.toLowerCase()));
+        if (serviceImage) return serviceImage.url;
+        
+        // If no specific image, use a random approved service image
+        return approvedImages.SERVICE[Math.floor(Math.random() * approvedImages.SERVICE.length)].url;
+    }
+    return `/assets/images/services/default-service.jpg`;
+}
 
 function getColor(index) {
     return defaultColors[index % defaultColors.length] || '#f9f9f9';
