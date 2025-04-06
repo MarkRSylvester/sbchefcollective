@@ -1,3 +1,6 @@
+// @ts-check
+// Content-Type: text/javascript
+
 // EventPlanningForm.js
 class EventPlanningForm extends HTMLElement {
   constructor() {
