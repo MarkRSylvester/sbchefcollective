@@ -30,14 +30,14 @@ let currentOpenAccordion = null;
 const DEFAULT_CHEF_IMAGE = '/assets/images/default-chef.jpg';
 
 // Default images for menus and services
-const DEFAULT_MENU_IMAGE = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzNlNWM3NiIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMzAiIGZpbGw9IiNmZmZmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5NZW51PC90ZXh0Pjwvc3ZnPg==';
+const DEFAULT_MENU_IMAGE = '/assets/images/default-menu.jpg';
 const DEFAULT_SERVICE_IMAGES = {
-  'Private Chef Services': 'https://placehold.co/300x200/3e5c76/ffffff?text=Private+Chef',
-  'Event Catering': 'https://placehold.co/300x200/3e5c76/ffffff?text=Event+Catering',
-  'Cooking Classes': 'https://placehold.co/300x200/3e5c76/ffffff?text=Cooking+Classes',
-  'Meal Preparation': 'https://placehold.co/300x200/3e5c76/ffffff?text=Meal+Prep',
-  'Wine Pairing': 'https://placehold.co/300x200/3e5c76/ffffff?text=Wine+Pairing',
-  'Kitchen Organization': 'https://placehold.co/300x200/3e5c76/ffffff?text=Kitchen+Org'
+  'Private Chef Services': '/assets/images/services/private-chef.jpg',
+  'Event Catering': '/assets/images/services/event-catering.jpg',
+  'Cooking Classes': '/assets/images/services/cooking-classes.jpg',
+  'Meal Preparation': '/assets/images/services/meal-prep.jpg',
+  'Wine Pairing': '/assets/images/services/wine-pairing.jpg',
+  'Kitchen Organization': '/assets/images/services/kitchen-org.jpg'
 };
 
 function getColor(index) {
