@@ -2,25 +2,19 @@
   functions = "netlify/functions"
   publish = "public"
 
-[build.environment]
-AIRTABLE_API_KEY="pat99NhmHmsfe5AJN.4aa9d5bf62d05e2e601cfa8a7083089011a75bb76497d120643bb5ef83c7df70"
-AIRTABLE_BASE_ID="appRRZL8Uf4178qkc"
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["airtable"]
 
 [dev]
   functions = "netlify/functions"
   publish = "public"
-  port = 3000
+  port = 8888
+  targetPort = 3999
   framework = "#static"
 
 [dev.environment]
-AIRTABLE_API_KEY="pat99NhmHmsfe5AJN.4aa9d5bf62d05e2e601cfa8a7083089011a75bb76497d120643bb5ef83c7df70"
-AIRTABLE_BASE_ID="appRRZL8Uf4178qkc"
-
-[functions]
-  node_bundler = "esbuild"
-  directory = "netlify/functions"
-  included_files = ["netlify/functions/**/*.js"]
-  external_node_modules = ["airtable"]
+  NODE_ENV = "development"
 
 [[headers]]
   for = "/*.js"
