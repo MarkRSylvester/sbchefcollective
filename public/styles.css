@@ -28,9 +28,9 @@ body {
 
 /* Header Styles */
 .site-header {
-  background-color: #F5EFE6;  /* Sandstone color */
+  background-color: #E6DFD3;  /* Sandstone color - matching footer exactly */
   padding: 1rem 0;
-  height: 1in;  /* Match footer height */
+  height: 1in;
   display: flex;
   align-items: center;
 }
