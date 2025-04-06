@@ -35,7 +35,6 @@ let approvedImages = {
     HERO: [],
     BG: [],
     MENU: [],
-    CHEF: [],
     SERVICE: []
 };
 
@@ -54,7 +53,6 @@ async function loadApprovedImages() {
             HERO: [],
             BG: [],
             MENU: [],
-            CHEF: [],
             SERVICE: []
         };
         
@@ -98,12 +96,6 @@ function updateUIImages() {
         img.src = getServiceImage(serviceName);
     });
 
-    // Update chef images
-    document.querySelectorAll('.chef-photo img').forEach(img => {
-        const chefName = img.alt;
-        img.src = getChefImage(chefName);
-    });
-
     // Update menu images
     document.querySelectorAll('.menu-image img').forEach(img => {
         const menuName = img.alt;
@@ -130,22 +122,6 @@ function getServiceImage(serviceName) {
         return getRandomImage(approvedImages.SERVICE).url;
     }
     return DEFAULT_MENU_IMAGE;
-}
-
-// Get chef image from approved images or fallback to default
-function getChefImage(chefName) {
-    if (!chefName) return DEFAULT_CHEF_IMAGE;
-    
-    if (approvedImages.CHEF.length > 0) {
-        // Try to find a specific image for this chef
-        const chefImage = approvedImages.CHEF.find(img => 
-            img.filename.toLowerCase().includes(chefName.toLowerCase()));
-        if (chefImage) return chefImage.url;
-        
-        // If no specific image, use a random approved chef image
-        return getRandomImage(approvedImages.CHEF).url;
-    }
-    return DEFAULT_CHEF_IMAGE;
 }
 
 // Get menu image from approved images or fallback to default
@@ -841,13 +817,13 @@ async function loadChefs() {
             card.className = 'chef-card';
             card.innerHTML = `
                 <div class="chef-photo">
-                    <img src="${chef.image || DEFAULT_CHEF_IMAGE}" alt="${chef.name}" onerror="this.src='${DEFAULT_CHEF_IMAGE}'">
-        </div>
+                    <img src="${chef.chefPhoto || DEFAULT_CHEF_IMAGE}" alt="${chef.name}" onerror="this.src='${DEFAULT_CHEF_IMAGE}'">
+                </div>
                 <div class="chef-info">
                     <h3>${chef.name}</h3>
-                    <p>${chef.bio}</p>
-                    ${chef.specialties ? `<p class="specialties">Specialties: ${chef.specialties.join(', ')}</p>` : ''}
-                    ${chef.availability ? `<p class="availability">Availability: ${chef.availability}</p>` : ''}
+                    <p>${chef.description || ''}</p>
+                    ${chef.specialties ? `<p class="specialties">Specialties: ${chef.specialties}</p>` : ''}
+                    ${chef.vibe ? `<p class="vibe">Vibe: ${chef.vibe}</p>` : ''}
                 </div>
             `;
             chefsContainer.appendChild(card);
