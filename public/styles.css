@@ -114,7 +114,7 @@ body {
 /* CTA Buttons per spec */
 .cta-buttons {
   display: flex;
-  gap: 2rem;
+  gap: 1.5rem;
   justify-content: center;
   margin-top: 2rem;
 }
@@ -130,13 +130,13 @@ body {
   text-transform: uppercase;
   letter-spacing: 1px;
   white-space: nowrap;
-  border-width: 2px;  /* Make all button borders the same width */
+  border: 2px solid transparent;
 }
 
 .cta-btn.primary {
   background-color: #E5B45B;
   color: #2C3E50;
-  border: 2px solid #E5B45B;
+  border-color: #E5B45B;
 }
 
 .cta-btn.primary:hover {
@@ -147,7 +147,7 @@ body {
 .cta-btn.secondary {
   background-color: transparent;
   color: white;
-  border: 2px solid white;
+  border-color: white;
 }
 
 .cta-btn.secondary:hover {
@@ -157,7 +157,7 @@ body {
 .cta-btn.tertiary {
   background-color: transparent;
   color: white;
-  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .cta-btn.tertiary:hover {
@@ -261,15 +261,18 @@ footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 2rem;
+  padding: 1rem 4rem;
   height: 1in;
   background-color: #E6DFD3;
+  max-width: 1400px;
+  margin: 0 auto;
+  gap: 2rem;
 }
 
 .footer-section {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .footer-logo {
@@ -292,14 +295,16 @@ footer {
 }
 
 .footer-info p {
+  font-family: 'Inter', sans-serif;
   font-size: 0.8rem;
   margin: 0;
   color: #2C3E50;
+  opacity: 0.8;
 }
 
 .footer-links {
   display: flex;
-  gap: 1.5rem;
+  gap: 2rem;
   align-items: center;
   font-size: 0.8rem;
   font-family: 'Inter', sans-serif;
@@ -310,27 +315,31 @@ footer {
   text-decoration: none;
   transition: color 0.3s ease;
   white-space: nowrap;
+  opacity: 0.8;
 }
 
 .footer-links a:hover {
   color: var(--primary-color);
+  opacity: 1;
 }
 
 .social-icons {
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
   align-items: center;
 }
 
 .social-icon {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   color: #2C3E50;
-  transition: color 0.3s ease;
+  opacity: 0.8;
+  transition: all 0.3s ease;
 }
 
 .social-icon:hover {
   color: var(--primary-color);
+  opacity: 1;
 }
 
 /* Responsive Design */
