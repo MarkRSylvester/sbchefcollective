@@ -273,9 +273,11 @@ footer {
 }
 
 .footer-info h3 {
+  font-family: 'Playfair Display', serif;
   font-size: 0.9rem;
   margin: 0;
   color: #2C3E50;
+  font-weight: 500;
 }
 
 .footer-info p {
