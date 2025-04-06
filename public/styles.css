@@ -96,7 +96,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(255, 255, 255, 0.4);  /* Increased from 0.3 to 0.4 */
+  background-color: rgba(255, 255, 255, 0.5);  /* Increased from 0.4 to 0.5 */
   z-index: 1;
 }
 
