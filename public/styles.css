@@ -123,7 +123,7 @@ body {
 .hero-content h2 {
   font-family: 'Playfair Display', serif;
   font-size: 2rem;
-  margin: 0 0 1.8rem;  /* Increased from 1.5rem */
+  margin: 0 0 1.2rem;  /* Reduced from 1.8rem for tighter spacing with tagline */
   line-height: 1.1;
   color: white;
   text-shadow: 0 1px 2px rgba(44, 62, 80, 0.2);
@@ -131,11 +131,14 @@ body {
 
 .hero-content p {
   font-family: 'Inter', sans-serif;
-  font-size: 1.1rem;
-  line-height: 1.4;  /* Increased from 1.15 for better readability */
+  font-size: 1.25rem;  /* Increased from 1.1rem for better proportion with headline */
+  line-height: 1.5;  /* Increased for better readability with two lines */
   color: white;
-  margin-bottom: 3rem;
-  text-shadow: 0 1px 2px rgba(44, 62, 80, 0.2);  /* Subtle text shadow for better readability */
+  margin-bottom: 3.5rem;  /* Increased slightly to balance the reduced top margin */
+  text-shadow: 0 1px 2px rgba(44, 62, 80, 0.2);
+  max-width: 90%;  /* Ensure the tagline doesn't stretch too wide */
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* CTA Buttons per spec */
@@ -403,12 +406,12 @@ footer {
 
   .hero-content h2 {
     font-size: 1.8rem;
-    margin: 0 0 1.5rem;
+    margin: 0 0 1rem;
   }
 
   .hero-content p {
-    font-size: 1rem;
-    line-height: 1.35;  /* Slightly reduced for mobile but still maintaining readability */
+    font-size: 1.1rem;
+    line-height: 1.4;
     margin-bottom: 2.5rem;
   }
 
@@ -477,7 +480,8 @@ footer {
   }
 
   .hero-content p {
-    font-size: 0.9rem;
+    font-size: 1rem;
+    line-height: 1.35;
   }
 
   .cta-btn {
