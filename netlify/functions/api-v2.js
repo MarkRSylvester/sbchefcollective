@@ -2,13 +2,18 @@ const fetch = require('node-fetch');
 
 // Use environment variables for sensitive data
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
+const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
 
 if (!AIRTABLE_API_KEY) {
     console.error('Missing required AIRTABLE_API_KEY environment variable');
     throw new Error('Missing required AIRTABLE_API_KEY environment variable');
 }
 
-const AIRTABLE_BASE_ID = 'appOWFyYIGbLoKalt';
+if (!AIRTABLE_BASE_ID) {
+    console.error('Missing required AIRTABLE_BASE_ID environment variable');
+    throw new Error('Missing required AIRTABLE_BASE_ID environment variable');
+}
+
 const TABLE_NAME = 'SBCC MAIN';
 
 // Helper function to safely get field value
