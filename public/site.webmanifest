@@ -1,6 +1,11 @@
 {
   "name": "Santa Barbara Chef Collective",
   "short_name": "SBCC",
+  "description": "Connect with Santa Barbara's finest private chefs for extraordinary culinary experiences",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2C3E50",
   "icons": [
     {
       "src": "/assets/favicons/android-chrome-192x192.png",
@@ -12,8 +17,5 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ],
-  "theme_color": "#ffffff",
-  "background_color": "#ffffff",
-  "display": "standalone"
+  ]
 }
