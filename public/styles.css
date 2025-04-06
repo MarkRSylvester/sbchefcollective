@@ -260,7 +260,6 @@ footer {
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  gap: 1rem;
 }
 
 .footer-links {
@@ -271,7 +270,8 @@ footer {
   font-family: 'Inter', sans-serif;
   flex-wrap: wrap;
   justify-content: center;
-  margin-bottom: 0.5rem;
+  opacity: 0.8;
+  margin-bottom: 0.75rem;
 }
 
 .footer-links a {
@@ -279,7 +279,6 @@ footer {
   text-decoration: none;
   transition: color 0.3s ease;
   white-space: nowrap;
-  opacity: 0.8;
 }
 
 .footer-links a:hover {
@@ -290,8 +289,8 @@ footer {
 .footer-section {
   display: flex;
   align-items: center;
-  gap: 0.25rem;  /* Reduced from 1.5rem to bring logo and text closer */
-  margin-left: 0.25in;  /* Add 1/4 inch margin to move logo right */
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
 }
 
 .footer-logo {
@@ -302,7 +301,7 @@ footer {
 .footer-info {
   display: flex;
   flex-direction: column;
-  gap: 0.1rem;  /* Reduced from 0.25rem to tighten leading */
+  gap: 0.1rem;
   text-align: center;
 }
 
@@ -320,7 +319,7 @@ footer {
   margin: 0;
   color: #2C3E50;
   opacity: 0.8;
-  line-height: 1;  /* Added to match header tagline leading */
+  line-height: 1;
 }
 
 .social-icons {
