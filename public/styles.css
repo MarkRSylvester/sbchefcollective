@@ -28,9 +28,9 @@ body {
 
 /* Header Styles */
 .site-header {
+  background-color: #F5EFE6;  /* Sandstone color */
   padding: 1rem 0;
-  margin: 0;
-  width: 100%;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .site-header .container {
@@ -82,30 +82,33 @@ body {
 }
 
 .hero-content {
-  max-width: 800px;
+  max-width: 1200px;
   padding: 2rem;
 }
 
 .hero-content h2 {
   font-family: 'Playfair Display', serif;
-  font-size: 3rem;
-  margin-bottom: 1rem;
+  font-size: 3.5rem;
+  margin-bottom: 1.5rem;
   color: white;
+  line-height: 1.2;
 }
 
 .hero-content p {
-  font-size: 1.2rem;
-  margin-bottom: 2rem;
+  font-size: 1.4rem;
+  margin-bottom: 2.5rem;
   color: white;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* CTA Buttons per spec */
 .cta-buttons {
   display: flex;
-  gap: 1.5rem;
+  gap: 2rem;
   justify-content: center;
-  margin-top: 2rem;
-  flex-wrap: wrap;
+  margin-top: 3rem;
 }
 
 .cta-btn {
@@ -118,7 +121,6 @@ body {
   transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 1px;
-  min-width: 200px;
   white-space: nowrap;
 }
 
@@ -150,6 +152,18 @@ body {
 
 .cta-btn.tertiary:hover {
   border-color: white;
+}
+
+/* Ensure buttons stay in a single line */
+@media (min-width: 768px) {
+  .cta-buttons {
+    flex-wrap: nowrap;
+    justify-content: center;
+  }
+  
+  .cta-btn {
+    flex: 0 1 auto;
+  }
 }
 
 /* Modal Styles */
@@ -277,9 +291,14 @@ footer {
 }
 
 .footer-links a {
-  font-size: 0.8rem;
-  color: var(--text-color);
+  cursor: pointer;
   text-decoration: none;
+  color: inherit;
+  transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+  color: #E5B45B;
 }
 
 .social-icons {
