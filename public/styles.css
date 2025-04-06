@@ -96,7 +96,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(255, 255, 255, 0.5);  /* Increased from 0.4 to 0.5 */
+  background-color: rgba(44, 62, 80, 0.5);  /* Changed from white to medium blue (#2C3E50) at 50% opacity */
   z-index: 1;
 }
 
@@ -118,14 +118,14 @@ body {
   font-size: 2rem;
   margin: 0 0 1.5rem;  /* Increased margin below headline */
   line-height: 1.1;
-  color: #2C3E50;
+  color: white;  /* Changed text color to white for better contrast */
 }
 
 .hero-content p {
   font-family: 'Inter', sans-serif;
   font-size: 1.1rem;
   line-height: 1.2;
-  color: #2C3E50;
+  color: white;  /* Changed text color to white for better contrast */
   margin-bottom: 3rem;
 }
 
