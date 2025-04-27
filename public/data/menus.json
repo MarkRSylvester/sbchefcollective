@@ -1,0 +1,37 @@
+{
+  "menus": [
+    {
+      "id": "menu1",
+      "name": "Mediterranean Feast",
+      "type": "dinner",
+      "description": "A celebration of coastal Mediterranean flavors featuring fresh seafood and locally-sourced produce.",
+      "image": "/assets/images/menus/mediterranean.jpg",
+      "priceRange": "100-150",
+      "cuisines": ["Mediterranean", "Italian", "Greek"],
+      "vibe": ["Elegant", "Casual", "Fun & Lively"],
+      "guestRange": {"min": 6, "max": 20}
+    },
+    {
+      "id": "menu2",
+      "name": "Asian Fusion Experience",
+      "type": "dinner",
+      "description": "Modern interpretations of classic Asian dishes with California influences.",
+      "image": "/assets/images/menus/asian-fusion.jpg",
+      "priceRange": "150-200",
+      "cuisines": ["Pan Asian", "Modern Fusion"],
+      "vibe": ["Modern", "Fun & Lively", "Intimate"],
+      "guestRange": {"min": 4, "max": 12}
+    },
+    {
+      "id": "menu3",
+      "name": "Farm to Table Brunch",
+      "type": "brunch",
+      "description": "Fresh, seasonal ingredients transformed into elegant brunch classics.",
+      "image": "/assets/images/menus/farm-brunch.jpg",
+      "priceRange": "75-100",
+      "cuisines": ["Farm to Table", "New American"],
+      "vibe": ["Casual", "Rustic", "Fun & Lively"],
+      "guestRange": {"min": 8, "max": 25}
+    }
+  ]
+} 

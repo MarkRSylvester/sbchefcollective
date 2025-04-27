@@ -1,32 +1,21 @@
-const { initAirtable } = require('./airtable-config');
-
-// Helper function to safely get field value
-const getField = (record, fieldName) => {
-  if (!record?.fields) {
-    console.log('Invalid record:', record);
-    return null;
-  }
-  return record.fields[fieldName] || null;
-};
+const Airtable = require('airtable');
+const airtableBase = require('./airtable-config');
 
 // Helper function to get photo URL from Airtable attachment
 const getPhotoUrl = (record, fieldName) => {
-  if (!record?.fields?.[fieldName]) return '';
-  const attachments = record.fields[fieldName];
-  return Array.isArray(attachments) && attachments[0]?.url ? attachments[0].url : '';
+  const photo = record.get(fieldName);
+  return photo && Array.isArray(photo) && photo[0]?.url ? photo[0].url : null;
 };
 
 // Helper function to simulate Dubsado sync
 const simulateDubsadoSync = async (base, inquiryData) => {
   try {
-    await base('Dubsado Sync Log').create({
-      fields: {
-        'Inquiry ID': inquiryData.id,
-        'Timestamp': new Date().toISOString(),
-        'Operation': 'Create Inquiry',
-        'Payload Summary': JSON.stringify(inquiryData),
-        'Sync Status': 'Simulated'
-      }
+    await airtableBase('Dubsado Sync Log').create({
+      'Inquiry ID': inquiryData.id,
+      'Timestamp': new Date().toISOString(),
+      'Operation': 'Create Inquiry',
+      'Payload Summary': JSON.stringify(inquiryData),
+      'Sync Status': 'Simulated'
     });
     return { projectId: `MOCK-${Date.now()}` };
   } catch (error) {
@@ -51,7 +40,6 @@ exports.handler = async (event, context) => {
 
   try {
     console.log('Initializing Airtable connection...');
-    const base = initAirtable();
     const params = event.httpMethod === 'GET'
       ? event.queryStringParameters || {}
       : JSON.parse(event.body || '{}');
@@ -105,7 +93,7 @@ exports.handler = async (event, context) => {
 
       console.log('Creating Airtable record...');
       // Create inquiry record
-      const record = await base('Inquiries (Full)').create({
+      const record = await airtableBase('Inquiries (Full)').create({
         'Event Name': params.eventName,
         'Event Date': params.eventDate,
         'Event Time': params.eventTime,
@@ -122,7 +110,7 @@ exports.handler = async (event, context) => {
       });
 
       // Simulate Dubsado sync
-      const dubsadoResponse = await simulateDubsadoSync(base, record);
+      const dubsadoResponse = await simulateDubsadoSync(airtableBase, record);
 
       return {
         statusCode: 200,
@@ -140,11 +128,11 @@ exports.handler = async (event, context) => {
     switch (action) {
       case 'getChefs':
         table = 'Chefs';
-        filterFormula = 'AND(NOT({Name} = ""), {Active} = TRUE())';
+        filterFormula = '{Active} = TRUE()';
         break;
       case 'getMenus':
         table = 'Menus';
-        filterFormula = 'AND(NOT({Name} = ""), {Active} = TRUE())';
+        filterFormula = '{Active} = TRUE()';
         break;
       case 'getDishes':
         if (!params.menuId) {
@@ -155,7 +143,7 @@ exports.handler = async (event, context) => {
           };
         }
         table = 'Dishes';
-        filterFormula = `AND(NOT({Name} = ""), {Menu ID} = "${params.menuId}")`;
+        filterFormula = `{Menu ID} = "${params.menuId}"`;
         break;
       default:
         return {
@@ -165,7 +153,8 @@ exports.handler = async (event, context) => {
         };
     }
 
-    const records = await base(table).select({
+    const records = await airtableBase(table).select({
+      view: 'Grid view',
       filterByFormula: filterFormula
     }).all();
 
@@ -174,31 +163,34 @@ exports.handler = async (event, context) => {
       case 'getChefs':
         formattedData = records.map(record => ({
           id: record.id,
-          name: getField(record, 'Name'),
+          name: record.get('Name') || '',
           photo: getPhotoUrl(record, 'Photo'),
-          bio: getField(record, 'Bio'),
-          specialties: getField(record, 'Specialties'),
-          active: getField(record, 'Active')
+          bio: record.get('Bio') || '',
+          specialties: record.get('Specialties') || '',
+          active: record.get('Active') || false,
+          cuisineTypes: record.get('Cuisine Types') || [],
+          eventTypes: record.get('Event Types') || [],
+          tagline: record.get('Tagline') || ''
         }));
         break;
       case 'getMenus':
         formattedData = records.map(record => ({
           id: record.id,
-          name: getField(record, 'Name'),
-          description: getField(record, 'Description'),
+          name: record.get('Name') || '',
+          description: record.get('Description') || '',
           photo: getPhotoUrl(record, 'Photo'),
-          priceRange: getField(record, 'Price Range'),
-          type: getField(record, 'Type')
+          priceRange: record.get('Price Range') || '',
+          type: record.get('Type') || ''
         }));
         break;
       case 'getDishes':
         formattedData = records.map(record => ({
           id: record.id,
-          name: getField(record, 'Name'),
-          description: getField(record, 'Description'),
-          category: getField(record, 'Category'),
-          price: getField(record, 'Price'),
-          menuId: getField(record, 'Menu ID'),
+          name: record.get('Name') || '',
+          description: record.get('Description') || '',
+          category: record.get('Category') || '',
+          price: record.get('Price') || '',
+          menuId: record.get('Menu ID') || '',
           photo: getPhotoUrl(record, 'Photo')
         }));
         break;
@@ -211,40 +203,12 @@ exports.handler = async (event, context) => {
     };
 
   } catch (error) {
-    console.error('Error details:', {
-      name: error.name,
-      message: error.message,
-      stack: error.stack
-    });
-
-    if (error.message?.includes('AUTHENTICATION_REQUIRED')) {
-      return {
-        statusCode: 401,
-        headers,
-        body: JSON.stringify({
-          error: 'Authentication failed',
-          details: 'Invalid Airtable API key'
-        })
-      };
-    }
-
-    if (error.message?.includes('NOT_FOUND')) {
-      return {
-        statusCode: 404,
-        headers,
-        body: JSON.stringify({
-          error: 'Resource not found',
-          details: 'Airtable base or table not found'
-        })
-      };
-    }
-
+    console.error('Error details:', error);
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({
-        error: 'Internal server error',
-        details: error.message
+        error: error.message || 'Internal server error'
       })
     };
   }

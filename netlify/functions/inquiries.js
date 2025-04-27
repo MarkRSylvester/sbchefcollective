@@ -1,4 +1,4 @@
-const { base } = require('./airtable-config');
+const base = require('./airtable-config');
 const DubsadoMock = require('./dubsado-mock');
 
 exports.handler = async (event, context) => {
@@ -21,22 +21,37 @@ exports.handler = async (event, context) => {
     console.log('Processing inquiry request...');
     const data = JSON.parse(event.body);
     console.log('Received data:', data);
+
+    // Map form fields to expected fields
+    const mappedData = {
+      eventName: data.eventName || 'Consultation',
+      eventDate: data.eventDate,
+      eventTime: data.eventTime || '12:00',
+      guestCount: data.guestCount,
+      budgetPerPerson: data.budgetPerPerson || '0',
+      eventType: data.eventType,
+      cuisinePreferences: data.cuisinePreferences || 'None specified',
+      name: data.name || data.clientName,
+      email: data.email || data.clientEmail,
+      phone: data.phone || data.clientPhone,
+      eventAddress: data.eventAddress || `${data.address || ''}, ${data.city || ''}, ${data.zipCode || ''}`
+    };
     
     // Validate required fields
     const requiredFields = [
+      'name',
+      'email',
+      'phone',
       'eventName',
       'eventDate',
       'eventTime',
       'guestCount',
       'budgetPerPerson',
       'eventType',
-      'cuisinePreferences',
-      'name',
-      'email',
-      'phone'
+      'cuisinePreferences'
     ];
 
-    const missingFields = requiredFields.filter(field => !data[field]);
+    const missingFields = requiredFields.filter(field => !mappedData[field]);
     if (missingFields.length > 0) {
       console.log('Missing required fields:', missingFields);
       return {
@@ -44,24 +59,28 @@ exports.handler = async (event, context) => {
         headers,
         body: JSON.stringify({
           error: 'Missing required fields',
-          fields: missingFields
+          fields: missingFields,
+          receivedData: mappedData
         })
       };
     }
 
+    // Initialize Airtable
+    console.log('Initializing Airtable connection...');
+
     // Create Airtable record
     console.log('Creating Airtable record...');
     const record = await base('Inquiries (Full)').create({
-      'First Name': data.name.split(' ')[0],
-      'Last Name': data.name.split(' ').slice(1).join(' '),
-      'Email': data.email,
-      'Phone': data.phone,
-      'Event Type': data.eventType,
-      'Event Date': data.eventDate,
-      'Guest Count': parseInt(data.guestCount),
-      'Event Address': data.eventAddress || '',
-      'Budget per Person': parseFloat(data.budgetPerPerson),
-      'Cuisine Preferences': data.cuisinePreferences,
+      'First Name': mappedData.name.split(' ')[0],
+      'Last Name': mappedData.name.split(' ').slice(1).join(' '),
+      'Email': mappedData.email,
+      'Phone': mappedData.phone,
+      'Event Type': mappedData.eventType,
+      'Event Date': mappedData.eventDate,
+      'Guest Count': parseInt(mappedData.guestCount),
+      'Event Address': mappedData.eventAddress || '',
+      'Budget per Person': parseFloat(mappedData.budgetPerPerson),
+      'Cuisine Preferences': mappedData.cuisinePreferences,
       'Status': 'New Inquiry',
       'Created At': new Date().toISOString()
     });
@@ -69,7 +88,7 @@ exports.handler = async (event, context) => {
     console.log('Airtable record created:', record.id);
 
     // Create project in mock Dubsado
-    const dubsadoResponse = await DubsadoMock.createProject(data);
+    const dubsadoResponse = await DubsadoMock.createProject(mappedData);
 
     // Update Airtable record with Dubsado ID
     await base('Inquiries (Full)').update(record.id, {

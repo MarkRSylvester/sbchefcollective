@@ -1,0 +1,25 @@
+{
+  "chefs": [
+    {
+      "id": "chef1",
+      "name": "Chef Isabella Martinez",
+      "specialties": "Mediterranean, Farm-to-Table",
+      "bio": "With over 15 years of culinary experience, Chef Isabella brings Mediterranean flavors to life using locally-sourced ingredients.",
+      "image": "/assets/images/chefs/chef-isabella.jpg"
+    },
+    {
+      "id": "chef2",
+      "name": "Chef James Chen",
+      "specialties": "Pan-Asian, Modern Fusion",
+      "bio": "A master of Asian fusion cuisine, Chef James combines traditional techniques with contemporary California flair.",
+      "image": "/assets/images/chefs/chef-james.jpg"
+    },
+    {
+      "id": "chef3",
+      "name": "Chef Sarah Williams",
+      "specialties": "French, New American",
+      "bio": "Classically trained in French cuisine, Chef Sarah creates elegant dishes that celebrate Santa Barbara's finest ingredients.",
+      "image": "/assets/images/chefs/chef-sarah.jpg"
+    }
+  ]
+} 

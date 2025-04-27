@@ -1,24 +1,6 @@
 const { getBase, TABLES } = require('./airtable-config');
-
-// Map Airtable categories to frontend categories
-const CATEGORY_MAP = {
-  'Hero Image': 'HERO',
-  'Background': 'BG',
-  'Section Break': 'SECTION_BREAK',
-  'Accent Image': 'ACCENT',
-  'Menu': 'MENU',
-  'Service': 'SERVICE'
-};
-
-// Default images for each category
-const DEFAULT_IMAGES = {
-  HERO: [{ url: '/assets/images/hero/default-hero.jpg', alt: 'Default Hero' }],
-  BG: [{ url: '/assets/images/background/default-bg.jpg', alt: 'Default Background' }],
-  SECTION_BREAK: [{ url: '/assets/images/section-break/default-break.jpg', alt: 'Default Section Break' }],
-  ACCENT: [{ url: '/assets/images/accent/default-accent.jpg', alt: 'Default Accent' }],
-  MENU: [{ url: '/assets/images/menu/default-menu.jpg', alt: 'Default Menu' }],
-  SERVICE: [{ url: '/assets/images/service/default-service.jpg', alt: 'Default Service' }]
-};
+const fs = require('fs');
+const path = require('path');
 
 exports.handler = async function(event, context) {
   console.log('Starting getImages function');
@@ -31,65 +13,59 @@ exports.handler = async function(event, context) {
   };
 
   try {
-    // Get Airtable base instance
-    const base = await getBase();
-    console.log('Using table:', TABLES.IMAGES);
+    // Get local images from the assets directory
+    const assetsDir = path.join(process.cwd(), 'public', 'assets', 'images');
+    const localImages = fs.readdirSync(assetsDir)
+      .filter(file => /\.(jpg|jpeg|png|gif|svg)$/i.test(file))
+      .map(file => ({
+        id: `local-${file}`,
+        name: file,
+        url: `/.netlify/images/${file}`,
+        description: '',
+        category: 'LOCAL',
+        mood: '',
+        colorPalette: ''
+      }));
 
-    // Fetch all images
-    const records = await base(TABLES.IMAGES)
-      .select({
-        view: 'Grid view',
-        filterByFormula: "AND(NOT({Image Name} = ''), NOT({Image Name} = BLANK()))"
-      })
-      .all();
+    console.log(`Found ${localImages.length} local images`);
 
-    console.log(`Found ${records.length} images`);
+    // Try to get Airtable images
+    let airtableImages = [];
+    try {
+      const base = getBase();
+      console.log('Fetching images from Airtable...');
+      
+      const records = await base(TABLES.IMAGES)
+        .select({
+          view: 'Grid view',
+          filterByFormula: "AND(NOT({Image Name} = ''), NOT({Image Name} = BLANK()))"
+        })
+        .all();
 
-    // Transform records
-    const images = records.map(record => ({
-      id: record.id,
-      name: record.get('Image Name'),
-      description: record.get('Image Description'),
-      category: record.get('Category') || [],
-      mood: record.get('Mood'),
-      colorPalette: record.get('Color Palette')
-    }));
+      console.log(`Found ${records.length} images in Airtable`);
 
-    // Group images by category
-    const groupedImages = {};
-    Object.values(CATEGORY_MAP).forEach(category => {
-      groupedImages[category] = [];
-    });
+      airtableImages = records.map(record => ({
+        id: record.id,
+        name: record.get('Image Name'),
+        url: `/assets/images/${record.get('Image Name')}`,
+        description: record.get('Description') || '',
+        category: record.get('Category') || 'UNCATEGORIZED',
+        mood: record.get('Mood') || '',
+        colorPalette: record.get('Color Palette') || ''
+      }));
+    } catch (airtableError) {
+      console.error('Error fetching from Airtable:', airtableError);
+      // Continue with local images only if Airtable fails
+    }
 
-    images.forEach(image => {
-      const categories = Array.isArray(image.category) ? image.category : [image.category];
-      categories.forEach(cat => {
-        const mappedCategory = CATEGORY_MAP[cat];
-        if (mappedCategory && image.name) {
-          groupedImages[mappedCategory].push({
-            url: `/assets/images/${mappedCategory.toLowerCase()}/${image.name}`,
-            alt: image.name,
-            description: image.description,
-            mood: image.mood,
-            colorPalette: image.colorPalette
-          });
-        }
-      });
-    });
-
-    // Add default images for empty categories
-    Object.entries(groupedImages).forEach(([category, images]) => {
-      if (images.length === 0 && DEFAULT_IMAGES[category]) {
-        groupedImages[category] = DEFAULT_IMAGES[category];
-      }
-    });
-
-    console.log('Successfully processed images:', groupedImages);
+    // Combine both sources
+    const allImages = [...localImages, ...airtableImages];
+    console.log(`Total images: ${allImages.length}`);
 
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify(groupedImages)
+      body: JSON.stringify(allImages)
     };
 
   } catch (error) {

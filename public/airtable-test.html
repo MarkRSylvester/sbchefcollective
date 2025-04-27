@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Airtable Connection Test</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      color: #2c3e50;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 10px;
+    }
+    .card {
+      background: #f9f9f9;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .success {
+      color: #27ae60;
+    }
+    .error {
+      color: #e74c3c;
+    }
+    .loading {
+      text-align: center;
+      padding: 40px;
+      font-style: italic;
+      color: #7f8c8d;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    .config {
+      background-color: #f8f9fa;
+      padding: 15px;
+      border-radius: 4px;
+      margin-top: 20px;
+      font-family: monospace;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h1>Airtable Connection Test</h1>
+  
+  <div class="card">
+    <button id="testButton">Test Airtable Connection</button>
+    <div id="results" class="loading">Click the button to test the Airtable connection...</div>
+  </div>
+
+  <script>
+    document.getElementById('testButton').addEventListener('click', async () => {
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = '<div class="loading">Testing Airtable connection...</div>';
+      
+      try {
+        const response = await fetch('/.netlify/functions/test-airtable');
+        const data = await response.json();
+        
+        if (data.success) {
+          let html = '<h2>Connection Successful</h2>';
+          
+          // Display table results
+          html += '<h3>Table Results:</h3>';
+          html += '<table>';
+          html += '<tr><th>Table</th><th>Status</th><th>Details</th></tr>';
+          
+          for (const [tableName, result] of Object.entries(data.results)) {
+            const statusClass = result.success ? 'success' : 'error';
+            const statusText = result.success ? 'Connected' : 'Error';
+            
+            let details = '';
+            if (result.success) {
+              details = `Records: ${result.recordCount}<br>Fields: ${result.fields.join(', ')}`;
+            } else {
+              details = `Error: ${result.error}<br>Type: ${result.errorType}`;
+            }
+            
+            html += `<tr>
+              <td>${tableName}</td>
+              <td class="${statusClass}">${statusText}</td>
+              <td>${details}</td>
+            </tr>`;
+          }
+          
+          html += '</table>';
+          
+          // Display configuration
+          html += '<h3>Configuration:</h3>';
+          html += `<div class="config">Base ID: ${data.config.baseId}
+Table IDs: ${JSON.stringify(data.config.tableIds, null, 2)}</div>`;
+          
+          resultsDiv.innerHTML = html;
+        } else {
+          resultsDiv.innerHTML = `<div class="error">
+            <h2>Connection Failed</h2>
+            <p>Error: ${data.error}</p>
+            <p>Type: ${data.errorType}</p>
+          </div>`;
+        }
+      } catch (error) {
+        resultsDiv.innerHTML = `<div class="error">
+          <h2>Request Failed</h2>
+          <p>Error: ${error.message}</p>
+        </div>`;
+      }
+    });
+  </script>
+</body>
+</html> 

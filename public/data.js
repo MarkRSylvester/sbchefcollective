@@ -98,4 +98,4 @@ window.sbccData = {
   fetchMenus,
   fetchDishes,
   initChefDiscovery
-}; 
+};

@@ -5,12 +5,13 @@
 [functions]
   node_bundler = "esbuild"
   external_node_modules = ["airtable"]
+  included_files = ["netlify/functions/package.json"]
 
 [dev]
   functions = "netlify/functions"
   publish = "public"
   port = 8888
-  targetPort = 3999
+  targetPort = 3000
   framework = "#static"
 
 [dev.environment]
@@ -31,6 +32,11 @@
   [headers.values]
     Content-Type = "application/manifest+json"
 
+[[headers]]
+  for = "/assets/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
@@ -45,3 +51,22 @@
 
 [context.production]
   environment = { NODE_VERSION = "18.x" }
+
+[build.environment]
+  NODE_VERSION = "18.x"
+
+# Enable image optimization
+[build.processing]
+  skip_processing = false
+
+[build.processing.css]
+  bundle = true
+  minify = true
+
+[build.processing.js]
+  bundle = true
+  minify = true
+
+[build.processing.images]
+  compress = true
+  quality = 80

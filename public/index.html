@@ -1,252 +1,700 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Santa Barbara Chef Collective | Extraordinary Private Culinary Experiences</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Santa Barbara Chef Collective</title>
 
-    <!-- Favicons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicons/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicons/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicons/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
+  <!-- Favicons -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicons/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
 
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
     
-    <!-- Styles -->
-    <link rel="stylesheet" href="/styles.css">
+  <!-- Styles -->
+  <link rel="stylesheet" href="/styles.css">
 
-    <!-- Load Components -->
-    <script src="/data.js" type="text/javascript"></script>
-    <script src="/assets/js/app.js" type="text/javascript"></script>
-
-    <style type="text/css">
-      .success-message {
-        background: #f8f9fa;
-        border-radius: 12px;
-        padding: 2rem;
-        text-align: center;
-        max-width: 600px;
-        margin: 2rem auto;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      }
-
-      .success-message h3 {
-        color: var(--primary-color);
-        font-family: 'Playfair Display', serif;
-        font-size: 1.8rem;
-        margin-bottom: 1rem;
-      }
-
-      .success-message p {
-        color: var(--text-color);
-        font-size: 1.1rem;
-        line-height: 1.6;
-        margin-bottom: 1rem;
-      }
-
-      .success-message a {
-        color: var(--primary-color);
-        text-decoration: none;
-        font-weight: 600;
-        transition: color 0.3s ease;
-      }
-
-      .success-message a:hover {
-        color: var(--accent-color);
-        text-decoration: underline;
-      }
-
-      /* Form Modal Styles */
-      .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-        overflow-y: auto;
-      }
-
-      .modal.active {
-        display: block;
-      }
-
-      .modal-close {
-        position: fixed;
-        top: 1rem;
-        right: 1rem;
-        background: white;
-        border: none;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        font-size: 1.5rem;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-    </style>
+  <!-- Load Components -->
+  <script src="/data.js" type="text/javascript"></script>
+  <script src="/assets/js/app.js" type="text/javascript"></script>
 </head>
 <body>
-    <header class="site-header">
-      <div class="container">
-        <img src="/assets/images/logo.png" alt="SBCC Logo" class="header-logo">
-        <div class="header-text">
-          <h1>Santa Barbara Chef Collective</h1>
-          <p>Private Chefs for Extraordinary Experiences</p>
-        </div>
-      </div>
-    </header>
+  <header class="site-header">
+    <div class="container">
+      <nav class="header-nav">
+        <a href="/" class="logo">
+          <img src="/images/logo.svg" alt="Logo" width="150" height="50">
+        </a>
+        <button class="menu-toggle" aria-label="Toggle Menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <ul>
+          <li><a href="#about">About</a></li>
+          <li><a href="#services">Services</a></li>
+          <li><a href="#portfolio">Portfolio</a></li>
+          <li><a href="#contact">Contact</a></li>
+          <li><a href="#get-started" class="cta-button">Get Started</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
 
-    <main>
-      <section class="hero">
+  <nav class="nav-overlay">
+    <div class="nav-content">
+      <ul>
+        <li><a href="#meet-chefs">Meet the Chefs</a></li>
+        <li><a href="#plan-event">Plan an Event</a></li>
+        <li><a href="#weekly-meals">Weekly Meals</a></li>
+        <li><a href="#our-menus">Our Menus</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero">
+      <div class="container">
         <div class="hero-content">
-          <h2>Elevate Your Next Event with a Private Chef</h2>
-          <p>Your story, your gathering, your flavors—<br>crafted for those who crave something unforgettable</p>
-          <div class="cta-buttons">
-            <button class="cta-btn tertiary" onclick="openInquiryModal('explore')">Just Exploring</button>
-            <button class="cta-btn primary" onclick="openInquiryModal('event')">Plan an Event</button>
-            <button class="cta-btn secondary" onclick="openInquiryModal('weekly')">Weekly Meals</button>
+          <h1>Elevate Your Dining Experience</h1>
+          <p class="hero-subtitle">Private chefs bringing exceptional culinary experiences to your home in Santa Barbara</p>
+          <div class="hero-cta">
+            <a href="#contact" class="btn btn-primary">Book a Chef</a>
+            <a href="#services" class="btn btn-outline">Our Services</a>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- Simple Inquiry Form Modal -->
-      <div id="inquiryModal" class="modal">
-        <div class="modal-content">
-          <button class="modal-close">&times;</button>
-          <h2>Tell Us About Your Event</h2>
-          <form id="inquiryForm" class="inquiry-form">
+    <nav class="main-nav">
+      <div class="container">
+        <ul class="main-nav__list">
+          <li><a href="#" class="main-nav__link">Home</a></li>
+          <li><a href="#" class="main-nav__link" onclick="openModal('howItWorksModal')">How It Works</a></li>
+          <li><a href="#" class="main-nav__link" onclick="openModal('eventModal')">Plan and Event</a></li>
+          <li><a href="#" class="main-nav__link" onclick="openModal('exploreModal')">See the Chefs</a></li>
+          <li><a href="#" class="main-nav__link" onclick="openModal('exploreModal')">Explore the Menus</a></li>
+          <li><a href="#" class="main-nav__link" onclick="openModal('weeklyModal')">Weekly Meals</a></li>
+          <li><a href="#" class="main-nav__link" onclick="openModal('faqModal')">FAQ</a></li>
+          <li><a href="#" class="main-nav__link" onclick="openModal('contactModal')">Contact</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Just Exploring Modal -->
+    <div id="exploreModal" class="modal">
+      <div class="modal__content">
+        <div class="modal__header">
+          <h2 class="modal__title">Explore Coco</h2>
+          <button class="modal__close" onclick="closeModal('exploreModal')">&times;</button>
+        </div>
+        
+        <div class="modal__body">
+          <div class="explore__section">
+            <div class="explore__header">
+              <h3 class="explore__title">Featured Chefs</h3>
+              <button class="btn btn--secondary" onclick="showAllChefs()">View All Chefs</button>
+            </div>
+            <div id="chefPreview" class="explore__grid">
+              <!-- Chef previews will be loaded here -->
+            </div>
+          </div>
+
+          <div class="explore__section">
+            <div class="explore__header">
+              <h3 class="explore__title">Sample Menus</h3>
+              <button class="btn btn--secondary" onclick="showAllMenus()">View All Menus</button>
+            </div>
+            <div id="menuPreview" class="explore__grid">
+              <!-- Menu previews will be loaded here -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Simple Inquiry Form Modal -->
+    <div id="inquiryModal" class="modal">
+      <div class="modal__content">
+        <button class="modal__close">&times;</button>
+        <h2 class="modal__title">Tell Us About Your Event</h2>
+        <form id="inquiryForm" class="form">
+          <div class="form__group">
+            <label class="form__label" for="name">Name</label>
+            <input type="text" id="name" name="name" class="form__input" required>
+          </div>
+          <div class="form__group">
+            <label class="form__label" for="email">Email</label>
+            <input type="email" id="email" name="email" class="form__input" required>
+          </div>
+          <div class="form__group">
+            <label class="form__label" for="phone">Phone</label>
+            <input type="tel" id="phone" name="phone" class="form__input" required>
+          </div>
+          <div class="form__group">
+            <label class="form__label" for="eventType">Event Type</label>
+            <select id="eventType" name="eventType" class="form__input" required>
+              <option value="">Select an event type</option>
+              <option value="dinner-party">Dinner Party</option>
+              <option value="birthday">Birthday Celebration</option>
+              <option value="anniversary">Anniversary</option>
+              <option value="corporate">Corporate Event</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form__group">
+            <label class="form__label" for="guests">Number of Guests</label>
+            <input type="number" id="guests" name="guests" class="form__input" min="2" required>
+          </div>
+          <div class="form__group">
+            <label class="form__label" for="date">Preferred Date</label>
+            <input type="date" id="date" name="date" class="form__input" required>
+          </div>
+          <div class="form__group">
+            <label class="form__label" for="message">Additional Details</label>
+            <textarea id="message" name="message" class="form__input" rows="4"></textarea>
+          </div>
+          <button type="submit" class="btn btn--primary">Submit Inquiry</button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- How It Works Modal -->
+  <div id="howItWorksModal" class="modal">
+    <div class="modal__content">
+      <div class="modal__header">
+        <h2 class="modal__title">How It Works</h2>
+        <button class="modal__close" onclick="closeHowItWorks()">&times;</button>
+      </div>
+      <div class="modal__body">
+        <div class="steps">
+          <div class="steps__item">
+            <h3 class="steps__title">1. Submit Your Inquiry</h3>
+            <p class="steps__description">Fill out our inquiry form with your event details, preferences, and requirements.</p>
+          </div>
+          <div class="steps__item">
+            <h3 class="steps__title">2. Receive Chef Proposals</h3>
+            <p class="steps__description">Our chefs will review your inquiry and submit personalized proposals with menu options and pricing.</p>
+          </div>
+          <div class="steps__item">
+            <h3 class="steps__title">3. Choose Your Chef</h3>
+            <p class="steps__description">Review proposals, chat with chefs, and select the perfect match for your event.</p>
+          </div>
+          <div class="steps__item">
+            <h3 class="steps__title">4. Confirm & Celebrate</h3>
+            <p class="steps__description">Finalize details with your chosen chef and get ready for an unforgettable culinary experience!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Site Map Modal -->
+  <div id="siteMapModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close">&times;</button>
+      <h2>Site Map</h2>
+      <div class="sitemap-grid">
+        <div class="sitemap-section">
+          <h3>Main Pages</h3>
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="#" onclick="openHowItWorksModal()">How It Works</a></li>
+            <li><a href="#" onclick="openInquiryModal('event')">Plan an Event</a></li>
+            <li><a href="#" onclick="openInquiryModal('weekly')">Weekly Meal Service</a></li>
+          </ul>
+        </div>
+        <div class="sitemap-section">
+          <h3>Information</h3>
+          <ul>
+            <li><a href="#" onclick="openContactModal()">Contact Us</a></li>
+            <li><a href="#" onclick="openPrivacyModal()">Privacy Policy</a></li>
+            <li><a href="#" onclick="openTermsModal()">Terms of Service</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Event Planning Modal -->
+  <div id="eventPlanningModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('eventPlanningModal')">&times;</button>
+      <form id="eventPlanningForm" class="event-planning-form">
+        <div class="form-section">
+          <h2 class="form-section-title">Contact Information</h2>
+          <div class="form-grid">
             <div class="form-group">
-              <label for="name">Your Name</label>
-              <input type="text" id="name" name="name" required>
+              <label for="clientName" data-required="*">Your Name</label>
+              <input type="text" id="clientName" name="clientName" required>
             </div>
             <div class="form-group">
-              <label for="email">Email</label>
-              <input type="email" id="email" name="email" required>
+              <label for="clientEmail" data-required="*">Email</label>
+              <input type="email" id="clientEmail" name="clientEmail" required>
             </div>
             <div class="form-group">
-              <label for="phone">Phone</label>
-              <input type="tel" id="phone" name="phone" required>
+              <label for="clientPhone">Phone Number</label>
+              <input type="tel" id="clientPhone" name="clientPhone" placeholder="(555) 555-5555">
             </div>
             <div class="form-group">
-              <label for="eventType">Event Type</label>
-              <select id="eventType" name="eventType" required>
-                <option value="">Select Event Type</option>
-                <option value="Private Dinner">Private Dinner</option>
-                <option value="Wedding">Wedding</option>
-                <option value="Corporate">Corporate Event</option>
-                <option value="Special Occasion">Special Occasion</option>
-                <option value="Other">Other</option>
-              </select>
+              <label for="address" data-required="*">Event Address</label>
+              <input type="text" id="address" name="address" required placeholder="Street Address">
             </div>
             <div class="form-group">
-              <label for="guestCount">Number of Guests</label>
+              <label for="city" data-required="*">City</label>
+              <input type="text" id="city" name="city" required>
+            </div>
+          <div class="form-group">
+              <label for="zipCode" data-required="*">ZIP Code</label>
+              <input type="text" id="zipCode" name="zipCode" required pattern="[0-9]{5}" placeholder="93101">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h2 class="form-section-title">Event Details</h2>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="eventName" data-required="*">Event Name</label>
+              <input type="text" id="eventName" name="eventName" required placeholder="e.g., Smith Family Reunion">
+            </div>
+            <div class="form-group">
+              <label for="eventDate" data-required="*">Event Date</label>
+              <input type="date" id="eventDate" name="eventDate" required>
+            </div>
+            <div class="form-group">
+              <label for="eventTime" data-required="*">Event Time</label>
+              <input type="time" id="eventTime" name="eventTime" required>
+            </div>
+            <div class="form-group">
+              <label for="guestCount" data-required="*">Number of Guests</label>
               <input type="number" id="guestCount" name="guestCount" min="1" required>
             </div>
             <div class="form-group">
-              <label for="eventDate">Preferred Date</label>
-              <input type="date" id="eventDate" name="eventDate" required>
+              <label for="budgetPerPerson" data-required="*">Budget per Person</label>
+              <select id="budgetPerPerson" name="budgetPerPerson" required>
+                <option value="">Select a budget range...</option>
+                <option value="under75">Under $75</option>
+                <option value="75-100">$75 - $100</option>
+                <option value="100-150">$100 - $150</option>
+                <option value="150-200">$150 - $200</option>
+                <option value="200-250">$200 - $250</option>
+                <option value="250-300">$250 - $300</option>
+                <option value="300plus">$300+</option>
+              </select>
+          </div>
+          <div class="form-group">
+              <label for="eventType" data-required="*">Type of Event</label>
+              <select id="eventType" name="eventType" required>
+                <option value="">Select event type...</option>
+                <option value="dinnerParty">Dinner Party</option>
+                <option value="brunch">Brunch</option>
+                <option value="holiday">Holiday Celebration</option>
+                <option value="wedding">Wedding</option>
+                <option value="corporate">Corporate Event</option>
+                <option value="birthday">Birthday Celebration</option>
+                <option value="other">Other Special Occasion</option>
+              </select>
             </div>
-            <button type="submit" class="submit-btn">Submit Inquiry</button>
-          </form>
+          </div>
         </div>
-      </div>
-    </main>
 
-    <!-- How It Works Modal -->
-    <div id="howItWorksModal" class="modal">
-      <div class="modal-content">
-        <button class="modal-close">&times;</button>
-        <h2>How It Works</h2>
-        <div class="steps-container">
-          <div class="step">
-            <h3>1. Choose Your Experience</h3>
-            <p>Browse our curated selection of top Santa Barbara chefs and their signature menus, or request a custom culinary experience.</p>
+        <div class="form-section">
+          <h2 class="form-section-title">Menu & Dietary Preferences</h2>
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label class="group-label" data-required="*">Cuisine Preferences</label>
+              <div class="checkbox-group">
+                  <div class="checkbox-wrapper">
+                      <input type="checkbox" id="cuisine-italian" name="cuisinePreference" value="italian">
+                      <label for="cuisine-italian">Italian</label>
+                  </div>
+                  <div class="checkbox-wrapper">
+                      <input type="checkbox" id="cuisine-french" name="cuisinePreference" value="french">
+                      <label for="cuisine-french">French</label>
+                  </div>
+                  <div class="checkbox-wrapper">
+                      <input type="checkbox" id="cuisine-mediterranean" name="cuisinePreference" value="mediterranean">
+                      <label for="cuisine-mediterranean">Mediterranean</label>
+                  </div>
+                  <div class="checkbox-wrapper">
+                      <input type="checkbox" id="cuisine-american" name="cuisinePreference" value="american">
+                      <label for="cuisine-american">New American</label>
+                  </div>
+                  <div class="checkbox-wrapper">
+                      <input type="checkbox" id="cuisine-asian" name="cuisinePreference" value="asian">
+                      <label for="cuisine-asian">Pan Asian</label>
+                  </div>
+                  <div class="checkbox-wrapper">
+                      <input type="checkbox" id="cuisine-mexican" name="cuisinePreference" value="mexican">
+                      <label for="cuisine-mexican">Mexican</label>
+                  </div>
+                  <div class="checkbox-wrapper">
+                      <input type="checkbox" id="cuisine-fusion" name="cuisinePreference" value="fusion">
+                      <label for="cuisine-fusion">Modern Fusion</label>
+                  </div>
+                  <div class="checkbox-wrapper">
+                      <input type="checkbox" id="cuisine-farm" name="cuisinePreference" value="farm">
+                      <label for="cuisine-farm">Farm to Table</label>
+                  </div>
+              </div>
+            </div>
+            <div class="form-group full-width">
+              <label class="group-label">Dietary Needs</label>
+              <div class="checkbox-group">
+                  <div class="checkbox-wrapper">
+                      <input type="checkbox" id="diet-none" name="dietaryNeeds" value="none">
+                      <label for="diet-none">None</label>
+                  </div>
+                  <div class="checkbox-wrapper">
+                      <input type="checkbox" id="diet-vegetarian" name="dietaryNeeds" value="vegetarian">
+                      <label for="diet-vegetarian">Vegetarian</label>
+                  </div>
+                  <div class="checkbox-wrapper">
+                      <input type="checkbox" id="diet-vegan" name="dietaryNeeds" value="vegan">
+                      <label for="diet-vegan">Vegan</label>
+                  </div>
+                  <div class="checkbox-wrapper">
+                      <input type="checkbox" id="diet-gluten" name="dietaryNeeds" value="glutenFree">
+                      <label for="diet-gluten">Gluten-Free</label>
+                  </div>
+                  <div class="checkbox-wrapper">
+                      <input type="checkbox" id="diet-dairy" name="dietaryNeeds" value="dairyFree">
+                      <label for="diet-dairy">Dairy-Free</label>
+                  </div>
+                  <div class="checkbox-wrapper">
+                      <input type="checkbox" id="diet-nut" name="dietaryNeeds" value="nutFree">
+                      <label for="diet-nut">Nut-Free</label>
+                  </div>
+                  <div class="checkbox-wrapper">
+                      <input type="checkbox" id="diet-other" name="dietaryNeeds" value="other">
+                      <label for="diet-other">Other</label>
+                  </div>
+              </div>
+            </div>
+            <div class="form-group full-width">
+              <label for="dietaryNotes">Notes or Other Dietary Needs</label>
+              <textarea id="dietaryNotes" name="dietaryNotes" rows="3" placeholder="Please list any allergies or specific dietary requirements"></textarea>
+            </div>
           </div>
-          <div class="step">
-            <h3>2. Plan Your Event</h3>
-            <p>Work directly with your chosen chef to customize the menu, discuss dietary preferences, and plan the perfect dining experience.</p>
+        </div>
+
+        <div class="form-section">
+          <h2 class="form-section-title">Event Style & Preferences</h2>
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label class="group-label">Event Vibe</label>
+              <div class="checkbox-group">
+                  <div class="checkbox-wrapper">
+                      <input type="checkbox" id="vibe-elegant" name="eventVibe" value="elegant">
+                      <label for="vibe-elegant">Elegant</label>
+                  </div>
+                  <div class="checkbox-wrapper">
+                      <input type="checkbox" id="vibe-romantic" name="eventVibe" value="romantic">
+                      <label for="vibe-romantic">Romantic</label>
+                  </div>
+                  <div class="checkbox-wrapper">
+                      <input type="checkbox" id="vibe-casual" name="eventVibe" value="casual">
+                      <label for="vibe-casual">Casual</label>
+                  </div>
+                  <div class="checkbox-wrapper">
+                      <input type="checkbox" id="vibe-fun" name="eventVibe" value="fun">
+                      <label for="vibe-fun">Fun & Lively</label>
+                  </div>
+                  <div class="checkbox-wrapper">
+                      <input type="checkbox" id="vibe-intimate" name="eventVibe" value="intimate">
+                      <label for="vibe-intimate">Intimate</label>
+                  </div>
+                  <div class="checkbox-wrapper">
+                      <input type="checkbox" id="vibe-formal" name="eventVibe" value="formal">
+                      <label for="vibe-formal">Formal</label>
+                  </div>
+                  <div class="checkbox-wrapper">
+                      <input type="checkbox" id="vibe-rustic" name="eventVibe" value="rustic">
+                      <label for="vibe-rustic">Rustic</label>
+                  </div>
+                  <div class="checkbox-wrapper">
+                      <input type="checkbox" id="vibe-modern" name="eventVibe" value="modern">
+                      <label for="vibe-modern">Modern</label>
+                  </div>
+              </div>
+            </div>
+            <div class="form-group full-width">
+              <label for="vibeDescription">Describe the Vibe</label>
+              <textarea id="vibeDescription" name="vibeDescription" rows="3" placeholder="Tell us more about the atmosphere and experience you envision"></textarea>
+            </div>
+            <div class="form-group full-width">
+              <label for="customRequests">Additional Notes & Special Requests</label>
+              <textarea id="customRequests" name="customRequests" rows="4" placeholder="Share any additional requests, preferences, or special considerations for your event"></textarea>
+            </div>
           </div>
-          <div class="step">
-            <h3>3. Chef Takes Care of Everything</h3>
-            <p>Your chef will handle everything from shopping to cleanup, allowing you to focus on enjoying the experience.</p>
-          </div>
-          <div class="step">
-            <h3>4. Enjoy & Share</h3>
-            <p>Create lasting memories with exceptional food and service, and share your experience with friends and family.</p>
-          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="submit-btn">Submit Inquiry</button>
+          <div class="form-helper-text text-center">We'll respond within 24-48 hours with personalized menu options based on your preferences</div>
+        </div>
+      </form>
+
+      <div id="successMessage" class="success-message" style="display: none;">
+        <h3>Thank You for Your Inquiry!</h3>
+        <p>We've received your event planning request and will be in touch within 24-48 hours to discuss your special event in detail.</p>
+        <p>In the meantime, feel free to browse our <a href="#" onclick="openHowItWorksModal()">How It Works</a> section to learn more about our process.</p>
+        <button onclick="closeModal('eventPlanningModal')" class="cta-btn secondary">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chef Discovery Modal -->
+  <div id="chefDiscoveryModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('chefDiscoveryModal')">&times;</button>
+      <h2>Meet Our Chefs</h2>
+      <div class="chef-discovery-content">
+        <div class="chef-grid" id="chefDiscoveryGrid">
+          <!-- Chef cards will be loaded here -->
+          <div class="loading">Loading chefs...</div>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Site Map Modal -->
-    <div id="siteMapModal" class="modal">
-      <div class="modal-content">
-        <button class="modal-close">&times;</button>
-        <h2>Site Map</h2>
-        <div class="sitemap-grid">
-          <div class="sitemap-section">
-            <h3>Main Pages</h3>
-            <ul>
-              <li><a href="/">Home</a></li>
-              <li><a href="#" onclick="openHowItWorksModal()">How It Works</a></li>
-              <li><a href="#" onclick="openInquiryModal('event')">Plan an Event</a></li>
-              <li><a href="#" onclick="openInquiryModal('weekly')">Weekly Meal Service</a></li>
-            </ul>
-          </div>
-          <div class="sitemap-section">
-            <h3>Information</h3>
-            <ul>
-              <li><a href="#" onclick="openContactModal()">Contact Us</a></li>
-              <li><a href="#" onclick="openPrivacyModal()">Privacy Policy</a></li>
-              <li><a href="#" onclick="openTermsModal()">Terms of Service</a></li>
-            </ul>
-          </div>
+  <!-- Menu Explorer Modal -->
+  <div id="menuExplorerModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('menuExplorerModal')">&times;</button>
+      <h2>Explore Our Menus</h2>
+      <div class="menu-explorer-content">
+        <div class="menu-categories">
+          <button class="menu-category active" data-category="all">All Menus</button>
+          <button class="menu-category" data-category="dinner">Dinner</button>
+          <button class="menu-category" data-category="brunch">Brunch</button>
+          <button class="menu-category" data-category="cocktail">Cocktail</button>
+          <button class="menu-category" data-category="special">Special Occasions</button>
+        </div>
+        <div class="menu-grid" id="menuExplorerGrid">
+          <!-- Menu cards will be loaded here -->
+          <div class="loading">Loading menus...</div>
         </div>
       </div>
     </div>
+  </div>
 
-    <footer>
-      <div class="footer-content">
-        <div class="footer-links">
-          <a href="/">Home</a>
-          <a href="#" onclick="openHowItWorksModal()">How It Works</a>
-          <a href="#" onclick="openInquiryModal('event')">Plan an Event</a>
-          <a href="#" onclick="openInquiryModal('weekly')">Weekly Meals</a>
-          <a href="#" onclick="openContactModal()">Contact</a>
-        </div>
-        <div class="footer-section">
-          <div class="footer-info">
-            <h3>Santa Barbara Chef Collective</h3>
-            <p>Private Chefs for Extraordinary Experiences</p>
+  <!-- Weekly Meals Modal -->
+  <div id="weeklyMealsModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('weeklyMealsModal')">&times;</button>
+      <h2>Weekly Chef Service</h2>
+      
+      <div class="service-overview">
+        <div class="service-description">
+          <h3>Your Personal Chef Experience</h3>
+          <p>In this busy world we live in, we get that there may not be time to cook! Let us customize a specific menu and delivery schedule for you, filled with amazing home-cooked meals.</p>
+          
+          <div class="service-features">
+            <div class="feature">
+              <h4>Personalized Menu Planning</h4>
+              <p>Weekly menus tailored to your preferences and dietary needs</p>
+            </div>
+            <div class="feature">
+              <h4>Fresh, Local Ingredients</h4>
+              <p>We source from local provisioners and farmers markets</p>
+            </div>
+            <div class="feature">
+              <h4>Flexible Scheduling</h4>
+              <p>Choose your preferred cooking and delivery days</p>
+            </div>
+            <div class="feature">
+              <h4>Dietary Accommodation</h4>
+              <p>Special diets and restrictions carefully considered</p>
+            </div>
           </div>
-          <img src="/assets/images/logo.png" alt="SBCC Logo" class="footer-logo">
-        </div>
-        <div class="social-icons">
-          <a href="#" aria-label="Instagram">
-            <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-            </svg>
-          </a>
-          <a href="#" aria-label="Facebook">
-            <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-            </svg>
-          </a>
-          <a href="#" aria-label="X (formerly Twitter)">
-            <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-            </svg>
-          </a>
+
+          <div class="pricing-section">
+            <h3>Investment in Your Time & Health</h3>
+            <p class="pricing-range">Price Range: Hourly Rate ($65-$120) + groceries</p>
+            <ul class="service-options">
+              <li>Weekly meal prep (3-5 days of meals)</li>
+              <li>Bi-weekly service available</li>
+              <li>Family-style or individual portions</li>
+              <li>Special dietary plans (keto, paleo, etc.)</li>
+            </ul>
+          </div>
+
+          <div class="how-it-works">
+            <h3>Weekly Service Process</h3>
+            <ol>
+              <li>Initial consultation to understand your needs</li>
+              <li>Menu planning and approval</li>
+              <li>Grocery shopping (day of cooking)</li>
+              <li>Professional cooking in your kitchen</li>
+              <li>Packaging and storage instructions</li>
+              <li>Kitchen cleanup and organization</li>
+            </ol>
+          </div>
         </div>
       </div>
-    </footer>
+
+      <div class="cta-section">
+        <button class="cta-btn primary" onclick="openInquiryModal('weekly')">START YOUR WEEKLY SERVICE</button>
+        <p class="cta-helper">We'll customize a plan that fits your lifestyle and budget</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weekly Service Inquiry Form Modal -->
+  <div id="weeklyInquiryModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('weeklyInquiryModal')">&times;</button>
+      <h2>Start Your Weekly Chef Service</h2>
+      <form id="weeklyInquiryForm" class="weekly-inquiry-form">
+        <div class="form-group">
+          <label for="weeklyName">Your Name</label>
+          <input type="text" id="weeklyName" name="name" required>
+        </div>
+        <div class="form-group">
+          <label for="weeklyEmail">Email</label>
+          <input type="email" id="weeklyEmail" name="email" required>
+        </div>
+        <div class="form-group">
+          <label for="weeklyPhone">Phone</label>
+          <input type="tel" id="weeklyPhone" name="phone" required>
+        </div>
+        <div class="form-group">
+          <label for="weeklyAddress">Service Address</label>
+          <textarea id="weeklyAddress" name="address" rows="2" required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="householdSize">Household Size (number of people)</label>
+          <input type="number" id="householdSize" name="householdSize" min="1" required>
+        </div>
+        <div class="form-group">
+          <label for="mealsPerWeek">Meals per Week</label>
+          <select id="mealsPerWeek" name="mealsPerWeek" required>
+            <option value="">Select number of meals</option>
+            <option value="3">3 meals</option>
+            <option value="5">5 meals</option>
+            <option value="7">7 meals</option>
+            <option value="custom">Custom plan</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Service Type</label>
+          <select id="serviceType" name="serviceType" required>
+            <option value="">Select service type</option>
+            <option value="in-home">In-Home Cooking</option>
+            <option value="delivery-glass">Delivery (Glass Containers)</option>
+            <option value="delivery-disposable">Delivery (Disposable Containers)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Serving Style</label>
+          <select id="servingStyle" name="servingStyle" required>
+            <option value="">Select serving style</option>
+            <option value="individual">Individual Portions</option>
+            <option value="family">Family Style</option>
+          </select>
+          </div>
+          <div class="form-group">
+          <label>Dietary Preferences</label>
+          <div class="checkbox-group">
+            <label><input type="checkbox" name="dietary[]" value="vegetarian"> Vegetarian</label>
+            <label><input type="checkbox" name="dietary[]" value="vegan"> Vegan</label>
+            <label><input type="checkbox" name="dietary[]" value="gluten-free"> Gluten-Free</label>
+            <label><input type="checkbox" name="dietary[]" value="dairy-free"> Dairy-Free</label>
+            <label><input type="checkbox" name="dietary[]" value="paleo"> Paleo</label>
+            <label><input type="checkbox" name="dietary[]" value="keto"> Keto</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="allergies">Allergies or Restrictions</label>
+          <textarea id="allergies" name="allergies" rows="2"></textarea>
+          </div>
+          <div class="form-group">
+          <label for="preferredDays">Preferred Days</label>
+          <div class="checkbox-group">
+            <label><input type="checkbox" name="days[]" value="monday"> Monday</label>
+            <label><input type="checkbox" name="days[]" value="tuesday"> Tuesday</label>
+            <label><input type="checkbox" name="days[]" value="wednesday"> Wednesday</label>
+            <label><input type="checkbox" name="days[]" value="thursday"> Thursday</label>
+            <label><input type="checkbox" name="days[]" value="friday"> Friday</label>
+            <label><input type="checkbox" name="days[]" value="saturday"> Saturday</label>
+            <label><input type="checkbox" name="days[]" value="sunday"> Sunday</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="additionalNotes">Additional Notes or Requests</label>
+          <textarea id="additionalNotes" name="notes" rows="3"></textarea>
+        </div>
+        <button type="submit" class="submit-btn">Submit Weekly Service Request</button>
+        </form>
+    </div>
+  </div>
+
+  <!-- FAQ Modal -->
+  <div id="faqModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('faqModal')">&times;</button>
+      <h2>Frequently Asked Questions</h2>
+      <div class="faq-content">
+        <!-- FAQ content will be loaded here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="images/logo-white.png" alt="Santa Barbara Chef Collective" class="footer-logo">
+          <p>Bringing exceptional culinary experiences to your home in Santa Barbara.</p>
+        </div>
+        
+        <div class="footer-nav">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="#about">About Us</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#chefs">Our Chefs</a></li>
+            <li><a href="#events">Events</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-contact">
+          <h3>Contact Us</h3>
+          <p>Santa Barbara, CA</p>
+          <p>Phone: (805) 555-0123</p>
+          <p>Email: info@sbchefcollective.com</p>
+        </div>
+
+        <div class="footer-social">
+          <h3>Follow Us</h3>
+          <div class="social-links">
+            <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2024 Santa Barbara Chef Collective. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/assets/js/app.js"></script>
+  <script src="https://kit.fontawesome.com/your-kit-code.js" crossorigin="anonymous"></script>
 </body>
-</html> 
+</html>

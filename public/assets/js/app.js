@@ -5,55 +5,106 @@
  * app.js - Main application logic for Santa Barbara Chef Collective
  */
 
-// Main application logic for Santa Barbara Chef Collective
+// Constants
+const API_ENDPOINT = '/.netify/functions';
+const DEFAULT_IMAGES = {
+    CHEF: '/assets/images/chef/default-chef.jpg',
+    MENU: '/assets/images/menu/default-menu.jpg',
+    HERO: '/assets/images/hero/default-hero.jpg',
+    BG: '/assets/images/background/default-bg.jpg',
+    SECTION_BREAK: '/assets/images/section-break/default-break.jpg',
+    ACCENT: '/assets/images/accent/default-accent.jpg',
+    SERVICE: '/assets/images/service/default-service.jpg'
+};
 
-// DOM Elements
-const chefsContainer = document.getElementById('chefsContainer');
-const menusContainer = document.getElementById('menusContainer');
-const chefsButton = document.getElementById('chefsButton');
-const menusButton = document.getElementById('menusButton');
-const faqButton = document.getElementById('faqButton');
-const servicesButton = document.getElementById('servicesButton');
-const faqContainer = document.getElementById('faqContainer');
-const servicesContainer = document.getElementById('servicesContainer');
-const experienceButton = document.getElementById('experienceButton');
-const planGatheringButton = document.getElementById('planGatheringButton');
-const personalChefButton = document.getElementById('personalChefButton');
-const pricingContainer = document.getElementById('pricingContainer');
-const eventFormContainer = document.getElementById('eventFormContainer');
-const mealServiceContainer = document.getElementById('mealServiceContainer');
-const chefContainer = document.getElementById('chefContainer');
-const menuContainer = document.getElementById('menuContainer');
-let currentOpenAccordion = null;
-
-// Default placeholder image
-const DEFAULT_CHEF_IMAGE = '/assets/images/default-chef.jpg';
-const DEFAULT_MENU_IMAGE = '/assets/images/default-menu.jpg';
-
-// Initialize approved images object
+// Global variables
 let approvedImages = {
     HERO: [],
     BG: [],
+    SECTION_BREAK: [],
+    ACCENT: [],
     MENU: [],
     SERVICE: []
 };
 
-// Main event listeners
+let userPreferences = null;
+let currentOpenAccordion = null;
+
+// Button references for tab navigation (add these at the top, after constants)
+const chefsButton = document.getElementById('chefsButton');
+const menusButton = document.getElementById('menusButton');
+const servicesButton = document.getElementById('servicesButton');
+const faqButton = document.getElementById('faqButton');
+const experienceButton = document.getElementById('experienceButton');
+const planGatheringButton = document.getElementById('planGatheringButton');
+const personalChefButton = document.getElementById('personalChefButton');
+
+// --- DOM ELEMENT REFERENCES ---
+// Only reference elements that exist in the HTML
+const menuToggle = document.querySelector('.menu-toggle');
+const navOverlay = document.querySelector('.nav-overlay');
+const inquiryForm = document.getElementById('inquiryForm');
+const viewAllChefs = document.querySelector('#viewAllChefs');
+const viewAllMenus = document.querySelector('#viewAllMenus');
+const closeExploreModal = document.querySelector('#exploreModal .close-modal');
+const tabButtons = document.querySelectorAll('.tab-button');
+
+// --- MAIN INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', function() {
     initializeEventListeners();
+    initializeForms();
     loadApprovedImages();
+    initializeSmoothScroll();
+    initializeParallax();
+    initializeHeaderScroll();
 });
 
+// --- EVENT LISTENERS SETUP ---
 function initializeEventListeners() {
-    // CTA Buttons
-    document.querySelectorAll('.cta-btn').forEach(button => {
-        button.addEventListener('click', (e) => {
-            const action = e.target.dataset.action;
-            handleCTAClick(action);
+    // Mobile menu toggle
+    if (menuToggle) {
+        menuToggle.addEventListener('click', function() {
+            this.classList.toggle('active');
+            navOverlay.classList.toggle('active');
+            document.body.classList.toggle('nav-open');
         });
-    });
-
-    // Modal Close Buttons
+    }
+    // Close menu when clicking a link
+    if (navOverlay) {
+        navOverlay.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', function() {
+                menuToggle.classList.remove('active');
+                navOverlay.classList.remove('active');
+                document.body.classList.remove('nav-open');
+            });
+        });
+    }
+    // Inquiry form submit
+    if (inquiryForm) {
+        inquiryForm.addEventListener('submit', handleInquirySubmit);
+    }
+    // Explore modal buttons
+    if (viewAllChefs) {
+        viewAllChefs.addEventListener('click', showAllChefs);
+    }
+    if (viewAllMenus) {
+        viewAllMenus.addEventListener('click', showAllMenus);
+    }
+    if (closeExploreModal) {
+        closeExploreModal.addEventListener('click', closeExplore);
+    }
+    // Tab buttons (if any)
+    if (tabButtons.length > 0) {
+        tabButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const tabName = button.dataset.tab;
+                if (tabName) {
+                    openTab(e, tabName);
+                }
+            });
+        });
+    }
+    // Modal close buttons
     document.querySelectorAll('.modal-close').forEach(button => {
         button.addEventListener('click', (e) => {
             const modal = e.target.closest('.modal');
@@ -62,8 +113,7 @@ function initializeEventListeners() {
             }
         });
     });
-
-    // Modal Outside Click
+    // Modal outside click
     document.querySelectorAll('.modal').forEach(modal => {
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
@@ -71,12 +121,6 @@ function initializeEventListeners() {
             }
         });
     });
-
-    // Inquiry Form
-    const inquiryForm = document.getElementById('inquiryForm');
-    if (inquiryForm) {
-        inquiryForm.addEventListener('submit', handleInquirySubmit);
-    }
 }
 
 async function handleInquirySubmit(e) {
@@ -86,60 +130,442 @@ async function handleInquirySubmit(e) {
     const submitBtn = form.querySelector('.submit-btn');
     const originalBtnText = submitBtn.textContent;
     
+    // Remove any existing error messages
+    const existingError = form.querySelector('.error-message');
+    if (existingError) {
+        existingError.remove();
+    }
+    
     try {
         // Show loading state
-        submitBtn.textContent = 'Sending...';
+        submitBtn.textContent = 'Processing...';
         submitBtn.disabled = true;
 
-        // Gather form data
-        const formData = {
-            name: form.name.value,
-            email: form.email.value,
-            phone: form.phone.value,
-            eventType: form.eventType.value,
-            guestCount: form.guestCount.value,
-            eventDate: form.eventDate.value,
-            eventTime: '12:00', // Default time
-            budgetPerPerson: '100', // Default budget
-            cuisinePreferences: 'To be discussed' // Default preferences
+        // Check which form is being submitted
+        const isSimpleForm = form.id === 'inquiryForm';
+        
+        // Gather form data based on which form is being submitted
+        const formData = isSimpleForm ? {
+            // Simple inquiry form fields
+            name: form.querySelector('#name').value,
+            email: form.querySelector('#email').value,
+            phone: form.querySelector('#phone').value,
+            eventName: 'Consultation',
+            eventDate: form.querySelector('#eventDate').value,
+            eventTime: form.querySelector('#eventTime').value || '12:00',
+            guestCount: form.querySelector('#guestCount').value,
+            budgetPerPerson: '0',
+            eventType: form.querySelector('#eventType').value,
+            cuisinePreferences: 'None specified'
+        } : {
+            // Detailed event planning form fields
+            name: form.querySelector('#clientName').value,
+            email: form.querySelector('#clientEmail').value,
+            phone: form.querySelector('#clientPhone').value,
+            eventName: form.querySelector('#eventName').value || 'Consultation',
+            eventDate: form.querySelector('#eventDate').value,
+            eventTime: form.querySelector('#eventTime').value || '12:00',
+            guestCount: form.querySelector('#guestCount').value,
+            budgetPerPerson: form.querySelector('#budgetPerPerson').value || '0',
+            eventType: form.querySelector('#eventType').value,
+            cuisinePreferences: Array.from(form.querySelectorAll('input[name="cuisinePreference"]:checked')).map(cb => cb.value).join(', ') || 'None specified',
+            eventAddress: `${form.querySelector('#address').value}, ${form.querySelector('#city').value}, ${form.querySelector('#zipCode').value}`
         };
+
+        console.log('Submitting form data:', formData);
 
         // Submit to API
         const response = await fetch('/.netlify/functions/inquiries', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+            },
             body: JSON.stringify(formData)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to submit inquiry');
+        }
+
+        const result = await response.json();
+        console.log('Submission successful:', result);
+
+        // Show success message
+        form.innerHTML = `
+            <div class="success-message">
+                <h3>Thank you for your inquiry!</h3>
+                <p>We've received your request and will be in touch shortly.</p>
+            </div>
+        `;
+
+    } catch (error) {
+        console.error('Error processing form:', error);
+        
+        // Show error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.textContent = error.message || 'There was an error processing your request. Please try again later.';
+        form.insertBefore(errorDiv, submitBtn);
+        
+        // Reset button
+        submitBtn.textContent = originalBtnText;
+        submitBtn.disabled = false;
+        
+        // Scroll error into view
+        errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
+async function fetchMatchingMenus(preferences) {
+    try {
+        const response = await fetch(`/.netlify/functions/getMenus`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch menus');
+        }
+
+        const menus = await response.json();
+        
+        // Score each menu based on preferences
+        const scoredMenus = menus.map(menu => {
+            let score = 0;
+            let matchDetails = [];
+            
+            // Event type match (highest priority - 30 points max)
+            const eventTypeScore = calculateEventTypeScore(menu.type, preferences.eventType);
+            score += eventTypeScore;
+            if (eventTypeScore > 0) {
+                matchDetails.push(`Event type match: ${menu.type}`);
+            }
+            
+            // Budget range match (25 points max)
+            const budgetScore = calculateBudgetScore(menu.priceRange, preferences.budgetPerPerson);
+            score += budgetScore;
+            if (budgetScore > 0) {
+                matchDetails.push(`Budget match: ${menu.priceRange}`);
+            }
+            
+            // Cuisine preferences match (20 points max)
+            const cuisineScore = calculateCuisineScore(menu.cuisines, preferences.cuisinePreferences);
+            score += cuisineScore;
+            if (cuisineScore > 0) {
+                matchDetails.push(`Cuisine matches: ${menu.cuisines?.join(', ')}`);
+            }
+            
+            // Vibe match (15 points max)
+            const vibeScore = calculateVibeScore(menu.vibe, preferences.eventVibe);
+            score += vibeScore;
+            if (vibeScore > 0) {
+                matchDetails.push(`Vibe matches: ${menu.vibe}`);
+            }
+            
+            // Guest count suitability (10 points max)
+            const guestScore = calculateGuestScore(menu.minGuests, menu.maxGuests, preferences.guestCount);
+            score += guestScore;
+            if (guestScore > 0) {
+                matchDetails.push(`Suitable for ${preferences.guestCount} guests`);
+            }
+            
+            return { 
+                ...menu, 
+                score,
+                matchDetails,
+                matchPercentage: Math.round((score / 100) * 100)
+            };
+        });
+        
+        // Filter out menus with very low scores (less than 40%)
+        const viableMenus = scoredMenus.filter(menu => menu.matchPercentage >= 40);
+        
+        // Sort by score and return top 3
+        return viableMenus
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 3);
+            
+    } catch (error) {
+        console.error('Error fetching matching menus:', error);
+        return FALLBACK_MENUS?.slice(0, 3) || [];
+    }
+}
+
+// Helper functions for score calculation
+function calculateEventTypeScore(menuType, preferredType) {
+    if (!menuType || !preferredType) return 0;
+    
+    menuType = menuType.toLowerCase();
+    preferredType = preferredType.toLowerCase();
+    
+    // Exact match
+    if (menuType === preferredType) return 30;
+    
+    // Related event types
+    const relatedTypes = {
+        'wedding': ['rehearsal dinner', 'engagement party', 'bridal shower'],
+        'corporate': ['business lunch', 'conference', 'team building'],
+        'private dinner': ['date night', 'anniversary', 'birthday'],
+        'special occasion': ['birthday', 'anniversary', 'celebration']
+    };
+    
+    // Check for related event types
+    if (relatedTypes[menuType]?.includes(preferredType) || 
+        Object.entries(relatedTypes).find(([key, values]) => 
+            key === preferredType && values.includes(menuType))) {
+        return 20;
+    }
+    
+    return 0;
+}
+
+function calculateBudgetScore(menuPriceRange, userBudget) {
+    if (!menuPriceRange || !userBudget) return 0;
+    
+    // Convert price ranges to numbers for comparison
+    const priceRanges = {
+        'budget': [0, 50],
+        'moderate': [51, 100],
+        'premium': [101, 200],
+        'luxury': [201, Infinity]
+    };
+    
+    const userBudgetNum = parseInt(userBudget);
+    let menuRange = priceRanges[menuPriceRange.toLowerCase()];
+    
+    if (!menuRange || isNaN(userBudgetNum)) return 0;
+    
+    // Perfect match - budget falls within range
+    if (userBudgetNum >= menuRange[0] && userBudgetNum <= menuRange[1]) return 25;
+    
+    // Close match - within 20% of range
+    const rangeMidpoint = (menuRange[0] + menuRange[1]) / 2;
+    const difference = Math.abs(userBudgetNum - rangeMidpoint);
+    const percentDiff = difference / rangeMidpoint;
+    
+    if (percentDiff <= 0.2) return 15;
+    if (percentDiff <= 0.4) return 10;
+    
+    return 0;
+}
+
+function calculateCuisineScore(menuCuisines, userPreferences) {
+    if (!menuCuisines || !userPreferences || !userPreferences.length) return 0;
+    
+    // Define related cuisines mapping
+    const relatedCuisines = {
+        'Italian': ['Mediterranean', 'Greek', 'Spanish'],
+        'Mediterranean': ['Italian', 'Greek', 'Spanish', 'Middle Eastern'],
+        'Greek': ['Mediterranean', 'Italian', 'Turkish', 'Middle Eastern'],
+        'Spanish': ['Mediterranean', 'Italian', 'Portuguese'],
+        'French': ['Italian', 'Mediterranean'],
+        'Asian': ['Chinese', 'Japanese', 'Korean', 'Thai', 'Vietnamese'],
+        'Chinese': ['Asian', 'Japanese', 'Korean', 'Thai', 'Vietnamese'],
+        'Japanese': ['Asian', 'Chinese', 'Korean'],
+        'Thai': ['Asian', 'Vietnamese', 'Cambodian'],
+        'Vietnamese': ['Asian', 'Thai', 'Cambodian'],
+        'Mexican': ['Latin American', 'Spanish', 'Caribbean'],
+        'Latin American': ['Mexican', 'Caribbean', 'Spanish'],
+        'Caribbean': ['Latin American', 'Mexican', 'Spanish'],
+        'Indian': ['Middle Eastern', 'Pakistani', 'Nepalese'],
+        'Middle Eastern': ['Indian', 'Greek', 'Turkish', 'Mediterranean']
+    };
+
+    let score = 0;
+    const maxPointsPerCuisine = 20 / userPreferences.length; // Distribute 20 points among preferences
+    
+    userPreferences.forEach(preferredCuisine => {
+        // Direct match
+        if (menuCuisines.includes(preferredCuisine)) {
+            score += maxPointsPerCuisine;
+            return;
+        }
+        
+        // Check related cuisines
+        const related = relatedCuisines[preferredCuisine] || [];
+        const hasRelatedMatch = menuCuisines.some(cuisine => related.includes(cuisine));
+        if (hasRelatedMatch) {
+            score += maxPointsPerCuisine * 0.7; // 70% points for related cuisine match
+        }
+    });
+    
+    return Math.min(20, score); // Cap at 20 points
+}
+
+function calculateVibeScore(menuVibe, userVibes) {
+    if (!menuVibe || !userVibes || !userVibes.length) return 0;
+    
+    // Define vibe categories and their related vibes
+    const vibeCategories = {
+        'Elegant': {
+            related: ['Sophisticated', 'Luxurious', 'Refined', 'Upscale'],
+            weight: 1.0
+        },
+        'Casual': {
+            related: ['Relaxed', 'Laid-back', 'Informal', 'Comfortable'],
+            weight: 0.8
+        },
+        'Rustic': {
+            related: ['Farm-to-table', 'Country', 'Natural', 'Homestyle'],
+            weight: 0.9
+        },
+        'Modern': {
+            related: ['Contemporary', 'Minimalist', 'Clean', 'Innovative'],
+            weight: 1.0
+        },
+        'Traditional': {
+            related: ['Classic', 'Heritage', 'Time-honored', 'Authentic'],
+            weight: 0.9
+        },
+        'Fusion': {
+            related: ['Creative', 'Innovative', 'Eclectic', 'Contemporary'],
+            weight: 0.8
+        },
+        'Seasonal': {
+            related: ['Fresh', 'Local', 'Farm-to-table', 'Natural'],
+            weight: 0.9
+        },
+        'Celebratory': {
+            related: ['Festive', 'Party', 'Fun', 'Lively'],
+            weight: 1.0
+        }
+    };
+
+    let score = 0;
+    const maxPointsPerVibe = 15 / userVibes.length; // Distribute 15 points among preferences
+    
+    userVibes.forEach(preferredVibe => {
+        // Direct match
+        if (menuVibe === preferredVibe) {
+            score += maxPointsPerVibe;
+            return;
+        }
+        
+        // Check related vibes
+        const category = Object.entries(vibeCategories).find(([key, value]) => 
+            key === preferredVibe || value.related.includes(preferredVibe)
+        );
+        
+        if (category) {
+            const [mainVibe, { related, weight }] = category;
+            if (menuVibe === mainVibe || related.includes(menuVibe)) {
+                score += maxPointsPerVibe * weight;
+            }
+        }
+    });
+    
+    return Math.min(15, score); // Cap at 15 points
+}
+
+function calculateGuestScore(minGuests, maxGuests, guestCount) {
+    if (!minGuests || !maxGuests || !guestCount) return 0;
+    
+    const count = parseInt(guestCount);
+    if (isNaN(count)) return 0;
+    
+    // Perfect fit
+    if (count >= minGuests && count <= maxGuests) return 10;
+    
+    // Within 20% of range
+    const rangeMidpoint = (minGuests + maxGuests) / 2;
+    const difference = Math.abs(count - rangeMidpoint);
+    const percentDiff = difference / rangeMidpoint;
+    
+    if (percentDiff <= 0.2) return 7;
+    if (percentDiff <= 0.4) return 4;
+    
+    return 0;
+}
+
+function showMenuSelectionView(menus) {
+    const form = document.getElementById('eventForm');
+    const menuSelectionView = document.createElement('div');
+    menuSelectionView.className = 'menu-selection-view';
+    menuSelectionView.innerHTML = `
+        <h2>Curated Menu Selections</h2>
+        <p class="helper-text">Based on your preferences, we've selected these menus that would be perfect for your event.</p>
+        <p class="dietary-note">Note: All our menus can be customized to accommodate dietary restrictions and preferences. Please let us know about any specific requirements when you submit your inquiry.</p>
+        
+        <div class="menu-grid">
+            ${menus.map(menu => `
+                <div class="menu-card" data-menu-id="${menu.id}">
+                    <div class="menu-match-badge">${menu.matchPercentage}% Match</div>
+                    <h3>${menu.name}</h3>
+                    <p>${menu.description}</p>
+                    <div class="menu-match-details">
+                        <h4>Why this menu matches your preferences:</h4>
+                        <ul>
+                            ${menu.matchDetails.map(detail => `<li>${detail}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <button class="select-menu-btn" onclick="selectMenu('${menu.id}')">Select This Menu</button>
+                </div>
+            `).join('')}
+        </div>
+        <button class="secondary-btn" onclick="goBackToForm()">Back to Form</button>
+    `;
+    
+    form.style.display = 'none';
+    form.parentNode.insertBefore(menuSelectionView, form);
+}
+
+function selectMenu(menuId) {
+    // Store selected menu
+    userPreferences.selectedMenuId = menuId;
+    
+    // Submit all data to backend
+    submitFinalInquiry(userPreferences);
+}
+
+function goBackToForm() {
+    // Re-initialize the form
+    initializeEventForm();
+}
+
+async function submitFinalInquiry(data) {
+    try {
+        const response = await fetch('/.netlify/functions/inquiries', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
         });
 
         if (!response.ok) {
             throw new Error('Failed to submit inquiry');
         }
 
-        // Show success message
-        form.innerHTML = `
+        // Show final success message
+        const modalContent = document.querySelector('#eventPlanningModal .modal-content');
+        modalContent.innerHTML = `
             <div class="success-message">
                 <h3>Thank You!</h3>
-                <p>We've received your inquiry and will be in touch soon.</p>
+                <p>We've received your event planning request and will be in touch within 24-48 hours to discuss your special event in detail.</p>
+                <button onclick="closeModal('eventPlanningModal')" class="cta-btn">Close</button>
             </div>
         `;
 
     } catch (error) {
         console.error('Error submitting inquiry:', error);
-        
-        // Show error message
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'error-message';
-        errorDiv.textContent = 'There was an error submitting your inquiry. Please try again.';
-        form.insertBefore(errorDiv, submitBtn);
-        
-        // Reset button
-        submitBtn.textContent = originalBtnText;
-        submitBtn.disabled = false;
+        alert('There was an error submitting your inquiry. Please try again.');
     }
 }
 
 function handleCTAClick(action) {
     switch (action) {
+        case 'chefs':
+            openModal('chefsModal');
+            break;
+        case 'weekly':
+            openModal('weeklyInquiryModal');
+            break;
+        case 'event':
+            openModal('eventInquiryModal');
+            break;
         case 'explore-chefs':
             window.location.href = '#chefDiscovery';
             break;
@@ -157,82 +583,165 @@ function handleCTAClick(action) {
 // Load approved images from Airtable
 async function loadApprovedImages() {
     try {
-        const response = await fetch('/.netlify/functions/api-v2?action=getImages');
+        const response = await fetch('/.netlify/functions/getImages');
         if (!response.ok) {
-            throw new Error('Failed to fetch images');
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
         const images = await response.json();
-        console.log('Loaded approved images:', images);
-        // TODO: Apply images to appropriate sections
+        if (images.error) {
+            throw new Error(images.error);
+        }
+        // Store images globally
+        window.approvedImages = images;
+        // Update UI with new images
+        updateUIImages(images);
     } catch (error) {
         console.error('Error loading images:', error);
+        // Handle error gracefully in the UI
+        document.querySelectorAll('.has-bg-image').forEach(el => {
+            el.classList.remove('has-bg-image');
+        });
     }
 }
 
-// Update all images in the UI
-function updateUIImages() {
+function updateUIImages(images) {
+    if (!images) {
+        console.error('No images provided to updateUIImages');
+        return;
+    }
+
+    // Helper function to convert Dropbox URL to direct image URL
+    function convertDropboxUrl(url) {
+        if (url && url.includes('dropbox.com')) {
+            // If it's already in the dl.dropboxusercontent.com format with raw=1, return as is
+            if (url.includes('dl.dropboxusercontent.com') && url.includes('raw=1')) {
+                return url;
+            }
+            // Convert www.dropbox.com URLs to direct links
+            return url.replace('www.dropbox.com', 'dl.dropboxusercontent.com')
+                     .replace('?dl=0', '?raw=1');
+        }
+        return url;
+    }
+
     // Update hero section background
     const hero = document.querySelector('.hero');
-    if (hero && approvedImages.HERO.length > 0) {
-        const heroImage = getRandomImage(approvedImages.HERO);
-        hero.style.backgroundImage = `linear-gradient(rgba(79, 93, 108, 0.85), rgba(79, 93, 108, 0.85)), url('${heroImage.url}')`;
+    if (hero && images.HERO && images.HERO.length > 0) {
+        const heroImage = images.HERO[images.HERO.length - 1]; // Get the last (newest) hero image
+        if (heroImage && heroImage.url) {
+            const imageUrl = convertDropboxUrl(heroImage.url);
+            hero.style.setProperty('--hero-bg', `url(${imageUrl})`);
+            hero.classList.add('has-bg-image');
+            console.log('Updated hero image:', imageUrl);
+        }
     }
 
     // Update header background
     const header = document.querySelector('.header-bg');
-    if (header && approvedImages.BG.length > 0) {
-        const bgImage = getRandomImage(approvedImages.BG);
-        header.style.backgroundImage = `linear-gradient(rgba(44, 62, 80, 0.7), rgba(44, 62, 80, 0.9)), url('${bgImage.url}')`;
+    if (header && images.BG && images.BG.length > 0) {
+        const bgImage = getRandomImage(images.BG);
+        if (bgImage && bgImage.url) {
+            const imageUrl = convertDropboxUrl(bgImage.url);
+            header.style.backgroundImage = `linear-gradient(rgba(44, 62, 80, 0.7), rgba(44, 62, 80, 0.9)), url('${imageUrl}')`;
+            console.log('Updated header background:', imageUrl);
+        }
     }
+
+    // Store the images globally for other functions to use
+    window.approvedImages = images;
+
+    // Update section break images
+    document.querySelectorAll('.section-break').forEach(section => {
+        if (images.SECTION_BREAK && images.SECTION_BREAK.length > 0) {
+            const breakImage = getRandomImage(images.SECTION_BREAK);
+            if (breakImage && breakImage.url) {
+                const imageUrl = convertDropboxUrl(breakImage.url);
+                section.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('${imageUrl}')`;
+            }
+        }
+    });
+
+    // Update accent images
+    document.querySelectorAll('.accent-image').forEach(img => {
+        if (images.ACCENT && images.ACCENT.length > 0) {
+            const accentImage = getRandomImage(images.ACCENT);
+            if (accentImage && accentImage.url) {
+                img.src = convertDropboxUrl(accentImage.url);
+                if (accentImage.alt) {
+                    img.alt = accentImage.alt;
+                }
+            }
+        }
+    });
 
     // Update service images
     document.querySelectorAll('.service-image').forEach(img => {
         const serviceName = img.dataset.service;
-        img.src = getServiceImage(serviceName);
+        if (serviceName) {
+            const imageUrl = convertDropboxUrl(getServiceImage(serviceName));
+            img.src = imageUrl;
+            img.alt = `${serviceName} service`;
+        }
     });
 
     // Update menu images
     document.querySelectorAll('.menu-image img').forEach(img => {
-        const menuName = img.alt;
-        img.src = getMenuImage(menuName);
+        const menuName = img.dataset.menu;
+        if (menuName) {
+            const imageUrl = convertDropboxUrl(getMenuImage(menuName));
+            img.src = imageUrl;
+            img.alt = `${menuName} menu`;
+        }
     });
 }
 
 // Helper function to get a random image from an array
 function getRandomImage(images) {
+    if (!Array.isArray(images) || images.length === 0) {
+        console.warn('No images provided to getRandomImage');
+        return null;
+    }
     return images[Math.floor(Math.random() * images.length)];
 }
 
 // Get service image from approved images or fallback to default
 function getServiceImage(serviceName) {
-    if (!serviceName) return DEFAULT_MENU_IMAGE;
+    if (!serviceName) {
+        console.warn('No service name provided to getServiceImage');
+        return DEFAULT_IMAGES.MENU;
+    }
     
-    if (approvedImages.SERVICE.length > 0) {
+    if (window.approvedImages && window.approvedImages.SERVICE && window.approvedImages.SERVICE.length > 0) {
         // Try to find a specific image for this service
-        const serviceImage = approvedImages.SERVICE.find(img => 
-            img.filename.toLowerCase().includes(serviceName.toLowerCase()));
-        if (serviceImage) return serviceImage.url;
+        const serviceImage = window.approvedImages.SERVICE.find(img => 
+            img.filename && img.filename.toLowerCase().includes(serviceName.toLowerCase()));
+        if (serviceImage && serviceImage.url) return serviceImage.url;
         
         // If no specific image, use a random approved service image
-        return getRandomImage(approvedImages.SERVICE).url;
+        const randomImage = getRandomImage(window.approvedImages.SERVICE);
+        return randomImage && randomImage.url ? randomImage.url : DEFAULT_IMAGES.MENU;
     }
-    return DEFAULT_MENU_IMAGE;
+    return DEFAULT_IMAGES.MENU;
 }
 
 // Get menu image from approved images or fallback to default
 function getMenuImage(menuName) {
-    if (!menuName) return DEFAULT_MENU_IMAGE;
+    if (!menuName) {
+        console.warn('No menu name provided to getMenuImage');
+        return DEFAULT_IMAGES.MENU;
+    }
     
-    if (approvedImages.MENU.length > 0) {
+    if (window.approvedImages && window.approvedImages.MENU && window.approvedImages.MENU.length > 0) {
         // Try to find a specific image for this menu
-        const menuImage = approvedImages.MENU.find(img => 
-            img.filename.toLowerCase().includes(menuName.toLowerCase()));
-        if (menuImage) return menuImage.url;
+        const menuImage = window.approvedImages.MENU.find(img => 
+            img.filename && img.filename.toLowerCase().includes(menuName.toLowerCase()));
+        if (menuImage && menuImage.url) return menuImage.url;
         
         // If no specific image, use a random approved menu image
-        return getRandomImage(approvedImages.MENU).url;
+        const randomImage = getRandomImage(window.approvedImages.MENU);
+        return randomImage && randomImage.url ? randomImage.url : DEFAULT_IMAGES.MENU;
     }
-    return DEFAULT_MENU_IMAGE;
+    return DEFAULT_IMAGES.MENU;
 }
 
 function getColor(index) {
@@ -295,183 +804,110 @@ function openTab(evt, tabName) {
     }
 }
 
-// Add click event listeners to buttons
+// Add null checks for all button event listeners
 if (chefsButton) {
     chefsButton.addEventListener('click', (event) => openTab(event, 'chefsContainer'));
 }
-
 if (menusButton) {
     menusButton.addEventListener('click', (event) => openTab(event, 'menusContainer'));
 }
-
 if (servicesButton) {
     servicesButton.addEventListener('click', (event) => openTab(event, 'servicesContainer'));
 }
-
 if (faqButton) {
     faqButton.addEventListener('click', (event) => openTab(event, 'faqContainer'));
 }
-
-// Add new button constants
-const eventForm = document.getElementById('eventForm');
-const mealServiceForm = document.getElementById('mealServiceForm');
-
-// Add click handlers for new buttons
 if (experienceButton) {
     experienceButton.addEventListener('click', () => {
         openTab('pricing-content');
     });
 }
-
 if (planGatheringButton) {
     planGatheringButton.addEventListener('click', () => {
         openTab('event-form-content');
     });
 }
-
 if (personalChefButton) {
     personalChefButton.addEventListener('click', () => {
         openTab('meal-service-content');
     });
 }
 
-// Initialize the page
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('Initializing SBCC application...');
-    initializeJourneyButtons();
-    initializeContactAccordion();
-
-    // Handle CTA button clicks
-    document.querySelectorAll('.cta-btn').forEach(button => {
-        button.addEventListener('click', () => {
-            const action = button.dataset.action;
-            handleCTAClick(action);
-        });
-    });
-
-    // Add smooth scrolling for all anchor links
+// Initialize smooth scrolling
+function initializeSmoothScroll() {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
-            document.querySelector(this.getAttribute('href')).scrollIntoView({
-                behavior: 'smooth'
-            });
-        });
-    });
-
-    // Add parallax effect to hero section
-    window.addEventListener('scroll', () => {
-        const hero = document.querySelector('.hero');
-        const scrolled = window.pageYOffset;
-        hero.style.backgroundPositionY = `${scrolled * 0.5}px`;
-    });
-
-    // Handle header transparency on scroll
-    window.addEventListener('scroll', handleHeaderScroll);
-    handleHeaderScroll(); // Initial call
-
-    // Load approved images
-    loadApprovedImages();
-
-    // Initialize chef discovery section
-    window.sbccData.initChefDiscovery();
-
-    // Handle contact form submission
-    const contactForm = document.getElementById('contactForm');
-    if (contactForm) {
-        contactForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = new FormData(contactForm);
-            const data = Object.fromEntries(formData.entries());
-            
-            try {
-                const response = await fetch('/.netlify/functions/api', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'submitContact',
-                        ...data
-                    }),
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth'
                 });
-
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-
-                // Show success message
-                contactForm.innerHTML = `
-                    <div class="success-message">
-                        <h3>Thank You!</h3>
-                        <p>Your message has been sent. We'll get back to you soon.</p>
-                    </div>
-                `;
-            } catch (error) {
-                console.error('Error:', error);
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'error';
-                errorDiv.textContent = 'There was an error sending your message. Please try again.';
-                contactForm.prepend(errorDiv);
             }
         });
-    }
+    });
+}
 
-    // Handle simple inquiry form submission
+// Initialize parallax effect
+function initializeParallax() {
+    const hero = document.querySelector('.hero');
+    if (hero) {
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            hero.style.backgroundPositionY = `${scrolled * 0.5}px`;
+        });
+    }
+}
+
+// Initialize header scroll behavior
+function initializeHeaderScroll() {
+    const header = document.querySelector('.site-header');
+    if (header) {
+        const handleScroll = () => {
+            const scrollPosition = window.scrollY;
+            if (scrollPosition > 50) {
+                header.style.background = 'rgba(74, 144, 167, 0.95)';
+                header.style.backdropFilter = 'blur(10px)';
+            } else {
+                header.style.background = 'transparent';
+                header.style.backdropFilter = 'none';
+            }
+        };
+        
+        window.addEventListener('scroll', handleScroll);
+        handleScroll(); // Initial call
+    }
+}
+
+// Initialize all forms
+function initializeForms() {
+    // Initialize inquiry form
     const inquiryForm = document.getElementById('inquiryForm');
     if (inquiryForm) {
-        inquiryForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = new FormData(inquiryForm);
-            const data = Object.fromEntries(formData.entries());
-            
-            try {
-                const response = await fetch('/.netlify/functions/api', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'submitInquiry',
-                        ...data
-                    }),
-                });
-
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-
-                // Show success message
-                inquiryForm.innerHTML = `
-                    <div class="success-message">
-                        <h3>Thank You!</h3>
-                        <p>Your inquiry has been submitted successfully. We'll be in touch with you shortly.</p>
-                    </div>
-                `;
-
-                // Close the modal after a delay
-                setTimeout(() => {
-                    document.getElementById('inquiryModal').classList.remove('active');
-                }, 3000);
-            } catch (error) {
-                console.error('Error:', error);
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'error';
-                errorDiv.textContent = 'There was an error submitting your inquiry. Please try again.';
-                inquiryForm.prepend(errorDiv);
-            }
-        });
+        inquiryForm.addEventListener('submit', handleInquirySubmit);
     }
 
-    // Initialize date inputs with min date of today
-    document.querySelectorAll('input[type="date"]').forEach(input => {
-        const today = new Date().toISOString().split('T')[0];
-        input.min = today;
-    });
+    // Initialize contact form
+    const contactForm = document.getElementById('contactForm');
+    if (contactForm) {
+        contactForm.addEventListener('submit', handleContactSubmit);
+    }
 
-    // Handle phone number formatting
+    // Initialize weekly service form
+    const weeklyForm = document.getElementById('weeklyInquiryForm');
+    if (weeklyForm) {
+        weeklyForm.addEventListener('submit', handleWeeklyInquirySubmit);
+    }
+
+    // Set minimum date for all date inputs
+    setMinDate();
+
+    // Initialize phone number formatting
+    initializePhoneFormatting();
+}
+
+// Initialize phone number formatting
+function initializePhoneFormatting() {
     document.querySelectorAll('input[type="tel"]').forEach(input => {
         input.addEventListener('input', (e) => {
             let value = e.target.value.replace(/\D/g, '');
@@ -480,952 +916,338 @@ document.addEventListener('DOMContentLoaded', () => {
                     value = value;
                 } else if (value.length <= 6) {
                     value = value.slice(0, 3) + '-' + value.slice(3);
-                } else {
+        } else {
                     value = value.slice(0, 3) + '-' + value.slice(3, 6) + '-' + value.slice(6, 10);
                 }
                 e.target.value = value;
             }
         });
     });
-});
-
-// Initialize journey buttons
-function initializeJourneyButtons() {
-    document.querySelectorAll('.action-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const journey = btn.dataset.journey;
-            if (!journey) return;
-            
-            // Only hide the action buttons, not the entire main content
-            document.querySelector('.action-buttons').style.display = 'none';
-            
-            // Show appropriate journey content
-            switch(journey) {
-                case 'event':
-                    showEventJourney();
-                    break;
-                case 'weekly':
-                    showWeeklyJourney();
-                    break;
-                case 'exploring':
-                    showExploringJourney();
-                    break;
-            }
-        });
-    });
 }
 
-// Journey display functions
-function showEventJourney() {
-    const container = document.getElementById('eventJourney') || createJourneyContainer('eventJourney');
-    container.style.display = 'block';
-    
-    if (!container.dataset.initialized) {
-        container.innerHTML = `
-            <div class="journey-header">
-                <h2>Plan Your Event</h2>
-                <button class="back-btn" onclick="returnToHome()">← Back to Home</button>
-            </div>
-            <form id="eventForm" class="event-form">
-                <div class="form-group">
-                    <label for="eventType">Event Type*</label>
-                    <select id="eventType" name="eventType" required>
-                        <option value="">Select Event Type</option>
-                        <option value="dinner">Dinner Party</option>
-                        <option value="cocktail">Cocktail Party</option>
-                        <option value="wedding">Wedding</option>
-                        <option value="corporate">Corporate Event</option>
-                        <option value="other">Other</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="guestCount">Number of Guests*</label>
-                    <input type="number" id="guestCount" name="guestCount" min="1" required>
-                </div>
-                <div class="form-group">
-                    <label for="location">Event Location*</label>
-                    <input type="text" id="location" name="location" required>
-                </div>
-                <div class="form-group">
-                    <label for="eventDate">Event Date*</label>
-                    <input type="date" id="eventDate" name="eventDate" required>
-                </div>
-                <div class="form-group">
-                    <label for="eventTime">Event Time*</label>
-                    <input type="time" id="eventTime" name="eventTime" required>
-                </div>
-                <div class="form-group">
-                    <label>Cuisine Preferences*</label>
-                    <div id="cuisinePreferences" class="checkbox-group"></div>
-                </div>
-                <div class="form-group">
-                    <label>Event Vibe</label>
-                    <div id="vibeWords" class="checkbox-group"></div>
-                </div>
-                <div class="form-group">
-                    <label for="specialRequests">Special Requests or Notes</label>
-                    <textarea id="specialRequests" name="specialRequests" rows="4"></textarea>
-                </div>
-                <button type="submit" class="submit-btn">Submit Request</button>
-            </form>
-        `;
-        container.dataset.initialized = 'true';
-        initializeEventForm();
-    }
-}
-
-function showWeeklyJourney() {
-    const container = document.getElementById('weeklyJourney') || createJourneyContainer('weeklyJourney');
-    container.style.display = 'block';
-    
-    if (!container.dataset.initialized) {
-        container.innerHTML = `
-            <div class="journey-header">
-                <h2>Weekly Meal Service</h2>
-                <button class="back-btn" onclick="returnToHome()">← Back to Home</button>
-            </div>
-            <form id="weeklyForm" class="weekly-form">
-                <div class="form-group">
-                    <label for="serviceType">Service Type*</label>
-                    <select id="serviceType" name="serviceType" required>
-                        <option value="">Select Service Type</option>
-                        <option value="meal-prep">Meal Prep</option>
-                        <option value="daily-cooking">Daily Cooking</option>
-                        <option value="hybrid">Hybrid Service</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="householdSize">Household Size*</label>
-                    <input type="number" id="householdSize" name="householdSize" min="1" required>
-                </div>
-                <div class="form-group">
-                    <label for="mealsPerWeek">Meals Per Week*</label>
-                    <select id="mealsPerWeek" name="mealsPerWeek" required>
-                        <option value="">Select Number of Meals</option>
-                        <option value="3">3 Meals</option>
-                        <option value="5">5 Meals</option>
-                        <option value="7">7 Meals</option>
-                        <option value="custom">Custom Plan</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="dietaryRestrictions">Dietary Restrictions</label>
-                    <textarea id="dietaryRestrictions" name="dietaryRestrictions" rows="4"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="kitchenAccess">Kitchen Access Details*</label>
-                    <textarea id="kitchenAccess" name="kitchenAccess" rows="4" required></textarea>
-                </div>
-                <button type="submit" class="submit-btn">Submit Request</button>
-            </form>
-        `;
-        container.dataset.initialized = 'true';
-        initializeWeeklyForm();
-    }
-}
-
-function showExploringJourney() {
-    const container = document.getElementById('exploringJourney') || createJourneyContainer('exploringJourney');
-    container.style.display = 'block';
-    
-    if (!container.dataset.initialized) {
-        container.innerHTML = `
-            <div class="journey-header">
-                <h2>Explore Our Services</h2>
-                <button class="back-btn" onclick="returnToHome()">← Back to Home</button>
-            </div>
-            <div class="exploring-content">
-                <div class="explore-section">
-                    <h3>Our Chefs</h3>
-                    <div id="chefsGallery" class="gallery-grid"></div>
-                </div>
-                <div class="explore-section">
-                    <h3>Sample Menus</h3>
-                    <div id="menusGallery" class="gallery-grid"></div>
-                </div>
-                <div class="explore-section">
-                    <h3>Get Updates</h3>
-                    <form id="updatesForm" class="updates-form">
-                        <div class="form-group">
-                            <label for="updateEmail">Email Address*</label>
-                            <input type="email" id="updateEmail" name="updateEmail" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Interests</label>
-                            <div class="checkbox-group">
-                                <label><input type="checkbox" name="interests" value="events"> Special Events</label>
-                                <label><input type="checkbox" name="interests" value="weekly"> Weekly Service</label>
-                                <label><input type="checkbox" name="interests" value="classes"> Cooking Classes</label>
-                            </div>
-                        </div>
-                        <button type="submit" class="submit-btn">Subscribe</button>
-                    </form>
-                </div>
-            </div>
-        `;
-        container.dataset.initialized = 'true';
-        initializeExploringJourney();
-    }
-}
-
-function createJourneyContainer(id) {
-    const container = document.createElement('div');
-    container.id = id;
-    container.className = 'journey-container';
-    document.querySelector('.main-content').appendChild(container);
-    return container;
-}
-
-// Return to home function
-function returnToHome() {
-    // Hide all journey containers
-    document.querySelectorAll('.journey-container').forEach(container => {
-        container.style.display = 'none';
-    });
-    
-    // Show the action buttons
-    document.querySelector('.action-buttons').style.display = 'grid';
-}
-
-// Make returnToHome available globally
-window.returnToHome = returnToHome;
-
-// Initialize contact form accordion
-function initializeContactAccordion() {
-    const toggle = document.querySelector('.contact-toggle');
-    const wrapper = document.querySelector('.contact-form-wrapper');
-    const form = document.querySelector('.contact-form');
-    
-    if (!toggle || !wrapper || !form) return;
-    
-    toggle.addEventListener('click', () => {
-        const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
-        toggle.setAttribute('aria-expanded', !isExpanded);
-        
-        if (!isExpanded) {
-            wrapper.classList.add('expanded');
-            setTimeout(() => {
-                form.classList.add('visible');
-            }, 100);
-        } else {
-            form.classList.remove('visible');
-            setTimeout(() => {
-                wrapper.classList.remove('expanded');
-            }, 300);
-        }
-    });
-}
-
-// Constants
-const API_ENDPOINT = '/.netlify/functions/api';
-
-// DOM Elements
-const journeySelection = document.getElementById('journeySelection');
-const eventJourney = document.getElementById('eventJourney');
-const weeklyJourney = document.getElementById('weeklyJourney');
-const exploringJourney = document.getElementById('exploringJourney');
-
-// Date validation
+// Initialize date inputs with min date of today
 function setMinDate() {
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const minDate = tomorrow.toISOString().split('T')[0];
-    document.getElementById('eventDate').setAttribute('min', minDate);
-}
-
-// Initialize event form
-function initializeEventForm() {
-    const form = document.getElementById('eventForm');
-    if (!form) return;
-
-    // Set minimum date to tomorrow
-    setMinDate();
-
-    // Load cuisine preferences
-    loadCuisinePreferences();
-
-    // Load vibe words
-    loadVibeWords();
-
-    // Add validation for required fields
-    form.querySelectorAll('input[required], select[required], textarea[required]').forEach(field => {
-        field.addEventListener('blur', () => validateField(field));
-        field.addEventListener('input', () => validateField(field));
-    });
-
-    // Handle form submission
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        // Validate all required fields
-        let isValid = true;
-        form.querySelectorAll('input[required], select[required], textarea[required]').forEach(field => {
-            if (!validateField(field)) {
-                isValid = false;
-            }
-        });
-
-        // Check if at least one cuisine preference is selected
-        const cuisineChecked = document.querySelectorAll('#cuisinePreferences input[type="checkbox"]:checked').length > 0;
-        if (!cuisineChecked) {
-            isValid = false;
-            showErrorMessage('Please select at least one cuisine preference');
-        }
-
-        if (!isValid) return;
-
-        const submitBtn = form.querySelector('.submit-btn');
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Submitting...';
-
-        try {
-            await submitForm(form);
-            showSuccessMessage();
-            form.reset();
-        } catch (error) {
-            showErrorMessage('There was an error submitting your request. Please try again.');
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Submit Request';
-        }
+    const today = new Date().toISOString().split('T')[0];
+    document.querySelectorAll('input[type="date"]').forEach(input => {
+        input.min = today;
     });
 }
 
-// Initialize weekly form
-function initializeWeeklyForm() {
-    const form = document.getElementById('weeklyForm');
-    if (!form) return;
-
-    // Add validation for required fields
-    form.querySelectorAll('input[required], select[required], textarea[required]').forEach(field => {
-        field.addEventListener('blur', () => validateField(field));
-        field.addEventListener('input', () => validateField(field));
-    });
-
-    // Handle form submission
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        // Validate all required fields
-        let isValid = true;
-        form.querySelectorAll('input[required], select[required], textarea[required]').forEach(field => {
-            if (!validateField(field)) {
-                isValid = false;
-            }
-        });
-
-        if (!isValid) return;
-
-        const submitBtn = form.querySelector('.submit-btn');
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Submitting...';
-
-        try {
-            await submitForm(form);
-            showSuccessMessage();
-            form.reset();
-        } catch (error) {
-            showErrorMessage('There was an error submitting your request. Please try again.');
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Submit Request';
-        }
-    });
-}
-
-// Initialize exploring journey
-function initializeExploringJourney() {
-    // Load chefs gallery
-    loadChefs().then(chefs => {
-        const gallery = document.getElementById('chefsGallery');
-        if (gallery) {
-            gallery.innerHTML = chefs.map(chef => `
-                <div class="gallery-item">
-                    <img src="${chef.image || DEFAULT_CHEF_IMAGE}" alt="${chef.name}">
-                    <h4>${chef.name}</h4>
-                    <p>${chef.specialty}</p>
-                </div>
-            `).join('');
-        }
-    });
-
-    // Load menus gallery
-    loadMenus().then(menus => {
-        const gallery = document.getElementById('menusGallery');
-        if (gallery) {
-            gallery.innerHTML = menus.map(menu => `
-                <div class="gallery-item">
-                    <img src="${menu.image || DEFAULT_MENU_IMAGE}" alt="${menu.name}">
-                    <h4>${menu.name}</h4>
-                    <p>${menu.description}</p>
-                </div>
-            `).join('');
-        }
-    });
-
-    // Initialize updates form
-    const form = document.getElementById('updatesForm');
-    if (form) {
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const submitBtn = form.querySelector('.submit-btn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Subscribing...';
-
-            try {
-                await submitForm(form);
-                showSuccessMessage('Thank you for subscribing! We\'ll keep you updated.');
-                form.reset();
-            } catch (error) {
-                showErrorMessage('There was an error subscribing. Please try again.');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Subscribe';
-            }
-        });
-    }
-}
-
-// Helper function to set minimum date to tomorrow
-function setMinDate() {
-    const eventDateInput = document.getElementById('eventDate');
-    if (eventDateInput) {
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        eventDateInput.min = tomorrow.toISOString().split('T')[0];
-    }
-}
-
-// Helper function to validate a field
-function validateField(field) {
-    const isValid = field.checkValidity();
-    field.classList.toggle('invalid', !isValid);
-    
-    // Show validation message
-    let errorContainer = field.parentElement.querySelector('.error-message');
-    if (!isValid) {
-        if (!errorContainer) {
-            errorContainer = document.createElement('div');
-            errorContainer.className = 'error-message';
-            field.parentElement.appendChild(errorContainer);
-        }
-        errorContainer.textContent = field.validationMessage;
-    } else if (errorContainer) {
-        errorContainer.remove();
-    }
-    
-    return isValid;
-}
-
-// Success message
-function showSuccessMessage() {
-    const successMessage = document.createElement('div');
-    successMessage.className = 'success-message';
-    successMessage.innerHTML = `
-        <h3>Thank You!</h3>
-        <p>Your inquiry has been submitted successfully. We'll be in touch within 24 hours.</p>
-    `;
-    
-    const form = document.getElementById('eventForm');
-    form.parentNode.insertBefore(successMessage, form);
-    form.style.display = 'none';
-    
-    // Scroll to success message
-    successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
-
-// Error message
-function showErrorMessage(message) {
-    const errorMessage = document.createElement('div');
-    errorMessage.className = 'error-message';
-    errorMessage.textContent = message || 'Something went wrong. Please try again.';
-    
-    const submitBtn = document.querySelector('.submit-btn');
-    submitBtn.parentNode.insertBefore(errorMessage, submitBtn);
-    
-    // Remove error message after 5 seconds
-    setTimeout(() => errorMessage.remove(), 5000);
-}
-
-// Form submission function
-async function submitForm(form) {
-    const formData = new FormData(form);
-    const data = {
-        'Type': 'Event',
-        'Status': 'New'
-    };
-    
-    formData.forEach((value, key) => {
-        if (data[key]) {
-            if (Array.isArray(data[key])) {
-                data[key].push(value);
-            } else {
-                data[key] = [data[key], value];
-            }
-        } else {
-            data[key] = value;
-        }
-    });
-
-    const response = await fetch(`${API_ENDPOINT}?action=submitInquiry`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    });
-
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return await response.json();
-}
-
-// Load Content Functions
-async function loadChefs() {
+// Function to display chefs in the explore modal
+async function displayChefs() {
+    const chefsContainer = document.getElementById('explore-chefs');
     if (!chefsContainer) return;
-    
-    chefsContainer.innerHTML = '<div class="loading">Loading our talented chefs...</div>';
-    
+
+    const loadingEl = chefsContainer.querySelector('.loading');
+    if (!loadingEl) return;
+
     try {
-        const response = await fetch(`${API_ENDPOINT}?action=getChefs`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        
-        const chefs = await response.json();
-        
-        if (!chefs || chefs.length === 0) {
-            chefsContainer.innerHTML = '<div class="error">No chefs found. Please try again later.</div>';
+        const chefs = await loadChefs();
+        if (chefs.length === 0) {
+            loadingEl.textContent = 'No chefs available at the moment.';
             return;
         }
+
+        const chefsGrid = document.createElement('div');
+        chefsGrid.className = 'explore-grid';
         
-        chefsContainer.innerHTML = '';
-        chefs.forEach(chef => {
-            if (!chef.active) return;
-            
-            const card = document.createElement('div');
-            card.className = 'chef-card';
-            card.innerHTML = `
-                <div class="chef-photo">
-                    <img src="${chef.chefPhoto || DEFAULT_CHEF_IMAGE}" alt="${chef.name}" onerror="this.src='${DEFAULT_CHEF_IMAGE}'">
-                </div>
-                <div class="chef-info">
-                    <h3>${chef.name}</h3>
-                    <p>${chef.description || ''}</p>
-                    ${chef.specialties ? `<p class="specialties">Specialties: ${chef.specialties}</p>` : ''}
-                    ${chef.vibe ? `<p class="vibe">Vibe: ${chef.vibe}</p>` : ''}
-                </div>
+        // Display up to 4 chefs
+        chefs.slice(0, 4).forEach(chef => {
+            const chefCard = document.createElement('div');
+            chefCard.className = 'chef-card';
+            chefCard.innerHTML = `
+                <h4>${chef.name}</h4>
+                <p>${chef.specialty || 'Various Cuisines'}</p>
             `;
-            chefsContainer.appendChild(card);
+            chefsGrid.appendChild(chefCard);
         });
+
+        loadingEl.replaceWith(chefsGrid);
+    } catch (error) {
+        loadingEl.textContent = 'Failed to load chefs. Please try again later.';
+    }
+}
+
+// Function to display menus in the explore modal
+async function displayMenus() {
+    const menusContainer = document.getElementById('explore-menus');
+    if (!menusContainer) return;
+
+    const loadingEl = menusContainer.querySelector('.loading');
+    if (!loadingEl) return;
+
+    try {
+        const menus = await loadMenus();
+        if (menus.length === 0) {
+            loadingEl.textContent = 'No menus available at the moment.';
+            return;
+        }
+
+        const menusGrid = document.createElement('div');
+        menusGrid.className = 'explore-grid';
+        
+        // Display up to 4 menus
+        menus.slice(0, 4).forEach(menu => {
+            const menuCard = document.createElement('div');
+            menuCard.className = 'menu-card';
+            menuCard.innerHTML = `
+                    <h4>${menu.name}</h4>
+                <p>${menu.description || 'Delicious selections'}</p>
+            `;
+            menusGrid.appendChild(menuCard);
+        });
+
+        loadingEl.replaceWith(menusGrid);
+            } catch (error) {
+        loadingEl.textContent = 'Failed to load menus. Please try again later.';
+    }
+}
+
+// Function to initialize explore modal content
+function initializeExploreModal() {
+    const exploreModal = document.getElementById('exploreModal');
+    if (!exploreModal) return;
+
+    exploreModal.addEventListener('shown.bs.modal', () => {
+        displayChefs();
+        displayMenus();
+    });
+}
+
+// Explore Modal Functions
+function openExploreModal() {
+    const exploreModal = document.getElementById('exploreModal');
+    if (!exploreModal) return;
+    
+    exploreModal.style.display = 'block';
+    loadFeaturedChefs();
+    loadSampleMenus();
+}
+
+function closeExplore() {
+    const exploreModal = document.getElementById('exploreModal');
+    if (!exploreModal) return;
+    
+    exploreModal.style.display = 'none';
+}
+
+async function loadFeaturedChefs() {
+    try {
+        const response = await fetch('/.netlify/functions/get-chefs');
+        if (!response.ok) throw new Error('Failed to fetch chefs');
+        
+        const chefs = await response.json();
+        const previewGrid = document.querySelector('#exploreModal .chefs-preview');
+        if (!previewGrid) return;
+        
+        // Display first 3 chefs
+        previewGrid.innerHTML = chefs.slice(0, 3).map(chef => `
+            <div class="preview-card">
+                <h4>${chef.name}</h4>
+                <p class="specialty">${chef.specialty}</p>
+                <p class="bio">${chef.bio.substring(0, 150)}...</p>
+        </div>
+        `).join('');
         
     } catch (error) {
         console.error('Error loading chefs:', error);
-        chefsContainer.innerHTML = '<div class="error">Failed to load chefs. Please try again later.</div>';
     }
 }
 
-async function loadMenus() {
-    if (!menusContainer) return;
-    
-    menusContainer.innerHTML = '<div class="loading">Loading our curated menus...</div>';
-    
+async function loadSampleMenus() {
     try {
-        const response = await fetch(`${API_ENDPOINT}?action=getMenus`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const response = await fetch('/.netlify/functions/get-menus');
+        if (!response.ok) throw new Error('Failed to fetch menus');
         
         const menus = await response.json();
+        const previewGrid = document.querySelector('#exploreModal .menus-preview');
+        if (!previewGrid) return;
         
-        if (!menus || menus.length === 0) {
-            menusContainer.innerHTML = '<div class="error">No menus found. Please try again later.</div>';
-            return;
-        }
-        
-        menusContainer.innerHTML = '';
-        menus
-            .filter(menu => menu.active)
-            .sort((a, b) => a.menuTier.localeCompare(b.menuTier))
-            .forEach(menu => {
-                const accordion = document.createElement('div');
-                accordion.className = 'menu-accordion';
-                accordion.innerHTML = `
-                    <div class="accordion-header">
-                        <h3>${menu.name}</h3>
-                        <span class="accordion-arrow">▼</span>
+        // Display first 3 menus
+        previewGrid.innerHTML = menus.slice(0, 3).map(menu => `
+            <div class="preview-card">
+                <h4>${menu.name}</h4>
+                <p class="cuisine">${menu.cuisine}</p>
+                <p class="description">${menu.description.substring(0, 150)}...</p>
                     </div>
-                    <div class="accordion-content">
-                        <p class="menu-description">${menu.description}</p>
-                        <div class="dishes-container" data-menu-id="${menu.id}">
-                            <div class="loading">Loading dishes...</div>
-                    </div>
-                    </div>
-                `;
-                
-                const header = accordion.querySelector('.accordion-header');
-                const content = accordion.querySelector('.accordion-content');
-                
-                header.addEventListener('click', () => {
-                    const isActive = header.classList.contains('active');
-                    
-                    // Close all other accordions
-                    document.querySelectorAll('.accordion-header').forEach(h => {
-                        h.classList.remove('active');
-                        h.nextElementSibling.classList.remove('active');
-                    });
-                    
-                    if (!isActive) {
-                        header.classList.add('active');
-                        content.classList.add('active');
-                        loadDishes(menu.id);
-                    }
-                });
-                
-                menusContainer.appendChild(accordion);
-            });
+        `).join('');
             
         } catch (error) {
         console.error('Error loading menus:', error);
-        menusContainer.innerHTML = '<div class="error">Failed to load menus. Please try again later.</div>';
     }
 }
 
-async function loadDishes(menuId) {
-    const container = document.querySelector(`[data-menu-id="${menuId}"]`);
-    if (!container) return;
+// Explore functionality
+async function loadPreviews() {
+  try {
+    // Load chefs preview
+    const chefsResponse = await fetch(`${API_ENDPOINT}/getChefs`);
+    const chefsData = await chefsResponse.json();
     
-    try {
-        const response = await fetch(`${API_ENDPOINT}?action=getDishes&menuId=${menuId}`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        
-        const dishes = await response.json();
-        
-        if (!dishes || dishes.length === 0) {
-            container.innerHTML = '<div class="error">No dishes found for this menu.</div>';
-            return;
-        }
-        
-        // Group dishes by category
-        const categories = {};
-        dishes.forEach(dish => {
-            if (!categories[dish.category]) {
-                categories[dish.category] = [];
-            }
-            categories[dish.category].push(dish);
-        });
-        
-        container.innerHTML = '';
-        Object.entries(categories)
-            .sort(([a], [b]) => a.localeCompare(b))
-            .forEach(([category, dishes]) => {
-                const section = document.createElement('div');
-                section.className = 'dish-category';
-                section.innerHTML = `
-                    <h4>${category}</h4>
-                    <div class="dish-list">
-                        ${dishes
-                            .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
-                            .map(dish => `
-                                <div class="dish-item">
-                                    <label class="dish-checkbox">
-                                        <input type="checkbox" name="selected_dishes" value="${dish.id}">
-                                        <span class="checkmark"></span>
-                                        <span class="dish-name">${dish.name}</span>
-                                    </label>
-                                    <p class="dish-description">${dish.description}</p>
-                                </div>
-                            `).join('')}
-                    </div>
-                `;
-                container.appendChild(section);
-            });
-            
-        } catch (error) {
-        console.error('Error loading dishes:', error);
-        container.innerHTML = '<div class="error">Failed to load dishes. Please try again later.</div>';
-    }
-}
-
-async function loadServices() {
-    if (!servicesContainer) return;
-    
-    servicesContainer.innerHTML = '<div class="loading">Loading our services...</div>';
-    
-    try {
-        const response = await fetch(`${API_ENDPOINT}?action=getServices`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        
-        const services = await response.json();
-        
-        if (!services || services.length === 0) {
-            servicesContainer.innerHTML = '<div class="error">No services found. Please try again later.</div>';
-            return;
-        }
-        
-        servicesContainer.innerHTML = `
-            <div class="services-grid">
-                ${services
-                    .filter(service => service.type === 'Core')
-                    .map(service => `
-                        <div class="service-card">
-                            <h3>${service.name}</h3>
-                            <p>${service.description}</p>
-                        </div>
-                    `).join('')}
-            </div>
-        `;
-        
-            } catch (error) {
-        console.error('Error loading services:', error);
-        servicesContainer.innerHTML = '<div class="error">Failed to load services. Please try again later.</div>';
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  // Get DOM elements
-  const eventPlanningModal = document.getElementById('eventPlanningModal');
-  const weeklyMealModal = document.getElementById('weeklyMealModal');
-  const chefDiscovery = document.getElementById('chefDiscovery');
-  const closeButtons = document.querySelectorAll('.modal-close');
-  
-  // Journey button click handlers
-  document.querySelectorAll('.journey-btn').forEach(button => {
-    button.addEventListener('click', () => {
-      const journey = button.dataset.journey;
+    const chefPreview = document.getElementById('chefPreview');
+    if (chefPreview) {
+      const previewChefs = chefsData.slice(0, 3); // Get first 3 chefs
       
-      switch(journey) {
-        case 'event':
-          eventPlanningModal.style.display = 'block';
-          break;
-        case 'weekly':
-          weeklyMealModal.style.display = 'block';
-          break;
-        case 'discover':
-          chefDiscovery.classList.remove('hidden');
-          window.scrollTo({
-            top: chefDiscovery.offsetTop,
-            behavior: 'smooth'
-          });
-          break;
-      }
-    });
-  });
-  
-  // Close modal when clicking close button
-  closeButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      const modal = button.closest('.modal');
-      modal.style.display = 'none';
-    });
-  });
-  
-  // Close modal when clicking outside
-  window.addEventListener('click', (event) => {
-    if (event.target.classList.contains('modal')) {
-      event.target.style.display = 'none';
+      chefPreview.innerHTML = previewChefs.map(chef => `
+        <div class="preview-card">
+          <img src="${chef.photo || DEFAULT_IMAGES.CHEF}" alt="${chef.name}" class="preview-image">
+          <div class="preview-content">
+            <h4>${chef.name}</h4>
+            <p>${chef.specialties?.join(', ') || 'Various Cuisines'}</p>
+          </div>
+        </div>
+      `).join('');
     }
-  });
+
+    // Load menus preview
+    const menusResponse = await fetch(`${API_ENDPOINT}/getMenus`);
+    const menusData = await menusResponse.json();
+    
+    const menuPreview = document.getElementById('menuPreview');
+    if (menuPreview) {
+      const previewMenus = menusData.slice(0, 3); // Get first 3 menus
+      
+      menuPreview.innerHTML = previewMenus.map(menu => `
+        <div class="preview-card">
+          <img src="${menu.image || DEFAULT_IMAGES.MENU}" alt="${menu.name}" class="preview-image">
+          <div class="preview-content">
+            <h4>${menu.name}</h4>
+            <p>${menu.description}</p>
+                                </div>
+                    </div>
+      `).join('');
+    }
+        } catch (error) {
+    console.error('Error loading previews:', error);
+  }
+}
+
+function showAllChefs() {
+  // Store current scroll position
+  const scrollPos = window.scrollY;
   
-  // Load chef data and populate the grid
-  fetch('/data/chefs.json')
-    .then(response => response.json())
-    .then(chefs => {
-      const chefGrid = document.getElementById('chefGrid');
-      chefs.forEach(chef => {
-        const chefCard = createChefCard(chef);
-        chefGrid.appendChild(chefCard);
-      });
-    })
-    .catch(error => console.error('Error loading chef data:', error));
+  // Close explore modal
+  closeModal('exploreModal');
+  
+  // Open full chefs view
+  openModal('chefDiscoveryModal');
+  
+  // Restore scroll position
+  window.scrollTo(0, scrollPos);
+}
+
+function showAllMenus() {
+  // Store current scroll position
+  const scrollPos = window.scrollY;
+  
+  // Close explore modal
+  closeModal('exploreModal');
+  
+  // Open full menus view
+  openModal('menuExplorerModal');
+  
+  // Restore scroll position
+  window.scrollTo(0, scrollPos);
+}
+
+// Initialize explore functionality
+function initializeExploreModal() {
+  const exploreModal = document.getElementById('exploreModal');
+  if (exploreModal) {
+    exploreModal.addEventListener('show', loadPreviews);
+    
+    // Initialize view all buttons
+    const viewAllChefs = document.querySelector('#viewAllChefs');
+    if (viewAllChefs) {
+      viewAllChefs.addEventListener('click', showAllChefs);
+    }
+
+    const viewAllMenus = document.querySelector('#viewAllMenus');
+    if (viewAllMenus) {
+      viewAllMenus.addEventListener('click', showAllMenus);
+    }
+  }
+}
+
+// Modal handling
+function openModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+  }
+}
+
+// Mobile menu handling
+document.addEventListener('DOMContentLoaded', function() {
+  const menuToggle = document.querySelector('.menu-toggle');
+  const navOverlay = document.querySelector('.nav-overlay');
+  
+  if (menuToggle) {
+    menuToggle.addEventListener('click', function() {
+      this.classList.toggle('active');
+      navOverlay.classList.toggle('active');
+      document.body.classList.toggle('nav-open');
+    });
+  }
+
+  // Close menu when clicking a link
+  const navLinks = document.querySelectorAll('.nav-overlay a');
+  navLinks.forEach(link => {
+    link.addEventListener('click', function() {
+      menuToggle.classList.remove('active');
+      navOverlay.classList.remove('active');
+      document.body.classList.remove('nav-open');
+    });
+  });
 });
 
-function createChefCard(chef) {
-  const card = document.createElement('div');
-  card.className = 'chef-card';
-  
-  card.innerHTML = `
-    <img src="${chef.image}" alt="${chef.name}" class="chef-image">
-    <div class="chef-info">
-      <h3>${chef.name}</h3>
-      <p class="chef-specialty">${chef.specialty}</p>
-      <p class="chef-bio">${chef.bio}</p>
-    </div>
-  `;
-  
-  return card;
-}
-
-function showHowItWorks() {
-  const modal = document.createElement('div');
-  modal.className = 'modal active';
-  modal.innerHTML = `
-    <div class="modal-content">
-        <button class="modal-close">&times;</button>
-        <h2>How It Works</h2>
-        <div class="steps-container">
-            <div class="step">
-                <h3>1. Choose Your Experience</h3>
-                <p>Select from private chef services, event catering, cooking classes, or weekly meal preparation.</p>
-            </div>
-            <div class="step">
-                <h3>2. Meet Your Chef</h3>
-                <p>Browse our curated selection of talented local chefs and find the perfect match for your culinary needs.</p>
-            </div>
-            <div class="step">
-                <h3>3. Customize Your Menu</h3>
-                <p>Work with your chef to create a personalized menu that matches your tastes and dietary preferences.</p>
-            </div>
-            <div class="step">
-                <h3>4. Enjoy the Experience</h3>
-                <p>Relax and savor the exceptional culinary experience crafted just for you.</p>
-            </div>
-        </div>
-    </div>
-  `;
-  document.body.appendChild(modal);
-
-  // Close button functionality
-  const closeBtn = modal.querySelector('.modal-close');
-  closeBtn.addEventListener('click', () => {
-      modal.remove();
-  });
-
-  // Close on outside click
-  modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-          modal.remove();
-      }
-  });
-}
-
-// Handle header transparency on scroll
-function handleHeaderScroll() {
-    const header = document.querySelector('.site-header');
-    const scrollPosition = window.scrollY;
-    
-    if (scrollPosition > 50) {
-        header.style.background = 'rgba(74, 144, 167, 0.95)';
-        header.style.backdropFilter = 'blur(10px)';
-    } else {
-        header.style.background = 'transparent';
-        header.style.backdropFilter = 'none';
-    }
-}
-
-// Handle contact form submission
+// Form handling
 document.addEventListener('DOMContentLoaded', function() {
-  const contactForm = document.getElementById('contactForm');
-  
-  if (contactForm) {
-    contactForm.addEventListener('submit', function(e) {
+  const inquiryForm = document.getElementById('inquiryForm');
+  if (inquiryForm) {
+    inquiryForm.addEventListener('submit', async function(e) {
       e.preventDefault();
       
-      // Get form data
-      const formData = {
-        name: document.getElementById('name').value,
-        email: document.getElementById('email').value,
-        message: document.getElementById('message').value,
-        type: 'Contact Form'
-      };
+      const formData = new FormData(this);
+      const data = Object.fromEntries(formData.entries());
       
-      // Show loading state
-      const submitBtn = contactForm.querySelector('.submit-btn');
-      const originalBtnText = submitBtn.textContent;
-      submitBtn.textContent = 'Sending...';
-      submitBtn.disabled = true;
-      
-      // Send data to the server
-      fetch('/.netlify/functions/inquiries', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(data => {
-        // Show success message
-        contactForm.innerHTML = `
-          <div class="success-message">
-            <h3>Thank You!</h3>
-            <p>Your message has been sent successfully. We'll get back to you soon.</p>
-          </div>
-        `;
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        // Show error message
-        const errorMessage = document.createElement('div');
-        errorMessage.className = 'error-message';
-        errorMessage.textContent = 'There was an error sending your message. Please try again.';
-        contactForm.insertBefore(errorMessage, submitBtn);
+      try {
+        const response = await fetch('/.netlify/functions/inquiries', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
         
-        // Reset button
-        submitBtn.textContent = originalBtnText;
-        submitBtn.disabled = false;
-      });
-    });
-  }
-});
-
-// Modal handling functions
-function openInquiryModal(type) {
-  const modal = document.getElementById('inquiryModal');
-  const eventTypeSelect = document.getElementById('eventType');
-  
-  if (type === 'weekly') {
-    eventTypeSelect.value = 'Weekly Meal Service';
-  }
-  
-  modal.classList.add('active');
-}
-
-function openHowItWorksModal() {
-  const modal = document.getElementById('howItWorksModal');
-  modal.classList.add('active');
-}
-
-function openContactModal() {
-  const modal = document.getElementById('inquiryModal');
-  modal.classList.add('active');
-}
-
-function openSiteMap() {
-  // Temporary alert until sitemap is implemented
-  alert('Site Map coming soon!');
-}
-
-// Close modals when clicking outside or on close button
-document.addEventListener('DOMContentLoaded', function() {
-  const modals = document.querySelectorAll('.modal');
-  const closeButtons = document.querySelectorAll('.modal-close');
-
-  closeButtons.forEach(button => {
-    button.addEventListener('click', function() {
-      button.closest('.modal').classList.remove('active');
-    });
-  });
-
-  modals.forEach(modal => {
-    modal.addEventListener('click', function(e) {
-      if (e.target === modal) {
-        modal.classList.remove('active');
+        if (response.ok) {
+          alert('Thank you for your inquiry! We will be in touch soon.');
+          this.reset();
+          closeModal('inquiryModal');
+        } else {
+          throw new Error('Failed to submit inquiry');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Sorry, there was an error submitting your inquiry. Please try again later.');
       }
     });
-  });
+  }
 });
 
-// Handle form submission
-document.getElementById('inquiryForm').addEventListener('submit', async function(e) {
+async function handleWeeklyInquirySubmit(e) {
   e.preventDefault();
-  
-  const formData = new FormData(this);
+  const form = e.target;
+  const formData = new FormData(form);
   const data = Object.fromEntries(formData.entries());
   
   try {
@@ -1434,21 +1256,21 @@ document.getElementById('inquiryForm').addEventListener('submit', async function
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify({
+        ...data,
+        type: 'weekly'
+      })
     });
     
     if (response.ok) {
-      alert('Thank you for your inquiry! We will contact you shortly.');
-      this.reset();
-      this.closest('.modal').classList.remove('active');
+      alert('Thank you for your inquiry! We will be in touch soon.');
+      form.reset();
+      closeModal('weeklyInquiryModal');
     } else {
       throw new Error('Failed to submit inquiry');
     }
   } catch (error) {
-    alert('Sorry, there was an error submitting your inquiry. Please try again later.');
     console.error('Error:', error);
+    alert('Sorry, there was an error submitting your inquiry. Please try again later.');
   }
-});
-
-
-
+}
